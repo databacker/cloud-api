@@ -14,6 +14,6 @@ sdk-container:
 # MUST use oapi-codegen from commit d3a2029448254ffee6dcc0284dbd4aeb2e1cab60 or later
 # or v2.5.0 or later.
 go:
-	oapi-codegen -config ./cfg-schemas.yml ./schemas.yaml
-	oapi-codegen -config ./cfg-api.yml ./api.yaml
+	oapi-codegen -config ./cfg-schemas.yml ./src/schemas.yaml
+	oapi-codegen -config ./cfg-api.yml ./src/api.yaml
 
