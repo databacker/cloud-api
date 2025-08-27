@@ -10,6 +10,12 @@ type InstanceBody struct {
 
 // Log defines model for Log.
 type Log struct {
+	// Lines List of log lines for a backup run
+	Lines *[]LogLine `json:"lines,omitempty" yaml:"lines,omitempty"`
+}
+
+// LogLine defines model for LogLine.
+type LogLine struct {
 	// Fields key-value pairs for descriptive fields for the log message
 	Fields *map[string]interface{} `json:"fields,omitempty" yaml:"fields,omitempty"`
 

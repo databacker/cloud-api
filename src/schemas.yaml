@@ -32,8 +32,7 @@ components:
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
-
-    Log:
+    LogLine:
       type: object
       properties:
         run:
@@ -53,6 +52,15 @@ components:
         message:
           type: string
           description: actual message
+
+    Log:
+      type: object
+      properties:
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogLine'
+          description: List of log lines for a backup run
 
     LogSummary:
       type: object
