@@ -7,9 +7,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
+	externalRef0 "github.com/databacker/api/go/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
@@ -31,11 +31,20 @@ type PostAdminInstancesParams struct {
 	Account string `form:"account" json:"account" yaml:"account"`
 }
 
+// PostAdminConfigsJSONRequestBody defines body for PostAdminConfigs for application/json ContentType.
+type PostAdminConfigsJSONRequestBody = externalRef0.Config
+
 // PostAdminInstancesJSONRequestBody defines body for PostAdminInstances for application/json ContentType.
 type PostAdminInstancesJSONRequestBody = NewInstance
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+
+	// (POST /admin/configs)
+	PostAdminConfigs(w http.ResponseWriter, r *http.Request)
+
+	// (GET /admin/configs/{config})
+	GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request, config string)
 
 	// (GET /admin/instances)
 	GetAdminInstances(w http.ResponseWriter, r *http.Request, params GetAdminInstancesParams)
@@ -56,6 +65,16 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// (POST /admin/configs)
+func (_ Unimplemented) PostAdminConfigs(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/configs/{config})
+func (_ Unimplemented) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request, config string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // (GET /admin/instances)
 func (_ Unimplemented) GetAdminInstances(w http.ResponseWriter, r *http.Request, params GetAdminInstancesParams) {
@@ -90,6 +109,57 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// PostAdminConfigs operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminConfigs(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminConfigs(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminConfigsConfig operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "config" -------------
+	var config string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "config", chi.URLParam(r, "config"), &config, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "config", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminConfigsConfig(w, r, config)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // GetAdminInstances operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminInstances(w http.ResponseWriter, r *http.Request) {
@@ -378,6 +448,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/configs", wrapper.PostAdminConfigs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/configs/{config}", wrapper.GetAdminConfigsConfig)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/instances", wrapper.GetAdminInstances)
 	})
 	r.Group(func(r chi.Router) {
@@ -394,6 +470,59 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 
 	return r
+}
+
+type PostAdminConfigsRequestObject struct {
+	Body *PostAdminConfigsJSONRequestBody
+}
+
+type PostAdminConfigsResponseObject interface {
+	VisitPostAdminConfigsResponse(w http.ResponseWriter) error
+}
+
+type PostAdminConfigs201JSONResponse externalRef0.Config
+
+func (response PostAdminConfigs201JSONResponse) VisitPostAdminConfigsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminConfigs400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminConfigs400JSONResponse) VisitPostAdminConfigsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminConfigsConfigRequestObject struct {
+	Config string `json:"config"`
+}
+
+type GetAdminConfigsConfigResponseObject interface {
+	VisitGetAdminConfigsConfigResponse(w http.ResponseWriter) error
+}
+
+type GetAdminConfigsConfig200JSONResponse externalRef0.Config
+
+func (response GetAdminConfigsConfig200JSONResponse) VisitGetAdminConfigsConfigResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminConfigsConfig404Response struct {
+}
+
+func (response GetAdminConfigsConfig404Response) VisitGetAdminConfigsConfigResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type GetAdminInstancesRequestObject struct {
@@ -519,23 +648,13 @@ type GetAdminLogsLogResponseObject interface {
 	VisitGetAdminLogsLogResponse(w http.ResponseWriter) error
 }
 
-type GetAdminLogsLog200ImagePngResponse struct {
-	Body          io.Reader
-	ContentLength int64
-}
+type GetAdminLogsLog200JSONResponse []Log
 
-func (response GetAdminLogsLog200ImagePngResponse) VisitGetAdminLogsLogResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "image/png")
-	if response.ContentLength != 0 {
-		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
-	}
+func (response GetAdminLogsLog200JSONResponse) VisitGetAdminLogsLogResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
-	if closer, ok := response.Body.(io.ReadCloser); ok {
-		defer closer.Close()
-	}
-	_, err := io.Copy(w, response.Body)
-	return err
+	return json.NewEncoder(w).Encode(response)
 }
 
 type GetAdminLogsLog404Response struct {
@@ -548,6 +667,12 @@ func (response GetAdminLogsLog404Response) VisitGetAdminLogsLogResponse(w http.R
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+
+	// (POST /admin/configs)
+	PostAdminConfigs(ctx context.Context, request PostAdminConfigsRequestObject) (PostAdminConfigsResponseObject, error)
+
+	// (GET /admin/configs/{config})
+	GetAdminConfigsConfig(ctx context.Context, request GetAdminConfigsConfigRequestObject) (GetAdminConfigsConfigResponseObject, error)
 
 	// (GET /admin/instances)
 	GetAdminInstances(ctx context.Context, request GetAdminInstancesRequestObject) (GetAdminInstancesResponseObject, error)
@@ -592,6 +717,63 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
+}
+
+// PostAdminConfigs operation middleware
+func (sh *strictHandler) PostAdminConfigs(w http.ResponseWriter, r *http.Request) {
+	var request PostAdminConfigsRequestObject
+
+	var body PostAdminConfigsJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostAdminConfigs(ctx, request.(PostAdminConfigsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostAdminConfigs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostAdminConfigsResponseObject); ok {
+		if err := validResponse.VisitPostAdminConfigsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminConfigsConfig operation middleware
+func (sh *strictHandler) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request, config string) {
+	var request GetAdminConfigsConfigRequestObject
+
+	request.Config = config
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminConfigsConfig(ctx, request.(GetAdminConfigsConfigRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminConfigsConfig")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminConfigsConfigResponseObject); ok {
+		if err := validResponse.VisitGetAdminConfigsConfigResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // GetAdminInstances operation middleware
