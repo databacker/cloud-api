@@ -78,6 +78,98 @@ components:
           type: integer
           description: size of logs in bytes
 
+    Trace:
+      type: object
+      properties:
+        trace_id:
+          type: string
+          format: uuid
+        root_spans:
+          type: array
+          items:
+            $ref: '#/components/schemas/Span'
+    Span:
+      type: object
+      properties:
+        span_id:
+          type: string
+        parent_span_id:
+          type: string
+          nullable: true
+        operation_name:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        duration_ms:
+          type: number
+        attributes:
+          type: object
+          additionalProperties: true
+        payload:
+          type: object
+          description: Full OpenTelemetry span payload
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Span'
+
+    TraceSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        date:
+          type: integer
+          description: timestamp for start of backup run
+        completion:
+          type: integer
+          description: completion code, using a subset of http codes
+        size:
+          type: integer
+          description: size of trace in bytes
+          
+    TraceSearchResponse:
+      type: object
+      properties:
+        traces:
+          type: array
+          items:
+            $ref: '#/components/schemas/TraceSummary'
+    FlatTrace:
+      type: object
+      properties:
+        trace_id:
+          type: string
+        spans:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpanFlat'
+    SpanFlat:
+      type: object
+      properties:
+        span_id:
+          type: string
+        parent_span_id:
+          type: string
+          nullable: true
+        operation_name:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        attributes:
+          type: object
+          additionalProperties: true
+        payload:
+          type: object                    
   securitySchemes:
     # note that we could explicitly use the "type: oauth2" with flows, but that would
     # require stating the endpoints, which are an implementation detail, and would not

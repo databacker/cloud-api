@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	externalRef0 "github.com/databacker/api/go/api"
 	"github.com/go-chi/chi/v5"
@@ -29,6 +30,17 @@ type GetAdminInstancesParams struct {
 type PostAdminInstancesParams struct {
 	// Account Account ID for which to create a new instance
 	Account string `form:"account" json:"account" yaml:"account"`
+}
+
+// GetAdminInstancesInstanceTracesParams defines parameters for GetAdminInstancesInstanceTraces.
+type GetAdminInstancesInstanceTracesParams struct {
+	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
+	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
+
+	// Attribute key=value filter (repeatable)
+	Attribute     *string  `form:"attribute,omitempty" json:"attribute,omitempty" yaml:"attribute,omitempty"`
+	MinDurationMs *float32 `form:"min_duration_ms,omitempty" json:"min_duration_ms,omitempty" yaml:"min_duration_ms,omitempty"`
+	Limit         *int     `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
 // PostAdminConfigsJSONRequestBody defines body for PostAdminConfigs for application/json ContentType.
@@ -58,8 +70,17 @@ type ServerInterface interface {
 	// (GET /admin/instances/{instance}/logs)
 	GetAdminInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, instance string)
 
+	// (GET /admin/instances/{instance}/traces)
+	GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, instance string, params GetAdminInstancesInstanceTracesParams)
+
 	// (GET /admin/logs/{log})
 	GetAdminLogsLog(w http.ResponseWriter, r *http.Request, log string)
+
+	// (GET /admin/traces/{trace})
+	GetAdminTracesTrace(w http.ResponseWriter, r *http.Request, trace string)
+
+	// (GET /admin/traces/{trace}/spans/{span})
+	GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, trace string, span string)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -96,8 +117,23 @@ func (_ Unimplemented) GetAdminInstancesInstanceLogs(w http.ResponseWriter, r *h
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (GET /admin/instances/{instance}/traces)
+func (_ Unimplemented) GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, instance string, params GetAdminInstancesInstanceTracesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (GET /admin/logs/{log})
 func (_ Unimplemented) GetAdminLogsLog(w http.ResponseWriter, r *http.Request, log string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/traces/{trace})
+func (_ Unimplemented) GetAdminTracesTrace(w http.ResponseWriter, r *http.Request, trace string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/traces/{trace}/spans/{span})
+func (_ Unimplemented) GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, trace string, span string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -303,6 +339,80 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceLogs(w http.Response
 	handler.ServeHTTP(w, r)
 }
 
+// GetAdminInstancesInstanceTraces operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "instance" -------------
+	var instance string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminInstancesInstanceTracesParams
+
+	// ------------- Optional query parameter "start_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "end_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "attribute" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "attribute", r.URL.Query(), &params.Attribute)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "attribute", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "min_duration_ms" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "min_duration_ms", r.URL.Query(), &params.MinDurationMs)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "min_duration_ms", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminInstancesInstanceTraces(w, r, instance, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminLogsLog operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminLogsLog(w http.ResponseWriter, r *http.Request) {
 
@@ -325,6 +435,77 @@ func (siw *ServerInterfaceWrapper) GetAdminLogsLog(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetAdminLogsLog(w, r, log)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminTracesTrace operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminTracesTrace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "trace" -------------
+	var trace string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "trace", chi.URLParam(r, "trace"), &trace, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "trace", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminTracesTrace(w, r, trace)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminTracesTraceSpansSpan operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "trace" -------------
+	var trace string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "trace", chi.URLParam(r, "trace"), &trace, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "trace", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "span" -------------
+	var span string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "span", chi.URLParam(r, "span"), &span, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "span", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminTracesTraceSpansSpan(w, r, trace, span)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -466,7 +647,16 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/instances/{instance}/logs", wrapper.GetAdminInstancesInstanceLogs)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/instances/{instance}/traces", wrapper.GetAdminInstancesInstanceTraces)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/logs/{log}", wrapper.GetAdminLogsLog)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/traces/{trace}", wrapper.GetAdminTracesTrace)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/traces/{trace}/spans/{span}", wrapper.GetAdminTracesTraceSpansSpan)
 	})
 
 	return r
@@ -640,6 +830,32 @@ func (response GetAdminInstancesInstanceLogs404Response) VisitGetAdminInstancesI
 	return nil
 }
 
+type GetAdminInstancesInstanceTracesRequestObject struct {
+	Instance string `json:"instance"`
+	Params   GetAdminInstancesInstanceTracesParams
+}
+
+type GetAdminInstancesInstanceTracesResponseObject interface {
+	VisitGetAdminInstancesInstanceTracesResponse(w http.ResponseWriter) error
+}
+
+type GetAdminInstancesInstanceTraces200JSONResponse []TraceSummary
+
+func (response GetAdminInstancesInstanceTraces200JSONResponse) VisitGetAdminInstancesInstanceTracesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminInstancesInstanceTraces404Response struct {
+}
+
+func (response GetAdminInstancesInstanceTraces404Response) VisitGetAdminInstancesInstanceTracesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type GetAdminLogsLogRequestObject struct {
 	Log string `json:"log"`
 }
@@ -665,6 +881,57 @@ func (response GetAdminLogsLog404Response) VisitGetAdminLogsLogResponse(w http.R
 	return nil
 }
 
+type GetAdminTracesTraceRequestObject struct {
+	Trace string `json:"trace"`
+}
+
+type GetAdminTracesTraceResponseObject interface {
+	VisitGetAdminTracesTraceResponse(w http.ResponseWriter) error
+}
+
+type GetAdminTracesTrace200JSONResponse []Trace
+
+func (response GetAdminTracesTrace200JSONResponse) VisitGetAdminTracesTraceResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminTracesTrace404Response struct {
+}
+
+func (response GetAdminTracesTrace404Response) VisitGetAdminTracesTraceResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminTracesTraceSpansSpanRequestObject struct {
+	Trace string `json:"trace"`
+	Span  string `json:"span"`
+}
+
+type GetAdminTracesTraceSpansSpanResponseObject interface {
+	VisitGetAdminTracesTraceSpansSpanResponse(w http.ResponseWriter) error
+}
+
+type GetAdminTracesTraceSpansSpan200JSONResponse []Span
+
+func (response GetAdminTracesTraceSpansSpan200JSONResponse) VisitGetAdminTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminTracesTraceSpansSpan404Response struct {
+}
+
+func (response GetAdminTracesTraceSpansSpan404Response) VisitGetAdminTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
@@ -686,8 +953,17 @@ type StrictServerInterface interface {
 	// (GET /admin/instances/{instance}/logs)
 	GetAdminInstancesInstanceLogs(ctx context.Context, request GetAdminInstancesInstanceLogsRequestObject) (GetAdminInstancesInstanceLogsResponseObject, error)
 
+	// (GET /admin/instances/{instance}/traces)
+	GetAdminInstancesInstanceTraces(ctx context.Context, request GetAdminInstancesInstanceTracesRequestObject) (GetAdminInstancesInstanceTracesResponseObject, error)
+
 	// (GET /admin/logs/{log})
 	GetAdminLogsLog(ctx context.Context, request GetAdminLogsLogRequestObject) (GetAdminLogsLogResponseObject, error)
+
+	// (GET /admin/traces/{trace})
+	GetAdminTracesTrace(ctx context.Context, request GetAdminTracesTraceRequestObject) (GetAdminTracesTraceResponseObject, error)
+
+	// (GET /admin/traces/{trace}/spans/{span})
+	GetAdminTracesTraceSpansSpan(ctx context.Context, request GetAdminTracesTraceSpansSpanRequestObject) (GetAdminTracesTraceSpansSpanResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -887,6 +1163,33 @@ func (sh *strictHandler) GetAdminInstancesInstanceLogs(w http.ResponseWriter, r 
 	}
 }
 
+// GetAdminInstancesInstanceTraces operation middleware
+func (sh *strictHandler) GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, instance string, params GetAdminInstancesInstanceTracesParams) {
+	var request GetAdminInstancesInstanceTracesRequestObject
+
+	request.Instance = instance
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminInstancesInstanceTraces(ctx, request.(GetAdminInstancesInstanceTracesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminInstancesInstanceTraces")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminInstancesInstanceTracesResponseObject); ok {
+		if err := validResponse.VisitGetAdminInstancesInstanceTracesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetAdminLogsLog operation middleware
 func (sh *strictHandler) GetAdminLogsLog(w http.ResponseWriter, r *http.Request, log string) {
 	var request GetAdminLogsLogRequestObject
@@ -906,6 +1209,59 @@ func (sh *strictHandler) GetAdminLogsLog(w http.ResponseWriter, r *http.Request,
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminLogsLogResponseObject); ok {
 		if err := validResponse.VisitGetAdminLogsLogResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminTracesTrace operation middleware
+func (sh *strictHandler) GetAdminTracesTrace(w http.ResponseWriter, r *http.Request, trace string) {
+	var request GetAdminTracesTraceRequestObject
+
+	request.Trace = trace
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminTracesTrace(ctx, request.(GetAdminTracesTraceRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminTracesTrace")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminTracesTraceResponseObject); ok {
+		if err := validResponse.VisitGetAdminTracesTraceResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminTracesTraceSpansSpan operation middleware
+func (sh *strictHandler) GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, trace string, span string) {
+	var request GetAdminTracesTraceSpansSpanRequestObject
+
+	request.Trace = trace
+	request.Span = span
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminTracesTraceSpansSpan(ctx, request.(GetAdminTracesTraceSpansSpanRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminTracesTraceSpansSpan")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminTracesTraceSpansSpanResponseObject); ok {
+		if err := validResponse.VisitGetAdminTracesTraceSpansSpanResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
