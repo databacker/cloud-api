@@ -10,4 +10,5 @@ output-options:
   yaml-tags: true
 import-mapping:
   ./schemas.yaml: "-"
-  "https://raw.githubusercontent.com/databacker/api/refs/heads/main/src/schemas.yaml": "github.com/databacker/api/go/api"
+  "../external/databacker-api/src/schemas.yaml": "github.com/databacker/api/go/api"
+  "../external/databacker-api/src/api.yaml": "github.com/databacker/api/go/api"

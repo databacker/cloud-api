@@ -11,24 +11,84 @@ servers:
 security:
   - JWT: []
 
-paths:            
-  /admin/instances:
-    get:
-      description: list all of the instances for one or more accounts
-      parameters:
-        - in: query
-          name: account
+# Common parameters and responses
+x-parameters:
+  account: &account-param
+    in: path
+    name: account
+    schema:
+      type: string
+    required: true
+    description: Account ID
+  instance: &instance-param
+    in: path
+    name: instance
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the databacker instance
+  trace: &trace-param
+    in: path
+    name: trace
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the trace
+  span: &span-param
+    in: path
+    name: span
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the span
+  config: &config-param
+    in: path
+    name: config
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the config
+  log: &log-param
+    in: path
+    name: log
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the log
+
+x-responses:
+  not-found: &not-found-response
+    '404':
+      description: not found
+  error-message: &error-message-schema
+    type: object
+    properties:
+      message:
+        type: string
+  invalid-request: &invalid-request-response
+    '400':
+      description: Invalid request
+      content:
+        application/json:
           schema:
-            type: string
-          # Using the default serialization for query parameters:
-          # style=form, explode=false, allowReserved=false
-          required: true
-          description: Account IDs for which to retrieve list of instances
+            *error-message-schema
+  quota-exceeded: &quota-exceeded-response
+    '422':
+      description: Quota exceeded
+      content:
+        application/json:
+          schema:
+            *error-message-schema
+
+paths:      
+  /admin/accounts:      
+    get:
+      description: list all of the accounts for which the authenticated user has access
       responses:
         '404':
-          description: no instances available
+          description: no accounts available
         '200':
-          description: list of instances for my account
+          description: list of accounts for my user
           content:
             application/json:
               schema:
@@ -36,29 +96,20 @@ paths:
                 items:
                   type: string # just list of IDs
     post:
-      description: create a new licensed databacker instance
-      parameters:
-        - in: query
-          name: account
-          schema:
-            type: string
-          # Using the default serialization for query parameters:
-          # style=form, explode=false, allowReserved=false
-          required: true
-          description: Account ID for which to create a new instance
+      description: create a new account, normally limited to system administrators
       requestBody:
-        description: information for new licensed databacker instance
+        description: information for new account
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/NewInstance'
+              $ref: './schemas.yaml#/components/schemas/NewAccount'
       responses:
         '201':
-          description: successfully created instance
+          description: successfully created account
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/InstanceBody'  # returns the body created
+                $ref: './schemas.yaml#/components/schemas/AccountBody'  # returns the body created
         '400':
           description: Invalid request
           content:
@@ -77,39 +128,120 @@ paths:
                 properties:           
                   message:
                     type: string
-  /admin/instances/{instance}:
+  /admin/accounts/{account}:      
     get:
-      description: get information about a specific instance
+      description: get information about the specific account
       parameters:
-        - in: path
-          name: instance
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the databacker instance whose information should be retrieved
+        - *account-param
       responses:
-        '404':
-          description: instance not found
+        <<: *not-found-response
         '200':
-          description: details of the instance for my account
+          description: details of the account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/AccountBody'
+  /admin/accounts/{account}/instances:
+    get:
+      description: list all of the instances in a given account
+      parameters:
+        - *account-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: list of instances for the given account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string # just list of IDs
+    post:
+      description: create a new licensed databacker instance in the given account
+      parameters:
+        - *account-param
+      requestBody:
+        description: information for new licensed databacker instance
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/NewInstance'
+      responses:
+        '201':
+          description: successfully created instance
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/InstanceBody'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '422':
+          description: Quota exceeded
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+  /admin/accounts/{account}/instances/{instance}:
+    get:
+      description: get information about a specific instance
+      parameters:
+        - *account-param
+        - *instance-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: details of the instance
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/InstanceBody'
+    patch:
+      description: update configuration of a specific instance
+      parameters:
+        - *account-param
+        - *instance-param
+      requestBody:
+        description: instance configuration updates
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/NewInstance'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: instance successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/InstanceBody'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+    delete:
+      description: delete a specific instance
+      parameters:
+        - *account-param
+        - *instance-param
+      responses:
+        '204':
+          description: instance successfully deleted
+        <<: *not-found-response
 
-  /admin/instances/{instance}/logs:
+  /admin/accounts/{account}/instances/{instance}/logs:
     get:
       description: get list of backup logs for a specific instance
       parameters:
-        - in: path
-          name: instance
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the databacker instance whose information should be retrieved
+        - *account-param
+        - *instance-param
       responses:
-        '404':
-          description: instance not found
+        <<: *not-found-response
         '200':
           description: list of backup logs for a specific instance
           content:
@@ -119,19 +251,14 @@ paths:
                 items:
                   $ref: './schemas.yaml#/components/schemas/LogSummary'
 
-  /admin/logs/{log}:
+  /admin/accounts/{account}/logs/{log}:
     get:
       description: get the backup logs for a specific backup run
       parameters:
-        - in: path
-          name: log
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the backup whose information should be retrieved
+        - *account-param
+        - *log-param
       responses:
-        '404':
-          description: instance not found
+        <<: *not-found-response
         '200':
           description: backup logs for a specific backup run, streamed
           content:
@@ -140,16 +267,12 @@ paths:
                 type: array
                 items:
                   $ref: './schemas.yaml#/components/schemas/Log'
-  /admin/instances/{instance}/traces:
+  /admin/accounts/{account}/instances/{instance}/traces:
     get:
       description: get list of backup traces for a specific instance, searchable based on parameters
       parameters:
-        - in: path
-          name: instance
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the databacker instance whose information should be retrieved
+        - *account-param
+        - *instance-param
         - name: start_time
           in: query
           schema:
@@ -174,8 +297,7 @@ paths:
           schema:
             type: integer          
       responses:
-        '404':
-          description: instance not found
+        <<: *not-found-response
         '200':
           description: list of backup traces for a specific instance
           content:
@@ -184,20 +306,53 @@ paths:
                 type: array
                 items:
                   $ref: './schemas.yaml#/components/schemas/TraceSummary'
+  /admin/accounts/{account}/traces:
+    get:
+      description: get list of backup traces for a specific account across all instances, searchable based on parameters
+      parameters:
+        - *account-param
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: attribute
+          in: query
+          schema:
+            type: string
+          description: key=value filter (repeatable)
+        - name: min_duration_ms
+          in: query
+          schema:
+            type: number
+        - name: limit
+          in: query
+          schema:
+            type: integer          
+      responses:
+        <<: *not-found-response
+        '200':
+          description: list of backup traces for the account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/components/schemas/TraceSummary'
 
-  /admin/traces/{trace}:
+  /admin/accounts/{account}/traces/{trace}:
     get:
       description: get the backup traces for a specific backup run
       parameters:
-        - in: path
-          name: trace
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the trace to be retrieved
+        - *account-param
+        - *trace-param
       responses:
-        '404':
-          description: instance not found
+        <<: *not-found-response
         '200':
           description: backup traces for a specific backup run, streamed
           content:
@@ -206,25 +361,15 @@ paths:
                 type: array
                 items:
                   $ref: './schemas.yaml#/components/schemas/Trace'
-  /admin/traces/{trace}/spans/{span}:
+  /admin/accounts/{account}/traces/{trace}/spans/{span}:
     get:
       description: get a specific span within a specific trace
       parameters:
-        - in: path
-          name: trace
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the trace to be retrieved
-        - in: path
-          name: span
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the span to be retrieved
+        - *account-param
+        - *trace-param
+        - *span-param
       responses:
-        '404':
-          description: trace not found, or span not found within the trace
+        <<: *not-found-response
         '200':
           description: specific span
           content:
@@ -233,48 +378,67 @@ paths:
                 type: array
                 items:
                   $ref: './schemas.yaml#/components/schemas/Span'
-  /admin/configs:
+  /admin/accounts/{account}/instances/{instance}/configs:
+    get:
+      description: list all of the device configs for a specific instance
+      parameters:
+        - *account-param
+        - *instance-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: list of device configs for the given instance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
     post:
       description: create a new device config
+      parameters:
+        - *account-param
+        - *instance-param
       requestBody:
         description: information for new device config
         content:
           application/json:
             schema:
-              $ref: 'https://raw.githubusercontent.com/databacker/api/refs/heads/main/src/schemas.yaml#/components/schemas/Config'
+              $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
       responses:
         '201':
           description: successfully created config
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/databacker/api/refs/heads/main/src/schemas.yaml#/components/schemas/Config'
+                $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
         '400':
           description: Invalid request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                *error-message-schema
 
-  /admin/configs/{config}:
+  /admin/accounts/{account}/configs/{config}:
     get:
-      description: get information about a specific device config
+      description: retrieve a specific device config
       parameters:
-        - in: path
-          name: config
-          schema:
-            type: string
-          required: true
-          description: Unique ID of the config to retrieve
+        - *account-param
+        - *config-param
       responses:
-        '404':
-          description: config not found
+        <<: *not-found-response
         '200':
           description: details of the config
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/databacker/api/refs/heads/main/src/schemas.yaml#/components/schemas/Config'
+                $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
+    delete:
+      description: delete a specific device config
+      parameters:
+        - *account-param
+        - *config-param
+      responses:
+        '204':
+          description: config successfully deleted
+        <<: *not-found-response

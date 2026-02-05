@@ -9,10 +9,20 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// AccountBody defines model for AccountBody.
+type AccountBody struct {
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+}
+
 // FlatTrace defines model for FlatTrace.
 type FlatTrace struct {
-	Spans   *[]SpanFlat `json:"spans,omitempty" yaml:"spans,omitempty"`
-	TraceID *string     `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+	// AccountID ID of the account the instance belongs to
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
+	// InstanceID ID of the instance the trace belongs to
+	InstanceID *string     `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
+	Spans      *[]SpanFlat `json:"spans,omitempty" yaml:"spans,omitempty"`
+	TraceID    *string     `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
 }
 
 // InstanceBody defines model for InstanceBody.
@@ -22,6 +32,12 @@ type InstanceBody struct {
 
 // Log defines model for Log.
 type Log struct {
+	// AccountID ID of the account the logs belong to
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
+	// InstanceID ID of the instance the logs belong to
+	InstanceID *string `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
+
 	// Lines List of log lines for a backup run
 	Lines *[]LogLine `json:"lines,omitempty" yaml:"lines,omitempty"`
 }
@@ -46,12 +62,18 @@ type LogLine struct {
 
 // LogSummary defines model for LogSummary.
 type LogSummary struct {
+	// AccountID ID of the account the logs belong to
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
 	// Completion completion code, using a subset of http codes
 	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
 
 	// Date timestamp for start of backup run
 	Date *int    `json:"date,omitempty" yaml:"date,omitempty"`
 	ID   *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// InstanceID ID of the instance the logs belong to
+	InstanceID *string `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
 
 	// Size size of logs in bytes
 	Size *int `json:"size,omitempty" yaml:"size,omitempty"`
@@ -67,6 +89,18 @@ type Metadata struct {
 
 	// Name name of the config
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+}
+
+// NewAccount information for a new databacker account
+type NewAccount struct {
+	// Email email address associated with the account
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+
+	// Name name of the owner the account
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
+	// Phone phone number associated with the account
+	Phone *string `json:"phone,omitempty" yaml:"phone,omitempty"`
 }
 
 // NewInstance information for a new licensed databacker instance
@@ -103,8 +137,13 @@ type SpanFlat struct {
 
 // Trace defines model for Trace.
 type Trace struct {
-	RootSpans *[]Span             `json:"root_spans,omitempty" yaml:"root_spans,omitempty"`
-	TraceID   *openapi_types.UUID `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+	// AccountID ID of the account the instance belongs to
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
+	// InstanceID ID of the instance the trace belongs to
+	InstanceID *string             `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
+	RootSpans  *[]Span             `json:"root_spans,omitempty" yaml:"root_spans,omitempty"`
+	TraceID    *openapi_types.UUID `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
 }
 
 // TraceSearchResponse defines model for TraceSearchResponse.
@@ -114,12 +153,18 @@ type TraceSearchResponse struct {
 
 // TraceSummary defines model for TraceSummary.
 type TraceSummary struct {
+	// AccountID ID of the account the instance belongs to
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
 	// Completion completion code, using a subset of http codes
 	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
 
 	// Date timestamp for start of backup run
 	Date *int    `json:"date,omitempty" yaml:"date,omitempty"`
 	ID   *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// InstanceID ID of the instance the trace belongs to
+	InstanceID *string `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
 
 	// Size size of trace in bytes
 	Size *int `json:"size,omitempty" yaml:"size,omitempty"`

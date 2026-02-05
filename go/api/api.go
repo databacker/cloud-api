@@ -20,20 +20,8 @@ const (
 	JWTScopes = "JWT.Scopes"
 )
 
-// GetAdminInstancesParams defines parameters for GetAdminInstances.
-type GetAdminInstancesParams struct {
-	// Account Account IDs for which to retrieve list of instances
-	Account string `form:"account" json:"account" yaml:"account"`
-}
-
-// PostAdminInstancesParams defines parameters for PostAdminInstances.
-type PostAdminInstancesParams struct {
-	// Account Account ID for which to create a new instance
-	Account string `form:"account" json:"account" yaml:"account"`
-}
-
-// GetAdminInstancesInstanceTracesParams defines parameters for GetAdminInstancesInstanceTraces.
-type GetAdminInstancesInstanceTracesParams struct {
+// GetAdminAccountsAccountInstancesInstanceTracesParams defines parameters for GetAdminAccountsAccountInstancesInstanceTraces.
+type GetAdminAccountsAccountInstancesInstanceTracesParams struct {
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
 	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
@@ -43,97 +31,178 @@ type GetAdminInstancesInstanceTracesParams struct {
 	Limit         *int     `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
-// PostAdminConfigsJSONRequestBody defines body for PostAdminConfigs for application/json ContentType.
-type PostAdminConfigsJSONRequestBody = externalRef0.Config
+// GetAdminAccountsAccountTracesParams defines parameters for GetAdminAccountsAccountTraces.
+type GetAdminAccountsAccountTracesParams struct {
+	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
+	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
-// PostAdminInstancesJSONRequestBody defines body for PostAdminInstances for application/json ContentType.
-type PostAdminInstancesJSONRequestBody = NewInstance
+	// Attribute key=value filter (repeatable)
+	Attribute     *string  `form:"attribute,omitempty" json:"attribute,omitempty" yaml:"attribute,omitempty"`
+	MinDurationMs *float32 `form:"min_duration_ms,omitempty" json:"min_duration_ms,omitempty" yaml:"min_duration_ms,omitempty"`
+	Limit         *int     `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
+type PostAdminAccountsJSONRequestBody = NewAccount
+
+// PostAdminAccountsAccountInstancesJSONRequestBody defines body for PostAdminAccountsAccountInstances for application/json ContentType.
+type PostAdminAccountsAccountInstancesJSONRequestBody = NewInstance
+
+// PatchAdminAccountsAccountInstancesInstanceJSONRequestBody defines body for PatchAdminAccountsAccountInstancesInstance for application/json ContentType.
+type PatchAdminAccountsAccountInstancesInstanceJSONRequestBody = NewInstance
+
+// PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody defines body for PostAdminAccountsAccountInstancesInstanceConfigs for application/json ContentType.
+type PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody = externalRef0.Config
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (POST /admin/configs)
-	PostAdminConfigs(w http.ResponseWriter, r *http.Request)
+	// (GET /admin/accounts)
+	GetAdminAccounts(w http.ResponseWriter, r *http.Request)
 
-	// (GET /admin/configs/{config})
-	GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request, config string)
+	// (POST /admin/accounts)
+	PostAdminAccounts(w http.ResponseWriter, r *http.Request)
 
-	// (GET /admin/instances)
-	GetAdminInstances(w http.ResponseWriter, r *http.Request, params GetAdminInstancesParams)
+	// (GET /admin/accounts/{account})
+	GetAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string)
 
-	// (POST /admin/instances)
-	PostAdminInstances(w http.ResponseWriter, r *http.Request, params PostAdminInstancesParams)
+	// (DELETE /admin/accounts/{account}/configs/{config})
+	DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string)
 
-	// (GET /admin/instances/{instance})
-	GetAdminInstancesInstance(w http.ResponseWriter, r *http.Request, instance string)
+	// (GET /admin/accounts/{account}/configs/{config})
+	GetAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string)
 
-	// (GET /admin/instances/{instance}/logs)
-	GetAdminInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, instance string)
+	// (GET /admin/accounts/{account}/instances)
+	GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string)
 
-	// (GET /admin/instances/{instance}/traces)
-	GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, instance string, params GetAdminInstancesInstanceTracesParams)
+	// (POST /admin/accounts/{account}/instances)
+	PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string)
 
-	// (GET /admin/logs/{log})
-	GetAdminLogsLog(w http.ResponseWriter, r *http.Request, log string)
+	// (DELETE /admin/accounts/{account}/instances/{instance})
+	DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
 
-	// (GET /admin/traces/{trace})
-	GetAdminTracesTrace(w http.ResponseWriter, r *http.Request, trace string)
+	// (GET /admin/accounts/{account}/instances/{instance})
+	GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
 
-	// (GET /admin/traces/{trace}/spans/{span})
-	GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, trace string, span string)
+	// (PATCH /admin/accounts/{account}/instances/{instance})
+	PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/configs)
+	GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string)
+
+	// (POST /admin/accounts/{account}/instances/{instance}/configs)
+	PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/logs)
+	GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, account string, instance string)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/traces)
+	GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceTracesParams)
+
+	// (GET /admin/accounts/{account}/logs/{log})
+	GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string)
+
+	// (GET /admin/accounts/{account}/traces)
+	GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountTracesParams)
+
+	// (GET /admin/accounts/{account}/traces/{trace})
+	GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request, account string, trace string)
+
+	// (GET /admin/accounts/{account}/traces/{trace}/spans/{span})
+	GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, account string, trace string, span string)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
 
-// (POST /admin/configs)
-func (_ Unimplemented) PostAdminConfigs(w http.ResponseWriter, r *http.Request) {
+// (GET /admin/accounts)
+func (_ Unimplemented) GetAdminAccounts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/configs/{config})
-func (_ Unimplemented) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request, config string) {
+// (POST /admin/accounts)
+func (_ Unimplemented) PostAdminAccounts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/instances)
-func (_ Unimplemented) GetAdminInstances(w http.ResponseWriter, r *http.Request, params GetAdminInstancesParams) {
+// (GET /admin/accounts/{account})
+func (_ Unimplemented) GetAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (POST /admin/instances)
-func (_ Unimplemented) PostAdminInstances(w http.ResponseWriter, r *http.Request, params PostAdminInstancesParams) {
+// (DELETE /admin/accounts/{account}/configs/{config})
+func (_ Unimplemented) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/instances/{instance})
-func (_ Unimplemented) GetAdminInstancesInstance(w http.ResponseWriter, r *http.Request, instance string) {
+// (GET /admin/accounts/{account}/configs/{config})
+func (_ Unimplemented) GetAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/instances/{instance}/logs)
-func (_ Unimplemented) GetAdminInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, instance string) {
+// (GET /admin/accounts/{account}/instances)
+func (_ Unimplemented) GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/instances/{instance}/traces)
-func (_ Unimplemented) GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, instance string, params GetAdminInstancesInstanceTracesParams) {
+// (POST /admin/accounts/{account}/instances)
+func (_ Unimplemented) PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/logs/{log})
-func (_ Unimplemented) GetAdminLogsLog(w http.ResponseWriter, r *http.Request, log string) {
+// (DELETE /admin/accounts/{account}/instances/{instance})
+func (_ Unimplemented) DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/traces/{trace})
-func (_ Unimplemented) GetAdminTracesTrace(w http.ResponseWriter, r *http.Request, trace string) {
+// (GET /admin/accounts/{account}/instances/{instance})
+func (_ Unimplemented) GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/traces/{trace}/spans/{span})
-func (_ Unimplemented) GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, trace string, span string) {
+// (PATCH /admin/accounts/{account}/instances/{instance})
+func (_ Unimplemented) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/instances/{instance}/configs)
+func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/accounts/{account}/instances/{instance}/configs)
+func (_ Unimplemented) PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/instances/{instance}/logs)
+func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/instances/{instance}/traces)
+func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceTracesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/logs/{log})
+func (_ Unimplemented) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/traces)
+func (_ Unimplemented) GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountTracesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/traces/{trace})
+func (_ Unimplemented) GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request, account string, trace string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/traces/{trace}/spans/{span})
+func (_ Unimplemented) GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, account string, trace string, span string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -146,8 +215,8 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
-// PostAdminConfigs operation middleware
-func (siw *ServerInterfaceWrapper) PostAdminConfigs(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccounts operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccounts(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
@@ -156,7 +225,7 @@ func (siw *ServerInterfaceWrapper) PostAdminConfigs(w http.ResponseWriter, r *ht
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminConfigs(w, r)
+		siw.Handler.GetAdminAccounts(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -166,10 +235,70 @@ func (siw *ServerInterfaceWrapper) PostAdminConfigs(w http.ResponseWriter, r *ht
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminConfigsConfig operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request) {
+// PostAdminAccounts operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminAccounts(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminAccounts(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccount operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccount(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccount(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteAdminAccountsAccountConfigsConfig operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "config" -------------
 	var config string
@@ -187,7 +316,7 @@ func (siw *ServerInterfaceWrapper) GetAdminConfigsConfig(w http.ResponseWriter, 
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminConfigsConfig(w, r, config)
+		siw.Handler.DeleteAdminAccountsAccountConfigsConfig(w, r, account, config)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -197,37 +326,37 @@ func (siw *ServerInterfaceWrapper) GetAdminConfigsConfig(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminInstances operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminInstances(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountConfigsConfig operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	ctx := r.Context()
+	// ------------- Path parameter "account" -------------
+	var account string
 
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminInstancesParams
-
-	// ------------- Required query parameter "account" -------------
-
-	if paramValue := r.URL.Query().Get("account"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "account"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "account", r.URL.Query(), &params.Account)
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
 		return
 	}
 
+	// ------------- Path parameter "config" -------------
+	var config string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "config", chi.URLParam(r, "config"), &config, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "config", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminInstances(w, r, params)
+		siw.Handler.GetAdminAccountsAccountConfigsConfig(w, r, account, config)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -237,37 +366,28 @@ func (siw *ServerInterfaceWrapper) GetAdminInstances(w http.ResponseWriter, r *h
 	handler.ServeHTTP(w, r)
 }
 
-// PostAdminInstances operation middleware
-func (siw *ServerInterfaceWrapper) PostAdminInstances(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountInstances operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	ctx := r.Context()
+	// ------------- Path parameter "account" -------------
+	var account string
 
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params PostAdminInstancesParams
-
-	// ------------- Required query parameter "account" -------------
-
-	if paramValue := r.URL.Query().Get("account"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "account"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "account", r.URL.Query(), &params.Account)
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
 		return
 	}
 
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminInstances(w, r, params)
+		siw.Handler.GetAdminAccountsAccountInstances(w, r, account)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -277,10 +397,50 @@ func (siw *ServerInterfaceWrapper) PostAdminInstances(w http.ResponseWriter, r *
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminInstancesInstance operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminInstancesInstance(w http.ResponseWriter, r *http.Request) {
+// PostAdminAccountsAccountInstances operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminAccountsAccountInstances(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteAdminAccountsAccountInstancesInstance operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "instance" -------------
 	var instance string
@@ -298,7 +458,7 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstance(w http.ResponseWrit
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminInstancesInstance(w, r, instance)
+		siw.Handler.DeleteAdminAccountsAccountInstancesInstance(w, r, account, instance)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -308,10 +468,19 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstance(w http.ResponseWrit
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminInstancesInstanceLogs operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceLogs(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountInstancesInstance operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "instance" -------------
 	var instance string
@@ -329,7 +498,7 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceLogs(w http.Response
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminInstancesInstanceLogs(w, r, instance)
+		siw.Handler.GetAdminAccountsAccountInstancesInstance(w, r, account, instance)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -339,10 +508,179 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceLogs(w http.Response
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminInstancesInstanceTraces operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request) {
+// PatchAdminAccountsAccountInstancesInstance operation middleware
+func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "instance" -------------
+	var instance string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchAdminAccountsAccountInstancesInstance(w, r, account, instance)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountInstancesInstanceConfigs operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "instance" -------------
+	var instance string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountInstancesInstanceConfigs(w, r, account, instance)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostAdminAccountsAccountInstancesInstanceConfigs operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "instance" -------------
+	var instance string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminAccountsAccountInstancesInstanceConfigs(w, r, account, instance)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountInstancesInstanceLogs operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "instance" -------------
+	var instance string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountInstancesInstanceLogs(w, r, account, instance)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountInstancesInstanceTraces operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "instance" -------------
 	var instance string
@@ -360,7 +698,7 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceTraces(w http.Respon
 	r = r.WithContext(ctx)
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminInstancesInstanceTracesParams
+	var params GetAdminAccountsAccountInstancesInstanceTracesParams
 
 	// ------------- Optional query parameter "start_time" -------------
 
@@ -403,7 +741,7 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceTraces(w http.Respon
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminInstancesInstanceTraces(w, r, instance, params)
+		siw.Handler.GetAdminAccountsAccountInstancesInstanceTraces(w, r, account, instance, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -413,10 +751,19 @@ func (siw *ServerInterfaceWrapper) GetAdminInstancesInstanceTraces(w http.Respon
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminLogsLog operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminLogsLog(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountLogsLog operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "log" -------------
 	var log string
@@ -434,7 +781,7 @@ func (siw *ServerInterfaceWrapper) GetAdminLogsLog(w http.ResponseWriter, r *htt
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminLogsLog(w, r, log)
+		siw.Handler.GetAdminAccountsAccountLogsLog(w, r, account, log)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -444,10 +791,93 @@ func (siw *ServerInterfaceWrapper) GetAdminLogsLog(w http.ResponseWriter, r *htt
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminTracesTrace operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminTracesTrace(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountTraces operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminAccountsAccountTracesParams
+
+	// ------------- Optional query parameter "start_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "end_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "attribute" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "attribute", r.URL.Query(), &params.Attribute)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "attribute", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "min_duration_ms" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "min_duration_ms", r.URL.Query(), &params.MinDurationMs)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "min_duration_ms", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountTraces(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountTracesTrace operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "trace" -------------
 	var trace string
@@ -465,7 +895,7 @@ func (siw *ServerInterfaceWrapper) GetAdminTracesTrace(w http.ResponseWriter, r 
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminTracesTrace(w, r, trace)
+		siw.Handler.GetAdminAccountsAccountTracesTrace(w, r, account, trace)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -475,10 +905,19 @@ func (siw *ServerInterfaceWrapper) GetAdminTracesTrace(w http.ResponseWriter, r 
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminTracesTraceSpansSpan operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountTracesTraceSpansSpan operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
 
 	// ------------- Path parameter "trace" -------------
 	var trace string
@@ -505,7 +944,7 @@ func (siw *ServerInterfaceWrapper) GetAdminTracesTraceSpansSpan(w http.ResponseW
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminTracesTraceSpansSpan(w, r, trace, span)
+		siw.Handler.GetAdminAccountsAccountTracesTraceSpansSpan(w, r, account, trace, span)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -629,305 +1068,566 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/admin/configs", wrapper.PostAdminConfigs)
+		r.Get(options.BaseURL+"/admin/accounts", wrapper.GetAdminAccounts)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/configs/{config}", wrapper.GetAdminConfigsConfig)
+		r.Post(options.BaseURL+"/admin/accounts", wrapper.PostAdminAccounts)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/instances", wrapper.GetAdminInstances)
+		r.Get(options.BaseURL+"/admin/accounts/{account}", wrapper.GetAdminAccountsAccount)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/admin/instances", wrapper.PostAdminInstances)
+		r.Delete(options.BaseURL+"/admin/accounts/{account}/configs/{config}", wrapper.DeleteAdminAccountsAccountConfigsConfig)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/instances/{instance}", wrapper.GetAdminInstancesInstance)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/configs/{config}", wrapper.GetAdminAccountsAccountConfigsConfig)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/instances/{instance}/logs", wrapper.GetAdminInstancesInstanceLogs)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/instances", wrapper.GetAdminAccountsAccountInstances)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/instances/{instance}/traces", wrapper.GetAdminInstancesInstanceTraces)
+		r.Post(options.BaseURL+"/admin/accounts/{account}/instances", wrapper.PostAdminAccountsAccountInstances)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/logs/{log}", wrapper.GetAdminLogsLog)
+		r.Delete(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.DeleteAdminAccountsAccountInstancesInstance)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/traces/{trace}", wrapper.GetAdminTracesTrace)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.GetAdminAccountsAccountInstancesInstance)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/traces/{trace}/spans/{span}", wrapper.GetAdminTracesTraceSpansSpan)
+		r.Patch(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.PatchAdminAccountsAccountInstancesInstance)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/configs", wrapper.GetAdminAccountsAccountInstancesInstanceConfigs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/configs", wrapper.PostAdminAccountsAccountInstancesInstanceConfigs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/logs", wrapper.GetAdminAccountsAccountInstancesInstanceLogs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/traces", wrapper.GetAdminAccountsAccountInstancesInstanceTraces)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/logs/{log}", wrapper.GetAdminAccountsAccountLogsLog)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/traces", wrapper.GetAdminAccountsAccountTraces)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/traces/{trace}", wrapper.GetAdminAccountsAccountTracesTrace)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/traces/{trace}/spans/{span}", wrapper.GetAdminAccountsAccountTracesTraceSpansSpan)
 	})
 
 	return r
 }
 
-type PostAdminConfigsRequestObject struct {
-	Body *PostAdminConfigsJSONRequestBody
+type GetAdminAccountsRequestObject struct {
 }
 
-type PostAdminConfigsResponseObject interface {
-	VisitPostAdminConfigsResponse(w http.ResponseWriter) error
+type GetAdminAccountsResponseObject interface {
+	VisitGetAdminAccountsResponse(w http.ResponseWriter) error
 }
 
-type PostAdminConfigs201JSONResponse externalRef0.Config
+type GetAdminAccounts200JSONResponse []string
 
-func (response PostAdminConfigs201JSONResponse) VisitPostAdminConfigsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PostAdminConfigs400JSONResponse struct {
-	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
-}
-
-func (response PostAdminConfigs400JSONResponse) VisitPostAdminConfigsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminConfigsConfigRequestObject struct {
-	Config string `json:"config"`
-}
-
-type GetAdminConfigsConfigResponseObject interface {
-	VisitGetAdminConfigsConfigResponse(w http.ResponseWriter) error
-}
-
-type GetAdminConfigsConfig200JSONResponse externalRef0.Config
-
-func (response GetAdminConfigsConfig200JSONResponse) VisitGetAdminConfigsConfigResponse(w http.ResponseWriter) error {
+func (response GetAdminAccounts200JSONResponse) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminConfigsConfig404Response struct {
+type GetAdminAccounts404Response struct {
 }
 
-func (response GetAdminConfigsConfig404Response) VisitGetAdminConfigsConfigResponse(w http.ResponseWriter) error {
+func (response GetAdminAccounts404Response) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminInstancesRequestObject struct {
-	Params GetAdminInstancesParams
+type PostAdminAccountsRequestObject struct {
+	Body *PostAdminAccountsJSONRequestBody
 }
 
-type GetAdminInstancesResponseObject interface {
-	VisitGetAdminInstancesResponse(w http.ResponseWriter) error
+type PostAdminAccountsResponseObject interface {
+	VisitPostAdminAccountsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminInstances200JSONResponse []string
+type PostAdminAccounts201JSONResponse AccountBody
 
-func (response GetAdminInstances200JSONResponse) VisitGetAdminInstancesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminInstances404Response struct {
-}
-
-func (response GetAdminInstances404Response) VisitGetAdminInstancesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type PostAdminInstancesRequestObject struct {
-	Params PostAdminInstancesParams
-	Body   *PostAdminInstancesJSONRequestBody
-}
-
-type PostAdminInstancesResponseObject interface {
-	VisitPostAdminInstancesResponse(w http.ResponseWriter) error
-}
-
-type PostAdminInstances201JSONResponse InstanceBody
-
-func (response PostAdminInstances201JSONResponse) VisitPostAdminInstancesResponse(w http.ResponseWriter) error {
+func (response PostAdminAccounts201JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAdminInstances400JSONResponse struct {
+type PostAdminAccounts400JSONResponse struct {
 	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response PostAdminInstances400JSONResponse) VisitPostAdminInstancesResponse(w http.ResponseWriter) error {
+func (response PostAdminAccounts400JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAdminInstances422JSONResponse struct {
+type PostAdminAccounts422JSONResponse struct {
 	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response PostAdminInstances422JSONResponse) VisitPostAdminInstancesResponse(w http.ResponseWriter) error {
+func (response PostAdminAccounts422JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(422)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminInstancesInstanceRequestObject struct {
+type GetAdminAccountsAccountRequestObject struct {
+	Account string `json:"account"`
+}
+
+type GetAdminAccountsAccountResponseObject interface {
+	VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccount200JSONResponse AccountBody
+
+func (response GetAdminAccountsAccount200JSONResponse) VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccount404Response struct {
+}
+
+func (response GetAdminAccountsAccount404Response) VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type DeleteAdminAccountsAccountConfigsConfigRequestObject struct {
+	Account string `json:"account"`
+	Config  string `json:"config"`
+}
+
+type DeleteAdminAccountsAccountConfigsConfigResponseObject interface {
+	VisitDeleteAdminAccountsAccountConfigsConfigResponse(w http.ResponseWriter) error
+}
+
+type DeleteAdminAccountsAccountConfigsConfig204Response struct {
+}
+
+func (response DeleteAdminAccountsAccountConfigsConfig204Response) VisitDeleteAdminAccountsAccountConfigsConfigResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteAdminAccountsAccountConfigsConfig404Response struct {
+}
+
+func (response DeleteAdminAccountsAccountConfigsConfig404Response) VisitDeleteAdminAccountsAccountConfigsConfigResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountConfigsConfigRequestObject struct {
+	Account string `json:"account"`
+	Config  string `json:"config"`
+}
+
+type GetAdminAccountsAccountConfigsConfigResponseObject interface {
+	VisitGetAdminAccountsAccountConfigsConfigResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountConfigsConfig200JSONResponse externalRef0.Config
+
+func (response GetAdminAccountsAccountConfigsConfig200JSONResponse) VisitGetAdminAccountsAccountConfigsConfigResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountConfigsConfig404Response struct {
+}
+
+func (response GetAdminAccountsAccountConfigsConfig404Response) VisitGetAdminAccountsAccountConfigsConfigResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountInstancesRequestObject struct {
+	Account string `json:"account"`
+}
+
+type GetAdminAccountsAccountInstancesResponseObject interface {
+	VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountInstances200JSONResponse []string
+
+func (response GetAdminAccountsAccountInstances200JSONResponse) VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountInstances404Response struct {
+}
+
+func (response GetAdminAccountsAccountInstances404Response) VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PostAdminAccountsAccountInstancesRequestObject struct {
+	Account string `json:"account"`
+	Body    *PostAdminAccountsAccountInstancesJSONRequestBody
+}
+
+type PostAdminAccountsAccountInstancesResponseObject interface {
+	VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error
+}
+
+type PostAdminAccountsAccountInstances201JSONResponse InstanceBody
+
+func (response PostAdminAccountsAccountInstances201JSONResponse) VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminAccountsAccountInstances400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminAccountsAccountInstances400JSONResponse) VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminAccountsAccountInstances422JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminAccountsAccountInstances422JSONResponse) VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteAdminAccountsAccountInstancesInstanceRequestObject struct {
+	Account  string `json:"account"`
 	Instance string `json:"instance"`
 }
 
-type GetAdminInstancesInstanceResponseObject interface {
-	VisitGetAdminInstancesInstanceResponse(w http.ResponseWriter) error
+type DeleteAdminAccountsAccountInstancesInstanceResponseObject interface {
+	VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error
 }
 
-type GetAdminInstancesInstance200JSONResponse InstanceBody
-
-func (response GetAdminInstancesInstance200JSONResponse) VisitGetAdminInstancesInstanceResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
+type DeleteAdminAccountsAccountInstancesInstance204Response struct {
 }
 
-type GetAdminInstancesInstance404Response struct {
+func (response DeleteAdminAccountsAccountInstancesInstance204Response) VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
 }
 
-func (response GetAdminInstancesInstance404Response) VisitGetAdminInstancesInstanceResponse(w http.ResponseWriter) error {
+type DeleteAdminAccountsAccountInstancesInstance404Response struct {
+}
+
+func (response DeleteAdminAccountsAccountInstancesInstance404Response) VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminInstancesInstanceLogsRequestObject struct {
+type GetAdminAccountsAccountInstancesInstanceRequestObject struct {
+	Account  string `json:"account"`
 	Instance string `json:"instance"`
 }
 
-type GetAdminInstancesInstanceLogsResponseObject interface {
-	VisitGetAdminInstancesInstanceLogsResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountInstancesInstanceResponseObject interface {
+	VisitGetAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error
 }
 
-type GetAdminInstancesInstanceLogs200JSONResponse []LogSummary
+type GetAdminAccountsAccountInstancesInstance200JSONResponse InstanceBody
 
-func (response GetAdminInstancesInstanceLogs200JSONResponse) VisitGetAdminInstancesInstanceLogsResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstance200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminInstancesInstanceLogs404Response struct {
+type GetAdminAccountsAccountInstancesInstance404Response struct {
 }
 
-func (response GetAdminInstancesInstanceLogs404Response) VisitGetAdminInstancesInstanceLogsResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstance404Response) VisitGetAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminInstancesInstanceTracesRequestObject struct {
+type PatchAdminAccountsAccountInstancesInstanceRequestObject struct {
+	Account  string `json:"account"`
 	Instance string `json:"instance"`
-	Params   GetAdminInstancesInstanceTracesParams
+	Body     *PatchAdminAccountsAccountInstancesInstanceJSONRequestBody
 }
 
-type GetAdminInstancesInstanceTracesResponseObject interface {
-	VisitGetAdminInstancesInstanceTracesResponse(w http.ResponseWriter) error
+type PatchAdminAccountsAccountInstancesInstanceResponseObject interface {
+	VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error
 }
 
-type GetAdminInstancesInstanceTraces200JSONResponse []TraceSummary
+type PatchAdminAccountsAccountInstancesInstance200JSONResponse InstanceBody
 
-func (response GetAdminInstancesInstanceTraces200JSONResponse) VisitGetAdminInstancesInstanceTracesResponse(w http.ResponseWriter) error {
+func (response PatchAdminAccountsAccountInstancesInstance200JSONResponse) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminInstancesInstanceTraces404Response struct {
+type PatchAdminAccountsAccountInstancesInstance400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response GetAdminInstancesInstanceTraces404Response) VisitGetAdminInstancesInstanceTracesResponse(w http.ResponseWriter) error {
+func (response PatchAdminAccountsAccountInstancesInstance400JSONResponse) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PatchAdminAccountsAccountInstancesInstance404Response struct {
+}
+
+func (response PatchAdminAccountsAccountInstancesInstance404Response) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminLogsLogRequestObject struct {
-	Log string `json:"log"`
+type GetAdminAccountsAccountInstancesInstanceConfigsRequestObject struct {
+	Account  string `json:"account"`
+	Instance string `json:"instance"`
 }
 
-type GetAdminLogsLogResponseObject interface {
-	VisitGetAdminLogsLogResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountInstancesInstanceConfigsResponseObject interface {
+	VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminLogsLog200JSONResponse []Log
+type GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse []externalRef0.Config
 
-func (response GetAdminLogsLog200JSONResponse) VisitGetAdminLogsLogResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminLogsLog404Response struct {
+type GetAdminAccountsAccountInstancesInstanceConfigs404Response struct {
 }
 
-func (response GetAdminLogsLog404Response) VisitGetAdminLogsLogResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstanceConfigs404Response) VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminTracesTraceRequestObject struct {
-	Trace string `json:"trace"`
+type PostAdminAccountsAccountInstancesInstanceConfigsRequestObject struct {
+	Account  string `json:"account"`
+	Instance string `json:"instance"`
+	Body     *PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody
 }
 
-type GetAdminTracesTraceResponseObject interface {
-	VisitGetAdminTracesTraceResponse(w http.ResponseWriter) error
+type PostAdminAccountsAccountInstancesInstanceConfigsResponseObject interface {
+	VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminTracesTrace200JSONResponse []Trace
+type PostAdminAccountsAccountInstancesInstanceConfigs201JSONResponse externalRef0.Config
 
-func (response GetAdminTracesTrace200JSONResponse) VisitGetAdminTracesTraceResponse(w http.ResponseWriter) error {
+func (response PostAdminAccountsAccountInstancesInstanceConfigs201JSONResponse) VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminAccountsAccountInstancesInstanceConfigs400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminAccountsAccountInstancesInstanceConfigs400JSONResponse) VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountInstancesInstanceLogsRequestObject struct {
+	Account  string `json:"account"`
+	Instance string `json:"instance"`
+}
+
+type GetAdminAccountsAccountInstancesInstanceLogsResponseObject interface {
+	VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse []LogSummary
+
+func (response GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminTracesTrace404Response struct {
+type GetAdminAccountsAccountInstancesInstanceLogs404Response struct {
 }
 
-func (response GetAdminTracesTrace404Response) VisitGetAdminTracesTraceResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstanceLogs404Response) VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminTracesTraceSpansSpanRequestObject struct {
-	Trace string `json:"trace"`
-	Span  string `json:"span"`
+type GetAdminAccountsAccountInstancesInstanceTracesRequestObject struct {
+	Account  string `json:"account"`
+	Instance string `json:"instance"`
+	Params   GetAdminAccountsAccountInstancesInstanceTracesParams
 }
 
-type GetAdminTracesTraceSpansSpanResponseObject interface {
-	VisitGetAdminTracesTraceSpansSpanResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountInstancesInstanceTracesResponseObject interface {
+	VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error
 }
 
-type GetAdminTracesTraceSpansSpan200JSONResponse []Span
+type GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse []TraceSummary
 
-func (response GetAdminTracesTraceSpansSpan200JSONResponse) VisitGetAdminTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminTracesTraceSpansSpan404Response struct {
+type GetAdminAccountsAccountInstancesInstanceTraces404Response struct {
 }
 
-func (response GetAdminTracesTraceSpansSpan404Response) VisitGetAdminTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountInstancesInstanceTraces404Response) VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountLogsLogRequestObject struct {
+	Account string `json:"account"`
+	Log     string `json:"log"`
+}
+
+type GetAdminAccountsAccountLogsLogResponseObject interface {
+	VisitGetAdminAccountsAccountLogsLogResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountLogsLog200JSONResponse []Log
+
+func (response GetAdminAccountsAccountLogsLog200JSONResponse) VisitGetAdminAccountsAccountLogsLogResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountLogsLog404Response struct {
+}
+
+func (response GetAdminAccountsAccountLogsLog404Response) VisitGetAdminAccountsAccountLogsLogResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountTracesRequestObject struct {
+	Account string `json:"account"`
+	Params  GetAdminAccountsAccountTracesParams
+}
+
+type GetAdminAccountsAccountTracesResponseObject interface {
+	VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountTraces200JSONResponse []TraceSummary
+
+func (response GetAdminAccountsAccountTraces200JSONResponse) VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountTraces404Response struct {
+}
+
+func (response GetAdminAccountsAccountTraces404Response) VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountTracesTraceRequestObject struct {
+	Account string `json:"account"`
+	Trace   string `json:"trace"`
+}
+
+type GetAdminAccountsAccountTracesTraceResponseObject interface {
+	VisitGetAdminAccountsAccountTracesTraceResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountTracesTrace200JSONResponse []Trace
+
+func (response GetAdminAccountsAccountTracesTrace200JSONResponse) VisitGetAdminAccountsAccountTracesTraceResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountTracesTrace404Response struct {
+}
+
+func (response GetAdminAccountsAccountTracesTrace404Response) VisitGetAdminAccountsAccountTracesTraceResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountTracesTraceSpansSpanRequestObject struct {
+	Account string `json:"account"`
+	Trace   string `json:"trace"`
+	Span    string `json:"span"`
+}
+
+type GetAdminAccountsAccountTracesTraceSpansSpanResponseObject interface {
+	VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountTracesTraceSpansSpan200JSONResponse []Span
+
+func (response GetAdminAccountsAccountTracesTraceSpansSpan200JSONResponse) VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountTracesTraceSpansSpan404Response struct {
+}
+
+func (response GetAdminAccountsAccountTracesTraceSpansSpan404Response) VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -935,35 +1635,59 @@ func (response GetAdminTracesTraceSpansSpan404Response) VisitGetAdminTracesTrace
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
-	// (POST /admin/configs)
-	PostAdminConfigs(ctx context.Context, request PostAdminConfigsRequestObject) (PostAdminConfigsResponseObject, error)
+	// (GET /admin/accounts)
+	GetAdminAccounts(ctx context.Context, request GetAdminAccountsRequestObject) (GetAdminAccountsResponseObject, error)
 
-	// (GET /admin/configs/{config})
-	GetAdminConfigsConfig(ctx context.Context, request GetAdminConfigsConfigRequestObject) (GetAdminConfigsConfigResponseObject, error)
+	// (POST /admin/accounts)
+	PostAdminAccounts(ctx context.Context, request PostAdminAccountsRequestObject) (PostAdminAccountsResponseObject, error)
 
-	// (GET /admin/instances)
-	GetAdminInstances(ctx context.Context, request GetAdminInstancesRequestObject) (GetAdminInstancesResponseObject, error)
+	// (GET /admin/accounts/{account})
+	GetAdminAccountsAccount(ctx context.Context, request GetAdminAccountsAccountRequestObject) (GetAdminAccountsAccountResponseObject, error)
 
-	// (POST /admin/instances)
-	PostAdminInstances(ctx context.Context, request PostAdminInstancesRequestObject) (PostAdminInstancesResponseObject, error)
+	// (DELETE /admin/accounts/{account}/configs/{config})
+	DeleteAdminAccountsAccountConfigsConfig(ctx context.Context, request DeleteAdminAccountsAccountConfigsConfigRequestObject) (DeleteAdminAccountsAccountConfigsConfigResponseObject, error)
 
-	// (GET /admin/instances/{instance})
-	GetAdminInstancesInstance(ctx context.Context, request GetAdminInstancesInstanceRequestObject) (GetAdminInstancesInstanceResponseObject, error)
+	// (GET /admin/accounts/{account}/configs/{config})
+	GetAdminAccountsAccountConfigsConfig(ctx context.Context, request GetAdminAccountsAccountConfigsConfigRequestObject) (GetAdminAccountsAccountConfigsConfigResponseObject, error)
 
-	// (GET /admin/instances/{instance}/logs)
-	GetAdminInstancesInstanceLogs(ctx context.Context, request GetAdminInstancesInstanceLogsRequestObject) (GetAdminInstancesInstanceLogsResponseObject, error)
+	// (GET /admin/accounts/{account}/instances)
+	GetAdminAccountsAccountInstances(ctx context.Context, request GetAdminAccountsAccountInstancesRequestObject) (GetAdminAccountsAccountInstancesResponseObject, error)
 
-	// (GET /admin/instances/{instance}/traces)
-	GetAdminInstancesInstanceTraces(ctx context.Context, request GetAdminInstancesInstanceTracesRequestObject) (GetAdminInstancesInstanceTracesResponseObject, error)
+	// (POST /admin/accounts/{account}/instances)
+	PostAdminAccountsAccountInstances(ctx context.Context, request PostAdminAccountsAccountInstancesRequestObject) (PostAdminAccountsAccountInstancesResponseObject, error)
 
-	// (GET /admin/logs/{log})
-	GetAdminLogsLog(ctx context.Context, request GetAdminLogsLogRequestObject) (GetAdminLogsLogResponseObject, error)
+	// (DELETE /admin/accounts/{account}/instances/{instance})
+	DeleteAdminAccountsAccountInstancesInstance(ctx context.Context, request DeleteAdminAccountsAccountInstancesInstanceRequestObject) (DeleteAdminAccountsAccountInstancesInstanceResponseObject, error)
 
-	// (GET /admin/traces/{trace})
-	GetAdminTracesTrace(ctx context.Context, request GetAdminTracesTraceRequestObject) (GetAdminTracesTraceResponseObject, error)
+	// (GET /admin/accounts/{account}/instances/{instance})
+	GetAdminAccountsAccountInstancesInstance(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceRequestObject) (GetAdminAccountsAccountInstancesInstanceResponseObject, error)
 
-	// (GET /admin/traces/{trace}/spans/{span})
-	GetAdminTracesTraceSpansSpan(ctx context.Context, request GetAdminTracesTraceSpansSpanRequestObject) (GetAdminTracesTraceSpansSpanResponseObject, error)
+	// (PATCH /admin/accounts/{account}/instances/{instance})
+	PatchAdminAccountsAccountInstancesInstance(ctx context.Context, request PatchAdminAccountsAccountInstancesInstanceRequestObject) (PatchAdminAccountsAccountInstancesInstanceResponseObject, error)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/configs)
+	GetAdminAccountsAccountInstancesInstanceConfigs(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceConfigsRequestObject) (GetAdminAccountsAccountInstancesInstanceConfigsResponseObject, error)
+
+	// (POST /admin/accounts/{account}/instances/{instance}/configs)
+	PostAdminAccountsAccountInstancesInstanceConfigs(ctx context.Context, request PostAdminAccountsAccountInstancesInstanceConfigsRequestObject) (PostAdminAccountsAccountInstancesInstanceConfigsResponseObject, error)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/logs)
+	GetAdminAccountsAccountInstancesInstanceLogs(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceLogsRequestObject) (GetAdminAccountsAccountInstancesInstanceLogsResponseObject, error)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/traces)
+	GetAdminAccountsAccountInstancesInstanceTraces(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceTracesRequestObject) (GetAdminAccountsAccountInstancesInstanceTracesResponseObject, error)
+
+	// (GET /admin/accounts/{account}/logs/{log})
+	GetAdminAccountsAccountLogsLog(ctx context.Context, request GetAdminAccountsAccountLogsLogRequestObject) (GetAdminAccountsAccountLogsLogResponseObject, error)
+
+	// (GET /admin/accounts/{account}/traces)
+	GetAdminAccountsAccountTraces(ctx context.Context, request GetAdminAccountsAccountTracesRequestObject) (GetAdminAccountsAccountTracesResponseObject, error)
+
+	// (GET /admin/accounts/{account}/traces/{trace})
+	GetAdminAccountsAccountTracesTrace(ctx context.Context, request GetAdminAccountsAccountTracesTraceRequestObject) (GetAdminAccountsAccountTracesTraceResponseObject, error)
+
+	// (GET /admin/accounts/{account}/traces/{trace}/spans/{span})
+	GetAdminAccountsAccountTracesTraceSpansSpan(ctx context.Context, request GetAdminAccountsAccountTracesTraceSpansSpanRequestObject) (GetAdminAccountsAccountTracesTraceSpansSpanResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -995,30 +1719,23 @@ type strictHandler struct {
 	options     StrictHTTPServerOptions
 }
 
-// PostAdminConfigs operation middleware
-func (sh *strictHandler) PostAdminConfigs(w http.ResponseWriter, r *http.Request) {
-	var request PostAdminConfigsRequestObject
-
-	var body PostAdminConfigsJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
+// GetAdminAccounts operation middleware
+func (sh *strictHandler) GetAdminAccounts(w http.ResponseWriter, r *http.Request) {
+	var request GetAdminAccountsRequestObject
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostAdminConfigs(ctx, request.(PostAdminConfigsRequestObject))
+		return sh.ssi.GetAdminAccounts(ctx, request.(GetAdminAccountsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostAdminConfigs")
+		handler = middleware(handler, "GetAdminAccounts")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostAdminConfigsResponseObject); ok {
-		if err := validResponse.VisitPostAdminConfigsResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1026,25 +1743,83 @@ func (sh *strictHandler) PostAdminConfigs(w http.ResponseWriter, r *http.Request
 	}
 }
 
-// GetAdminConfigsConfig operation middleware
-func (sh *strictHandler) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Request, config string) {
-	var request GetAdminConfigsConfigRequestObject
+// PostAdminAccounts operation middleware
+func (sh *strictHandler) PostAdminAccounts(w http.ResponseWriter, r *http.Request) {
+	var request PostAdminAccountsRequestObject
 
+	var body PostAdminAccountsJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostAdminAccounts(ctx, request.(PostAdminAccountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostAdminAccounts")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostAdminAccountsResponseObject); ok {
+		if err := validResponse.VisitPostAdminAccountsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccount operation middleware
+func (sh *strictHandler) GetAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string) {
+	var request GetAdminAccountsAccountRequestObject
+
+	request.Account = account
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccount(ctx, request.(GetAdminAccountsAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteAdminAccountsAccountConfigsConfig operation middleware
+func (sh *strictHandler) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
+	var request DeleteAdminAccountsAccountConfigsConfigRequestObject
+
+	request.Account = account
 	request.Config = config
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminConfigsConfig(ctx, request.(GetAdminConfigsConfigRequestObject))
+		return sh.ssi.DeleteAdminAccountsAccountConfigsConfig(ctx, request.(DeleteAdminAccountsAccountConfigsConfigRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminConfigsConfig")
+		handler = middleware(handler, "DeleteAdminAccountsAccountConfigsConfig")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminConfigsConfigResponseObject); ok {
-		if err := validResponse.VisitGetAdminConfigsConfigResponse(w); err != nil {
+	} else if validResponse, ok := response.(DeleteAdminAccountsAccountConfigsConfigResponseObject); ok {
+		if err := validResponse.VisitDeleteAdminAccountsAccountConfigsConfigResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1052,25 +1827,26 @@ func (sh *strictHandler) GetAdminConfigsConfig(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// GetAdminInstances operation middleware
-func (sh *strictHandler) GetAdminInstances(w http.ResponseWriter, r *http.Request, params GetAdminInstancesParams) {
-	var request GetAdminInstancesRequestObject
+// GetAdminAccountsAccountConfigsConfig operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
+	var request GetAdminAccountsAccountConfigsConfigRequestObject
 
-	request.Params = params
+	request.Account = account
+	request.Config = config
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminInstances(ctx, request.(GetAdminInstancesRequestObject))
+		return sh.ssi.GetAdminAccountsAccountConfigsConfig(ctx, request.(GetAdminAccountsAccountConfigsConfigRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminInstances")
+		handler = middleware(handler, "GetAdminAccountsAccountConfigsConfig")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminInstancesResponseObject); ok {
-		if err := validResponse.VisitGetAdminInstancesResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountConfigsConfigResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountConfigsConfigResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1078,13 +1854,39 @@ func (sh *strictHandler) GetAdminInstances(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// PostAdminInstances operation middleware
-func (sh *strictHandler) PostAdminInstances(w http.ResponseWriter, r *http.Request, params PostAdminInstancesParams) {
-	var request PostAdminInstancesRequestObject
+// GetAdminAccountsAccountInstances operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string) {
+	var request GetAdminAccountsAccountInstancesRequestObject
 
-	request.Params = params
+	request.Account = account
 
-	var body PostAdminInstancesJSONRequestBody
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountInstances(ctx, request.(GetAdminAccountsAccountInstancesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountInstances")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountInstancesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PostAdminAccountsAccountInstances operation middleware
+func (sh *strictHandler) PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string) {
+	var request PostAdminAccountsAccountInstancesRequestObject
+
+	request.Account = account
+
+	var body PostAdminAccountsAccountInstancesJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -1092,18 +1894,18 @@ func (sh *strictHandler) PostAdminInstances(w http.ResponseWriter, r *http.Reque
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostAdminInstances(ctx, request.(PostAdminInstancesRequestObject))
+		return sh.ssi.PostAdminAccountsAccountInstances(ctx, request.(PostAdminAccountsAccountInstancesRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostAdminInstances")
+		handler = middleware(handler, "PostAdminAccountsAccountInstances")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostAdminInstancesResponseObject); ok {
-		if err := validResponse.VisitPostAdminInstancesResponse(w); err != nil {
+	} else if validResponse, ok := response.(PostAdminAccountsAccountInstancesResponseObject); ok {
+		if err := validResponse.VisitPostAdminAccountsAccountInstancesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1111,25 +1913,26 @@ func (sh *strictHandler) PostAdminInstances(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// GetAdminInstancesInstance operation middleware
-func (sh *strictHandler) GetAdminInstancesInstance(w http.ResponseWriter, r *http.Request, instance string) {
-	var request GetAdminInstancesInstanceRequestObject
+// DeleteAdminAccountsAccountInstancesInstance operation middleware
+func (sh *strictHandler) DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	var request DeleteAdminAccountsAccountInstancesInstanceRequestObject
 
+	request.Account = account
 	request.Instance = instance
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminInstancesInstance(ctx, request.(GetAdminInstancesInstanceRequestObject))
+		return sh.ssi.DeleteAdminAccountsAccountInstancesInstance(ctx, request.(DeleteAdminAccountsAccountInstancesInstanceRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminInstancesInstance")
+		handler = middleware(handler, "DeleteAdminAccountsAccountInstancesInstance")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminInstancesInstanceResponseObject); ok {
-		if err := validResponse.VisitGetAdminInstancesInstanceResponse(w); err != nil {
+	} else if validResponse, ok := response.(DeleteAdminAccountsAccountInstancesInstanceResponseObject); ok {
+		if err := validResponse.VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1137,25 +1940,26 @@ func (sh *strictHandler) GetAdminInstancesInstance(w http.ResponseWriter, r *htt
 	}
 }
 
-// GetAdminInstancesInstanceLogs operation middleware
-func (sh *strictHandler) GetAdminInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, instance string) {
-	var request GetAdminInstancesInstanceLogsRequestObject
+// GetAdminAccountsAccountInstancesInstance operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	var request GetAdminAccountsAccountInstancesInstanceRequestObject
 
+	request.Account = account
 	request.Instance = instance
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminInstancesInstanceLogs(ctx, request.(GetAdminInstancesInstanceLogsRequestObject))
+		return sh.ssi.GetAdminAccountsAccountInstancesInstance(ctx, request.(GetAdminAccountsAccountInstancesInstanceRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminInstancesInstanceLogs")
+		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstance")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminInstancesInstanceLogsResponseObject); ok {
-		if err := validResponse.VisitGetAdminInstancesInstanceLogsResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1163,26 +1967,149 @@ func (sh *strictHandler) GetAdminInstancesInstanceLogs(w http.ResponseWriter, r 
 	}
 }
 
-// GetAdminInstancesInstanceTraces operation middleware
-func (sh *strictHandler) GetAdminInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, instance string, params GetAdminInstancesInstanceTracesParams) {
-	var request GetAdminInstancesInstanceTracesRequestObject
+// PatchAdminAccountsAccountInstancesInstance operation middleware
+func (sh *strictHandler) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	var request PatchAdminAccountsAccountInstancesInstanceRequestObject
 
+	request.Account = account
+	request.Instance = instance
+
+	var body PatchAdminAccountsAccountInstancesInstanceJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PatchAdminAccountsAccountInstancesInstance(ctx, request.(PatchAdminAccountsAccountInstancesInstanceRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PatchAdminAccountsAccountInstancesInstance")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PatchAdminAccountsAccountInstancesInstanceResponseObject); ok {
+		if err := validResponse.VisitPatchAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountInstancesInstanceConfigs operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	var request GetAdminAccountsAccountInstancesInstanceConfigsRequestObject
+
+	request.Account = account
+	request.Instance = instance
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountInstancesInstanceConfigs(ctx, request.(GetAdminAccountsAccountInstancesInstanceConfigsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceConfigs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceConfigsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PostAdminAccountsAccountInstancesInstanceConfigs operation middleware
+func (sh *strictHandler) PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	var request PostAdminAccountsAccountInstancesInstanceConfigsRequestObject
+
+	request.Account = account
+	request.Instance = instance
+
+	var body PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostAdminAccountsAccountInstancesInstanceConfigs(ctx, request.(PostAdminAccountsAccountInstancesInstanceConfigsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostAdminAccountsAccountInstancesInstanceConfigs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostAdminAccountsAccountInstancesInstanceConfigsResponseObject); ok {
+		if err := validResponse.VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountInstancesInstanceLogs operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	var request GetAdminAccountsAccountInstancesInstanceLogsRequestObject
+
+	request.Account = account
+	request.Instance = instance
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountInstancesInstanceLogs(ctx, request.(GetAdminAccountsAccountInstancesInstanceLogsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceLogs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceLogsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountInstancesInstanceTraces operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceTracesParams) {
+	var request GetAdminAccountsAccountInstancesInstanceTracesRequestObject
+
+	request.Account = account
 	request.Instance = instance
 	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminInstancesInstanceTraces(ctx, request.(GetAdminInstancesInstanceTracesRequestObject))
+		return sh.ssi.GetAdminAccountsAccountInstancesInstanceTraces(ctx, request.(GetAdminAccountsAccountInstancesInstanceTracesRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminInstancesInstanceTraces")
+		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceTraces")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminInstancesInstanceTracesResponseObject); ok {
-		if err := validResponse.VisitGetAdminInstancesInstanceTracesResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceTracesResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1190,25 +2117,26 @@ func (sh *strictHandler) GetAdminInstancesInstanceTraces(w http.ResponseWriter, 
 	}
 }
 
-// GetAdminLogsLog operation middleware
-func (sh *strictHandler) GetAdminLogsLog(w http.ResponseWriter, r *http.Request, log string) {
-	var request GetAdminLogsLogRequestObject
+// GetAdminAccountsAccountLogsLog operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string) {
+	var request GetAdminAccountsAccountLogsLogRequestObject
 
+	request.Account = account
 	request.Log = log
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminLogsLog(ctx, request.(GetAdminLogsLogRequestObject))
+		return sh.ssi.GetAdminAccountsAccountLogsLog(ctx, request.(GetAdminAccountsAccountLogsLogRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminLogsLog")
+		handler = middleware(handler, "GetAdminAccountsAccountLogsLog")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminLogsLogResponseObject); ok {
-		if err := validResponse.VisitGetAdminLogsLogResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountLogsLogResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountLogsLogResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1216,25 +2144,53 @@ func (sh *strictHandler) GetAdminLogsLog(w http.ResponseWriter, r *http.Request,
 	}
 }
 
-// GetAdminTracesTrace operation middleware
-func (sh *strictHandler) GetAdminTracesTrace(w http.ResponseWriter, r *http.Request, trace string) {
-	var request GetAdminTracesTraceRequestObject
+// GetAdminAccountsAccountTraces operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountTracesParams) {
+	var request GetAdminAccountsAccountTracesRequestObject
 
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountTraces(ctx, request.(GetAdminAccountsAccountTracesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountTraces")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountTracesResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountTracesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountTracesTrace operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request, account string, trace string) {
+	var request GetAdminAccountsAccountTracesTraceRequestObject
+
+	request.Account = account
 	request.Trace = trace
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminTracesTrace(ctx, request.(GetAdminTracesTraceRequestObject))
+		return sh.ssi.GetAdminAccountsAccountTracesTrace(ctx, request.(GetAdminAccountsAccountTracesTraceRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminTracesTrace")
+		handler = middleware(handler, "GetAdminAccountsAccountTracesTrace")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminTracesTraceResponseObject); ok {
-		if err := validResponse.VisitGetAdminTracesTraceResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountTracesTraceResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountTracesTraceResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1242,26 +2198,27 @@ func (sh *strictHandler) GetAdminTracesTrace(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// GetAdminTracesTraceSpansSpan operation middleware
-func (sh *strictHandler) GetAdminTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, trace string, span string) {
-	var request GetAdminTracesTraceSpansSpanRequestObject
+// GetAdminAccountsAccountTracesTraceSpansSpan operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, account string, trace string, span string) {
+	var request GetAdminAccountsAccountTracesTraceSpansSpanRequestObject
 
+	request.Account = account
 	request.Trace = trace
 	request.Span = span
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminTracesTraceSpansSpan(ctx, request.(GetAdminTracesTraceSpansSpanRequestObject))
+		return sh.ssi.GetAdminAccountsAccountTracesTraceSpansSpan(ctx, request.(GetAdminAccountsAccountTracesTraceSpansSpanRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminTracesTraceSpansSpan")
+		handler = middleware(handler, "GetAdminAccountsAccountTracesTraceSpansSpan")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminTracesTraceSpansSpanResponseObject); ok {
-		if err := validResponse.VisitGetAdminTracesTraceSpansSpanResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountTracesTraceSpansSpanResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

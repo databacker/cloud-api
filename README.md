@@ -85,3 +85,25 @@ new paths, and therefore require new databacker versions. However:
 * all new endpoints should be backwards compatible with previous versions of databacker, which will be unaware of them
 * some new versions of existing resources should be backwards compatible with previous versions of databacker, when they simply add new fields, that should be ignored by older versions of databacker
 * other new versions of existing resources may not be backwards compatible with previous versions of databacker, when they change the meaning of existing fields, or remove fields; new media-types should be used for these
+
+## API philosophy
+
+The API endpoints are all designed to be as RESTful as possible, with the following principles.
+
+All endpoints begin with `/admin/`, to distinguish from other endpoint domains that may be used for other purposes.
+
+All resources include two paths to the same resource: one that does not include the account name, and one that does.
+Using the path without the account name is optional, and will default to the equivalent path with your login account.
+Users with multiple accounts may use the account-specific paths to access resources in other accounts they have access to.
+
+In all cases, your authenticated user will be checked for access to the account before giving access to resources.
+
+For example, if my default account is `123`, then the following
+are equivalent:
+
+* `/admin/instances/`
+* `/admin/accounts/123/instances/`
+
+However, the following is only valid if my user has access to account `456`:
+
+* `/admin/accounts/456/instances/`
