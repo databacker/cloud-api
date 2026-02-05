@@ -1,9 +1,12 @@
 all: sdk
 
-.PHONY: all sdk sdk-container go
+.PHONY: all sdk sdk-container go submodules
 
-sdk: go
+sdk: submodules go
 	@echo Done building SDKs
+
+submodules:
+	git submodule update --init --recursive
 
 # sdk-container is a helper target to build the SDKs in a container. It builds a container image
 # based on the contents of .devcontainer/Dockerfile and runs the make sdk target inside the container.
