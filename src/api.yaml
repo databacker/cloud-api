@@ -55,6 +55,13 @@ x-parameters:
       type: string
     required: true
     description: Unique ID of the log
+  user: &user-param
+    in: path
+    name: user
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the user
 
 x-responses:
   not-found: &not-found-response
@@ -81,6 +88,42 @@ x-responses:
             *error-message-schema
 
 paths:      
+  /admin/system/healthz:
+    get:
+      description: health check endpoint, accessible without authentication
+      security: []
+      responses:
+        '200':
+          description: system is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /admin/system/stats:
+    get:
+      description: global system statistics (admin only)
+      responses:
+        '200':
+          description: system statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_accounts:
+                    type: integer
+                  total_instances:
+                    type: integer
+                  total_users:
+                    type: integer
+                  storage_used_bytes:
+                    type: integer
+
   /admin/accounts:      
     get:
       description: list all of the accounts for which the authenticated user has access
@@ -141,6 +184,38 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/AccountBody'
+    patch:
+      description: update account details (admin only)
+      parameters:
+        - *account-param
+      requestBody:
+        description: account updates
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/NewAccount'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: account successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/AccountBody'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+    delete:
+      description: delete an account (admin only)
+      parameters:
+        - *account-param
+      responses:
+        '204':
+          description: account successfully deleted
+        <<: *not-found-response
   /admin/accounts/{account}/instances:
     get:
       description: list all of the instances in a given account
@@ -441,4 +516,90 @@ paths:
       responses:
         '204':
           description: config successfully deleted
+        <<: *not-found-response
+
+  /admin/users:
+    post:
+      description: create a new user (admin only)
+      requestBody:
+        description: information for new user
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/NewUser'
+      responses:
+        '201':
+          description: successfully created user
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UserBody'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/users/{user}:
+    delete:
+      description: delete a user (admin only)
+      parameters:
+        - *user-param
+      responses:
+        '204':
+          description: user successfully deleted
+        <<: *not-found-response
+
+  /admin/accounts/{account}/users:
+    get:
+      description: list users in an account
+      parameters:
+        - *account-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: list of users in the account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string # just list of user IDs
+    post:
+      description: add a user to an account
+      parameters:
+        - *account-param
+      requestBody:
+        description: user to add to account
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                  description: User ID to add to account
+              required:
+                - user
+      responses:
+        '201':
+          description: user successfully added to account
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        <<: *not-found-response
+
+  /admin/accounts/{account}/users/{user}:
+    delete:
+      description: remove a user from an account
+      parameters:
+        - *account-param
+        - *user-param
+      responses:
+        '204':
+          description: user successfully removed from account
         <<: *not-found-response

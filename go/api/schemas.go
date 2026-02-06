@@ -109,6 +109,15 @@ type NewInstance struct {
 	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
 }
 
+// NewUser information for a new user
+type NewUser struct {
+	// Email email address of the user
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+
+	// Name full name of the user
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+}
+
 // Span defines model for Span.
 type Span struct {
 	Attributes    *map[string]interface{} `json:"attributes,omitempty" yaml:"attributes,omitempty"`
@@ -168,4 +177,11 @@ type TraceSummary struct {
 
 	// Size size of trace in bytes
 	Size *int `json:"size,omitempty" yaml:"size,omitempty"`
+}
+
+// UserBody defines model for UserBody.
+type UserBody struct {
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+	ID    *string `json:"id,omitempty" yaml:"id,omitempty"`
+	Name  *string `json:"name,omitempty" yaml:"name,omitempty"`
 }

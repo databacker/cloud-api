@@ -52,6 +52,27 @@ components:
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
+    NewUser:
+      type: object
+      description: information for a new user
+      properties:
+        email:
+          type: string
+          description: email address of the user
+        name:
+          type: string
+          description: full name of the user
+
+    UserBody:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        email:
+          type: string
+        name:
+          type: string
     LogLine:
       type: object
       properties:
