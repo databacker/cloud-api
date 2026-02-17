@@ -26,6 +26,12 @@ components:
         publicKey:
           type: string
           description: ECDSA public key to associate with the instance, PEM-encoded
+        name:
+          type: string
+          description: name of the instance
+        description:
+          type: string
+          description: description of the instance
     InstanceBody:
       type: object
       properties:

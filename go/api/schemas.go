@@ -105,6 +105,12 @@ type NewAccount struct {
 
 // NewInstance information for a new licensed databacker instance
 type NewInstance struct {
+	// Description description of the instance
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
+
+	// Name name of the instance
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
 	// PublicKey ECDSA public key to associate with the instance, PEM-encoded
 	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
 }
