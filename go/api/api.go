@@ -88,7 +88,7 @@ type PatchAdminSelfJSONRequestBody = SelfProfileUpdate
 type PostAdminSelfAccountsJSONRequestBody = SelfCreateAccountRequest
 
 // PostAdminUsersJSONRequestBody defines body for PostAdminUsers for application/json ContentType.
-type PostAdminUsersJSONRequestBody = NewUser
+type PostAdminUsersJSONRequestBody = UserBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -2596,7 +2596,7 @@ type PostAdminUsersResponseObject interface {
 	VisitPostAdminUsersResponse(w http.ResponseWriter) error
 }
 
-type PostAdminUsers201JSONResponse UserBody
+type PostAdminUsers201JSONResponse User
 
 func (response PostAdminUsers201JSONResponse) VisitPostAdminUsersResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")

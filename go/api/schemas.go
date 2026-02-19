@@ -128,15 +128,6 @@ type NewInstance struct {
 	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
 }
 
-// NewUser information for a new user
-type NewUser struct {
-	// Email email address of the user
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
-
-	// Name full name of the user
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-}
-
 // RegisterRequest information for self-registration of a new user
 type RegisterRequest struct {
 	// Email email address of the user
@@ -261,9 +252,21 @@ type TraceSummary struct {
 	Size *int `json:"size,omitempty" yaml:"size,omitempty"`
 }
 
-// UserBody defines model for UserBody.
-type UserBody struct {
+// User defines model for User.
+type User struct {
+	// Email email address of the user
 	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
 	ID    *string `json:"id,omitempty" yaml:"id,omitempty"`
-	Name  *string `json:"name,omitempty" yaml:"name,omitempty"`
+
+	// Name full name of the user
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+}
+
+// UserBody information for a new user
+type UserBody struct {
+	// Email email address of the user
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+
+	// Name full name of the user
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
 }
