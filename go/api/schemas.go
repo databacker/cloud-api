@@ -50,9 +50,29 @@ type ID struct {
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 }
 
-// InstanceBody defines model for InstanceBody.
+// Instance defines model for Instance.
+type Instance struct {
+	// Description description of the instance
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
+	ID          *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// Name name of the instance
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
+	// PublicKey ECDSA public key to associate with the instance, PEM-encoded
+	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
+}
+
+// InstanceBody information for a new licensed databacker instance
 type InstanceBody struct {
-	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+	// Description description of the instance
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
+
+	// Name name of the instance
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
+	// PublicKey ECDSA public key to associate with the instance, PEM-encoded
+	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
 }
 
 // Log defines model for Log.
@@ -114,18 +134,6 @@ type Metadata struct {
 
 	// Name name of the config
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-}
-
-// NewInstance information for a new licensed databacker instance
-type NewInstance struct {
-	// Description description of the instance
-	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
-
-	// Name name of the instance
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-
-	// PublicKey ECDSA public key to associate with the instance, PEM-encoded
-	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
 }
 
 // RegisterRequest information for self-registration of a new user

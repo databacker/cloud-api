@@ -26,7 +26,7 @@ components:
           type: string
           description: SHA256 digest of the config, optional
 
-    NewInstance:
+    InstanceBody:
       type: object
       description: information for a new licensed databacker instance
       properties:
@@ -39,12 +39,11 @@ components:
         description:
           type: string
           description: description of the instance
-    InstanceBody:
+    Instance:
       type: object
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
+      allOf:
+        - $ref: '#/components/schemas/InstanceBody'
+        - $ref: '#/components/schemas/ID'
     AccountBody:
       type: object
       description: information for a new databacker account

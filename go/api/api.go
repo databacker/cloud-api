@@ -64,10 +64,10 @@ type PostAdminAccountsJSONRequestBody = Account
 type PatchAdminAccountsAccountJSONRequestBody = Account
 
 // PostAdminAccountsAccountInstancesJSONRequestBody defines body for PostAdminAccountsAccountInstances for application/json ContentType.
-type PostAdminAccountsAccountInstancesJSONRequestBody = NewInstance
+type PostAdminAccountsAccountInstancesJSONRequestBody = InstanceBody
 
 // PatchAdminAccountsAccountInstancesInstanceJSONRequestBody defines body for PatchAdminAccountsAccountInstancesInstance for application/json ContentType.
-type PatchAdminAccountsAccountInstancesInstanceJSONRequestBody = NewInstance
+type PatchAdminAccountsAccountInstancesInstanceJSONRequestBody = InstanceBody
 
 // PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody defines body for PostAdminAccountsAccountInstancesInstanceConfigs for application/json ContentType.
 type PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody = externalRef0.Config
