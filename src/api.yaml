@@ -104,6 +104,109 @@ paths:
                     type: string
                     example: ok
 
+  /admin/register:
+    post:
+      description: register a new user; does not require a pre-existing user record, only a valid JWT from the identity provider
+      requestBody:
+        description: information for the new user
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: successfully registered user
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/RegisterResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/self:
+    get:
+      description: retrieve the profile of the calling user, scoped to the JWT subject
+      responses:
+        <<: *not-found-response
+        '200':
+          description: profile of the calling user
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/SelfProfile'
+    patch:
+      description: update the profile of the calling user, scoped to the JWT subject
+      requestBody:
+        description: profile fields to update
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/SelfProfileUpdate'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: profile successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/SelfProfile'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/self/accounts:
+    get:
+      description: list the accounts the calling user belongs to, along with their role in each
+      responses:
+        '200':
+          description: list of accounts with roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/components/schemas/SelfAccountEntry'
+    post:
+      description: create a new account; the calling user is automatically made the owner
+      requestBody:
+        description: information for the new account
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/SelfCreateAccountRequest'
+      responses:
+        '201':
+          description: successfully created account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/SelfCreateAccountResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '422':
+          description: Quota exceeded
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
   /admin/system/stats:
     get:
       description: global system statistics (admin only)
@@ -137,7 +240,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: './schemas.yaml#/components/schemas/AccountWithID'
+                  $ref: './schemas.yaml#/components/schemas/Account'
     post:
       description: create a new account, normally limited to system administrators
       requestBody:
@@ -152,7 +255,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/AccountBody'  # returns the body created
+                $ref: './schemas.yaml#/components/schemas/ID'  # returns the body created
         '400':
           description: Invalid request
           content:
@@ -183,7 +286,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/AccountWithID'
+                $ref: './schemas.yaml#/components/schemas/Account'
     patch:
       description: update account details (admin only)
       parameters:
@@ -201,7 +304,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/AccountBody'
+                $ref: './schemas.yaml#/components/schemas/Account'
         '400':
           description: Invalid request
           content:

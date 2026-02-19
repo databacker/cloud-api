@@ -6,6 +6,13 @@ info:
 paths: {} # technically not needed under openapi3, but does not hurt, and aids backwards-compatibility
 components:
   schemas:
+    ID:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+
     Metadata:
       type: object
       properties:
@@ -38,7 +45,7 @@ components:
         id:
           type: string
           example: 550e8400-e29b-41d4-a716-446655440000
-    Account:
+    AccountBody:
       type: object
       description: information for a new databacker account
       properties:
@@ -51,18 +58,12 @@ components:
         phone:
           type: string
           description: phone number associated with the account
-    AccountWithID:
+    Account:
       description: information for a databacker account with ID
       allOf:
-        - $ref: '#/components/schemas/Account'
         - $ref: '#/components/schemas/AccountBody'
+        - $ref: '#/components/schemas/ID'
 
-    AccountBody:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
     NewUser:
       type: object
       description: information for a new user
@@ -251,7 +252,94 @@ components:
           type: object
           additionalProperties: true
         payload:
-          type: object                    
+          type: object
+
+    RegisterRequest:
+      type: object
+      description: information for self-registration of a new user
+      properties:
+        name:
+          type: string
+          description: full name of the user
+        email:
+          type: string
+          description: email address of the user
+      required:
+        - name
+        - email
+
+    RegisterResponse:
+      type: object
+      description: response after successful self-registration
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+          description: unique ID of the newly created user
+
+    SelfProfile:
+      type: object
+      description: profile of the calling user
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+          description: unique ID of the user
+        name:
+          type: string
+          description: full name of the user
+        email:
+          type: string
+          description: email address of the user
+
+    SelfProfileUpdate:
+      type: object
+      description: fields to update on the calling user's profile
+      properties:
+        name:
+          type: string
+          description: full name of the user
+        email:
+          type: string
+          description: email address of the user
+
+    SelfAccountEntry:
+      type: object
+      description: an account the calling user belongs to, with their role
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+          description: unique ID of the account
+        name:
+          type: string
+          description: name of the account
+        role:
+          type: string
+          description: role of the calling user in this account
+
+    SelfCreateAccountRequest:
+      type: object
+      description: information for creating a new account as a self-service user
+      properties:
+        name:
+          type: string
+          description: name of the account
+        description:
+          type: string
+          description: optional description of the account
+      required:
+        - name
+
+    SelfCreateAccountResponse:
+      type: object
+      description: response after successfully creating a new account
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+          description: unique ID of the newly created account
+
   securitySchemes:
     # note that we could explicitly use the "type: oauth2" with flows, but that would
     # require stating the endpoints, which are an implementation detail, and would not

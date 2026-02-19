@@ -78,6 +78,15 @@ type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJ
 // PatchAdminAccountsAccountUsersUserJSONRequestBody defines body for PatchAdminAccountsAccountUsersUser for application/json ContentType.
 type PatchAdminAccountsAccountUsersUserJSONRequestBody PatchAdminAccountsAccountUsersUserJSONBody
 
+// PostAdminRegisterJSONRequestBody defines body for PostAdminRegister for application/json ContentType.
+type PostAdminRegisterJSONRequestBody = RegisterRequest
+
+// PatchAdminSelfJSONRequestBody defines body for PatchAdminSelf for application/json ContentType.
+type PatchAdminSelfJSONRequestBody = SelfProfileUpdate
+
+// PostAdminSelfAccountsJSONRequestBody defines body for PostAdminSelfAccounts for application/json ContentType.
+type PostAdminSelfAccountsJSONRequestBody = SelfCreateAccountRequest
+
 // PostAdminUsersJSONRequestBody defines body for PostAdminUsers for application/json ContentType.
 type PostAdminUsersJSONRequestBody = NewUser
 
@@ -155,6 +164,21 @@ type ServerInterface interface {
 
 	// (PATCH /admin/accounts/{account}/users/{user})
 	PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string)
+
+	// (POST /admin/register)
+	PostAdminRegister(w http.ResponseWriter, r *http.Request)
+
+	// (GET /admin/self)
+	GetAdminSelf(w http.ResponseWriter, r *http.Request)
+
+	// (PATCH /admin/self)
+	PatchAdminSelf(w http.ResponseWriter, r *http.Request)
+
+	// (GET /admin/self/accounts)
+	GetAdminSelfAccounts(w http.ResponseWriter, r *http.Request)
+
+	// (POST /admin/self/accounts)
+	PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request)
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request)
@@ -290,6 +314,31 @@ func (_ Unimplemented) DeleteAdminAccountsAccountUsersUser(w http.ResponseWriter
 
 // (PATCH /admin/accounts/{account}/users/{user})
 func (_ Unimplemented) PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/register)
+func (_ Unimplemented) PostAdminRegister(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/self)
+func (_ Unimplemented) GetAdminSelf(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PATCH /admin/self)
+func (_ Unimplemented) PatchAdminSelf(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/self/accounts)
+func (_ Unimplemented) GetAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/self/accounts)
+func (_ Unimplemented) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1265,6 +1314,106 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountUsersUser(w http.Res
 	handler.ServeHTTP(w, r)
 }
 
+// PostAdminRegister operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminRegister(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminRegister(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminSelf operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminSelf(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminSelf(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PatchAdminSelf operation middleware
+func (siw *ServerInterfaceWrapper) PatchAdminSelf(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchAdminSelf(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminSelfAccounts operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminSelfAccounts(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostAdminSelfAccounts operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminSelfAccounts(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminSystemHealthz operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request) {
 
@@ -1536,6 +1685,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Patch(options.BaseURL+"/admin/accounts/{account}/users/{user}", wrapper.PatchAdminAccountsAccountUsersUser)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/register", wrapper.PostAdminRegister)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/self", wrapper.GetAdminSelf)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/admin/self", wrapper.PatchAdminSelf)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/self/accounts", wrapper.GetAdminSelfAccounts)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/self/accounts", wrapper.PostAdminSelfAccounts)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/system/healthz", wrapper.GetAdminSystemHealthz)
 	})
 	r.Group(func(r chi.Router) {
@@ -1558,7 +1722,7 @@ type GetAdminAccountsResponseObject interface {
 	VisitGetAdminAccountsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccounts200JSONResponse []AccountWithID
+type GetAdminAccounts200JSONResponse []Account
 
 func (response GetAdminAccounts200JSONResponse) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1583,7 +1747,7 @@ type PostAdminAccountsResponseObject interface {
 	VisitPostAdminAccountsResponse(w http.ResponseWriter) error
 }
 
-type PostAdminAccounts201JSONResponse AccountBody
+type PostAdminAccounts201JSONResponse ID
 
 func (response PostAdminAccounts201JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1646,7 +1810,7 @@ type GetAdminAccountsAccountResponseObject interface {
 	VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccount200JSONResponse AccountWithID
+type GetAdminAccountsAccount200JSONResponse Account
 
 func (response GetAdminAccountsAccount200JSONResponse) VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1672,7 +1836,7 @@ type PatchAdminAccountsAccountResponseObject interface {
 	VisitPatchAdminAccountsAccountResponse(w http.ResponseWriter) error
 }
 
-type PatchAdminAccountsAccount200JSONResponse AccountBody
+type PatchAdminAccountsAccount200JSONResponse Account
 
 func (response PatchAdminAccountsAccount200JSONResponse) VisitPatchAdminAccountsAccountResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2231,6 +2395,160 @@ func (response PatchAdminAccountsAccountUsersUser404Response) VisitPatchAdminAcc
 	return nil
 }
 
+type PostAdminRegisterRequestObject struct {
+	Body *PostAdminRegisterJSONRequestBody
+}
+
+type PostAdminRegisterResponseObject interface {
+	VisitPostAdminRegisterResponse(w http.ResponseWriter) error
+}
+
+type PostAdminRegister201JSONResponse RegisterResponse
+
+func (response PostAdminRegister201JSONResponse) VisitPostAdminRegisterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminRegister400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminRegister400JSONResponse) VisitPostAdminRegisterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminRegister409JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminRegister409JSONResponse) VisitPostAdminRegisterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminSelfRequestObject struct {
+}
+
+type GetAdminSelfResponseObject interface {
+	VisitGetAdminSelfResponse(w http.ResponseWriter) error
+}
+
+type GetAdminSelf200JSONResponse SelfProfile
+
+func (response GetAdminSelf200JSONResponse) VisitGetAdminSelfResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminSelf404Response struct {
+}
+
+func (response GetAdminSelf404Response) VisitGetAdminSelfResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PatchAdminSelfRequestObject struct {
+	Body *PatchAdminSelfJSONRequestBody
+}
+
+type PatchAdminSelfResponseObject interface {
+	VisitPatchAdminSelfResponse(w http.ResponseWriter) error
+}
+
+type PatchAdminSelf200JSONResponse SelfProfile
+
+func (response PatchAdminSelf200JSONResponse) VisitPatchAdminSelfResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PatchAdminSelf400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PatchAdminSelf400JSONResponse) VisitPatchAdminSelfResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PatchAdminSelf404Response struct {
+}
+
+func (response PatchAdminSelf404Response) VisitPatchAdminSelfResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminSelfAccountsRequestObject struct {
+}
+
+type GetAdminSelfAccountsResponseObject interface {
+	VisitGetAdminSelfAccountsResponse(w http.ResponseWriter) error
+}
+
+type GetAdminSelfAccounts200JSONResponse []SelfAccountEntry
+
+func (response GetAdminSelfAccounts200JSONResponse) VisitGetAdminSelfAccountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminSelfAccountsRequestObject struct {
+	Body *PostAdminSelfAccountsJSONRequestBody
+}
+
+type PostAdminSelfAccountsResponseObject interface {
+	VisitPostAdminSelfAccountsResponse(w http.ResponseWriter) error
+}
+
+type PostAdminSelfAccounts201JSONResponse SelfCreateAccountResponse
+
+func (response PostAdminSelfAccounts201JSONResponse) VisitPostAdminSelfAccountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminSelfAccounts400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminSelfAccounts400JSONResponse) VisitPostAdminSelfAccountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminSelfAccounts422JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminSelfAccounts422JSONResponse) VisitPostAdminSelfAccountsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetAdminSystemHealthzRequestObject struct {
 }
 
@@ -2396,6 +2714,21 @@ type StrictServerInterface interface {
 
 	// (PATCH /admin/accounts/{account}/users/{user})
 	PatchAdminAccountsAccountUsersUser(ctx context.Context, request PatchAdminAccountsAccountUsersUserRequestObject) (PatchAdminAccountsAccountUsersUserResponseObject, error)
+
+	// (POST /admin/register)
+	PostAdminRegister(ctx context.Context, request PostAdminRegisterRequestObject) (PostAdminRegisterResponseObject, error)
+
+	// (GET /admin/self)
+	GetAdminSelf(ctx context.Context, request GetAdminSelfRequestObject) (GetAdminSelfResponseObject, error)
+
+	// (PATCH /admin/self)
+	PatchAdminSelf(ctx context.Context, request PatchAdminSelfRequestObject) (PatchAdminSelfResponseObject, error)
+
+	// (GET /admin/self/accounts)
+	GetAdminSelfAccounts(ctx context.Context, request GetAdminSelfAccountsRequestObject) (GetAdminSelfAccountsResponseObject, error)
+
+	// (POST /admin/self/accounts)
+	PostAdminSelfAccounts(ctx context.Context, request PostAdminSelfAccountsRequestObject) (PostAdminSelfAccountsResponseObject, error)
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(ctx context.Context, request GetAdminSystemHealthzRequestObject) (GetAdminSystemHealthzResponseObject, error)
@@ -3118,6 +3451,147 @@ func (sh *strictHandler) PatchAdminAccountsAccountUsersUser(w http.ResponseWrite
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PatchAdminAccountsAccountUsersUserResponseObject); ok {
 		if err := validResponse.VisitPatchAdminAccountsAccountUsersUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PostAdminRegister operation middleware
+func (sh *strictHandler) PostAdminRegister(w http.ResponseWriter, r *http.Request) {
+	var request PostAdminRegisterRequestObject
+
+	var body PostAdminRegisterJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostAdminRegister(ctx, request.(PostAdminRegisterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostAdminRegister")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostAdminRegisterResponseObject); ok {
+		if err := validResponse.VisitPostAdminRegisterResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminSelf operation middleware
+func (sh *strictHandler) GetAdminSelf(w http.ResponseWriter, r *http.Request) {
+	var request GetAdminSelfRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminSelf(ctx, request.(GetAdminSelfRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminSelf")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminSelfResponseObject); ok {
+		if err := validResponse.VisitGetAdminSelfResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PatchAdminSelf operation middleware
+func (sh *strictHandler) PatchAdminSelf(w http.ResponseWriter, r *http.Request) {
+	var request PatchAdminSelfRequestObject
+
+	var body PatchAdminSelfJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PatchAdminSelf(ctx, request.(PatchAdminSelfRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PatchAdminSelf")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PatchAdminSelfResponseObject); ok {
+		if err := validResponse.VisitPatchAdminSelfResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminSelfAccounts operation middleware
+func (sh *strictHandler) GetAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+	var request GetAdminSelfAccountsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminSelfAccounts(ctx, request.(GetAdminSelfAccountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminSelfAccounts")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminSelfAccountsResponseObject); ok {
+		if err := validResponse.VisitGetAdminSelfAccountsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PostAdminSelfAccounts operation middleware
+func (sh *strictHandler) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+	var request PostAdminSelfAccountsRequestObject
+
+	var body PostAdminSelfAccountsJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostAdminSelfAccounts(ctx, request.(PostAdminSelfAccountsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostAdminSelfAccounts")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostAdminSelfAccountsResponseObject); ok {
+		if err := validResponse.VisitPostAdminSelfAccountsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
