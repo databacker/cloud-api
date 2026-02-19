@@ -186,7 +186,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/SelfCreateAccountRequest'
+              $ref: './schemas.yaml#/components/schemas/AccountBody'
       responses:
         '201':
           description: successfully created account

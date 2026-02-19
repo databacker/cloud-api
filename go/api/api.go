@@ -85,7 +85,7 @@ type PostAdminRegisterJSONRequestBody = UserBody
 type PatchAdminSelfJSONRequestBody = UserBody
 
 // PostAdminSelfAccountsJSONRequestBody defines body for PostAdminSelfAccounts for application/json ContentType.
-type PostAdminSelfAccountsJSONRequestBody = SelfCreateAccountRequest
+type PostAdminSelfAccountsJSONRequestBody = AccountBody
 
 // PostAdminUsersJSONRequestBody defines body for PostAdminUsers for application/json ContentType.
 type PostAdminUsersJSONRequestBody = UserBody

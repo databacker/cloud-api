@@ -49,15 +49,14 @@ components:
       type: object
       description: information for a new databacker account
       properties:
-        email:
-          type: string
-          description: email address associated with the account
         name:
           type: string
-          description: name of the owner the account
-        phone:
+          description: name of the account
+        description:
           type: string
-          description: phone number associated with the account
+          description: description of the account
+      required:
+        - name
     Account:
       description: information for a databacker account with ID
       allOf:
@@ -263,19 +262,6 @@ components:
         role:
           type: string
           description: role of the calling user in this account
-
-    SelfCreateAccountRequest:
-      type: object
-      description: information for creating a new account as a self-service user
-      properties:
-        name:
-          type: string
-          description: name of the account
-        description:
-          type: string
-          description: optional description of the account
-      required:
-        - name
 
   securitySchemes:
     # note that we could explicitly use the "type: oauth2" with flows, but that would

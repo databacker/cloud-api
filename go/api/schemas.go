@@ -11,29 +11,23 @@ import (
 
 // Account defines model for Account.
 type Account struct {
-	// Email email address associated with the account
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+	// Description description of the account
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
 	// ID unique ID of the object, as a UUID
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
-	// Name name of the owner the account
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-
-	// Phone phone number associated with the account
-	Phone *string `json:"phone,omitempty" yaml:"phone,omitempty"`
+	// Name name of the account
+	Name string `json:"name" yaml:"name"`
 }
 
 // AccountBody information for a new databacker account
 type AccountBody struct {
-	// Email email address associated with the account
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+	// Description description of the account
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
-	// Name name of the owner the account
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-
-	// Phone phone number associated with the account
-	Phone *string `json:"phone,omitempty" yaml:"phone,omitempty"`
+	// Name name of the account
+	Name string `json:"name" yaml:"name"`
 }
 
 // FlatTrace defines model for FlatTrace.
@@ -151,15 +145,6 @@ type SelfAccountEntry struct {
 
 	// Role role of the calling user in this account
 	Role *string `json:"role,omitempty" yaml:"role,omitempty"`
-}
-
-// SelfCreateAccountRequest information for creating a new account as a self-service user
-type SelfCreateAccountRequest struct {
-	// Description optional description of the account
-	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
-
-	// Name name of the account
-	Name string `json:"name" yaml:"name"`
 }
 
 // Span defines model for Span.
