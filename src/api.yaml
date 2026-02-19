@@ -137,7 +137,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string # just list of IDs
+                  $ref: './schemas.yaml#/components/schemas/AccountWithID'
     post:
       description: create a new account, normally limited to system administrators
       requestBody:
@@ -145,7 +145,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/NewAccount'
+              $ref: './schemas.yaml#/components/schemas/Account'
       responses:
         '201':
           description: successfully created account
@@ -183,7 +183,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/AccountBody'
+                $ref: './schemas.yaml#/components/schemas/AccountWithID'
     patch:
       description: update account details (admin only)
       parameters:
@@ -193,7 +193,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/NewAccount'
+              $ref: './schemas.yaml#/components/schemas/Account'
       responses:
         <<: *not-found-response
         '200':

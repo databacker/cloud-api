@@ -9,9 +9,34 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Account information for a new databacker account
+type Account struct {
+	// Email email address associated with the account
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+
+	// Name name of the owner the account
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
+	// Phone phone number associated with the account
+	Phone *string `json:"phone,omitempty" yaml:"phone,omitempty"`
+}
+
 // AccountBody defines model for AccountBody.
 type AccountBody struct {
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+}
+
+// AccountWithID defines model for AccountWithID.
+type AccountWithID struct {
+	// Email email address associated with the account
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+	ID    *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// Name name of the owner the account
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
+	// Phone phone number associated with the account
+	Phone *string `json:"phone,omitempty" yaml:"phone,omitempty"`
 }
 
 // FlatTrace defines model for FlatTrace.
@@ -89,18 +114,6 @@ type Metadata struct {
 
 	// Name name of the config
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-}
-
-// NewAccount information for a new databacker account
-type NewAccount struct {
-	// Email email address associated with the account
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
-
-	// Name name of the owner the account
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-
-	// Phone phone number associated with the account
-	Phone *string `json:"phone,omitempty" yaml:"phone,omitempty"`
 }
 
 // NewInstance information for a new licensed databacker instance

@@ -58,10 +58,10 @@ type PatchAdminAccountsAccountUsersUserJSONBody struct {
 }
 
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
-type PostAdminAccountsJSONRequestBody = NewAccount
+type PostAdminAccountsJSONRequestBody = Account
 
 // PatchAdminAccountsAccountJSONRequestBody defines body for PatchAdminAccountsAccount for application/json ContentType.
-type PatchAdminAccountsAccountJSONRequestBody = NewAccount
+type PatchAdminAccountsAccountJSONRequestBody = Account
 
 // PostAdminAccountsAccountInstancesJSONRequestBody defines body for PostAdminAccountsAccountInstances for application/json ContentType.
 type PostAdminAccountsAccountInstancesJSONRequestBody = NewInstance
@@ -1558,7 +1558,7 @@ type GetAdminAccountsResponseObject interface {
 	VisitGetAdminAccountsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccounts200JSONResponse []string
+type GetAdminAccounts200JSONResponse []AccountWithID
 
 func (response GetAdminAccounts200JSONResponse) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1646,7 +1646,7 @@ type GetAdminAccountsAccountResponseObject interface {
 	VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccount200JSONResponse AccountBody
+type GetAdminAccountsAccount200JSONResponse AccountWithID
 
 func (response GetAdminAccountsAccount200JSONResponse) VisitGetAdminAccountsAccountResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
