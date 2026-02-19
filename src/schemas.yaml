@@ -11,6 +11,7 @@ components:
       properties:
         id:
           type: string
+          description: unique ID of the object, as a UUID
           example: 550e8400-e29b-41d4-a716-446655440000
 
     Metadata:
@@ -248,55 +249,6 @@ components:
         payload:
           type: object
 
-    RegisterRequest:
-      type: object
-      description: information for self-registration of a new user
-      properties:
-        name:
-          type: string
-          description: full name of the user
-        email:
-          type: string
-          description: email address of the user
-      required:
-        - name
-        - email
-
-    RegisterResponse:
-      type: object
-      description: response after successful self-registration
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: unique ID of the newly created user
-
-    SelfProfile:
-      type: object
-      description: profile of the calling user
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: unique ID of the user
-        name:
-          type: string
-          description: full name of the user
-        email:
-          type: string
-          description: email address of the user
-
-    SelfProfileUpdate:
-      type: object
-      description: fields to update on the calling user's profile
-      properties:
-        name:
-          type: string
-          description: full name of the user
-        email:
-          type: string
-          description: email address of the user
-
     SelfAccountEntry:
       type: object
       description: an account the calling user belongs to, with their role
@@ -324,15 +276,6 @@ components:
           description: optional description of the account
       required:
         - name
-
-    SelfCreateAccountResponse:
-      type: object
-      description: response after successfully creating a new account
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: unique ID of the newly created account
 
   securitySchemes:
     # note that we could explicitly use the "type: oauth2" with flows, but that would

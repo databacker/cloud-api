@@ -79,10 +79,10 @@ type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJ
 type PatchAdminAccountsAccountUsersUserJSONRequestBody PatchAdminAccountsAccountUsersUserJSONBody
 
 // PostAdminRegisterJSONRequestBody defines body for PostAdminRegister for application/json ContentType.
-type PostAdminRegisterJSONRequestBody = RegisterRequest
+type PostAdminRegisterJSONRequestBody = UserBody
 
 // PatchAdminSelfJSONRequestBody defines body for PatchAdminSelf for application/json ContentType.
-type PatchAdminSelfJSONRequestBody = SelfProfileUpdate
+type PatchAdminSelfJSONRequestBody = UserBody
 
 // PostAdminSelfAccountsJSONRequestBody defines body for PostAdminSelfAccounts for application/json ContentType.
 type PostAdminSelfAccountsJSONRequestBody = SelfCreateAccountRequest
@@ -2403,7 +2403,7 @@ type PostAdminRegisterResponseObject interface {
 	VisitPostAdminRegisterResponse(w http.ResponseWriter) error
 }
 
-type PostAdminRegister201JSONResponse RegisterResponse
+type PostAdminRegister201JSONResponse ID
 
 func (response PostAdminRegister201JSONResponse) VisitPostAdminRegisterResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2441,7 +2441,7 @@ type GetAdminSelfResponseObject interface {
 	VisitGetAdminSelfResponse(w http.ResponseWriter) error
 }
 
-type GetAdminSelf200JSONResponse SelfProfile
+type GetAdminSelf200JSONResponse User
 
 func (response GetAdminSelf200JSONResponse) VisitGetAdminSelfResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2466,7 +2466,7 @@ type PatchAdminSelfResponseObject interface {
 	VisitPatchAdminSelfResponse(w http.ResponseWriter) error
 }
 
-type PatchAdminSelf200JSONResponse SelfProfile
+type PatchAdminSelf200JSONResponse User
 
 func (response PatchAdminSelf200JSONResponse) VisitPatchAdminSelfResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2518,7 +2518,7 @@ type PostAdminSelfAccountsResponseObject interface {
 	VisitPostAdminSelfAccountsResponse(w http.ResponseWriter) error
 }
 
-type PostAdminSelfAccounts201JSONResponse SelfCreateAccountResponse
+type PostAdminSelfAccounts201JSONResponse ID
 
 func (response PostAdminSelfAccounts201JSONResponse) VisitPostAdminSelfAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")

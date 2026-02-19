@@ -13,7 +13,9 @@ import (
 type Account struct {
 	// Email email address associated with the account
 	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
-	ID    *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Name name of the owner the account
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
@@ -47,6 +49,7 @@ type FlatTrace struct {
 
 // ID defines model for ID.
 type ID struct {
+	// ID unique ID of the object, as a UUID
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 }
 
@@ -54,7 +57,9 @@ type ID struct {
 type Instance struct {
 	// Description description of the instance
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
-	ID          *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Name name of the instance
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
@@ -136,21 +141,6 @@ type Metadata struct {
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
 }
 
-// RegisterRequest information for self-registration of a new user
-type RegisterRequest struct {
-	// Email email address of the user
-	Email string `json:"email" yaml:"email"`
-
-	// Name full name of the user
-	Name string `json:"name" yaml:"name"`
-}
-
-// RegisterResponse response after successful self-registration
-type RegisterResponse struct {
-	// ID unique ID of the newly created user
-	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
-}
-
 // SelfAccountEntry an account the calling user belongs to, with their role
 type SelfAccountEntry struct {
 	// ID unique ID of the account
@@ -170,33 +160,6 @@ type SelfCreateAccountRequest struct {
 
 	// Name name of the account
 	Name string `json:"name" yaml:"name"`
-}
-
-// SelfCreateAccountResponse response after successfully creating a new account
-type SelfCreateAccountResponse struct {
-	// ID unique ID of the newly created account
-	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
-}
-
-// SelfProfile profile of the calling user
-type SelfProfile struct {
-	// Email email address of the user
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
-
-	// ID unique ID of the user
-	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
-
-	// Name full name of the user
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-}
-
-// SelfProfileUpdate fields to update on the calling user's profile
-type SelfProfileUpdate struct {
-	// Email email address of the user
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
-
-	// Name full name of the user
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
 }
 
 // Span defines model for Span.
@@ -264,7 +227,9 @@ type TraceSummary struct {
 type User struct {
 	// Email email address of the user
 	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
-	ID    *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Name full name of the user
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`

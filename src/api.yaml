@@ -112,14 +112,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/RegisterRequest'
+              $ref: './schemas.yaml#/components/schemas/UserBody'
       responses:
         '201':
           description: successfully registered user
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/RegisterResponse'
+                $ref: './schemas.yaml#/components/schemas/ID'
         '400':
           description: Invalid request
           content:
@@ -143,7 +143,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/SelfProfile'
+                $ref: './schemas.yaml#/components/schemas/User'
     patch:
       description: update the profile of the calling user, scoped to the JWT subject
       requestBody:
@@ -151,7 +151,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/SelfProfileUpdate'
+              $ref: './schemas.yaml#/components/schemas/UserBody'
       responses:
         <<: *not-found-response
         '200':
@@ -159,7 +159,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/SelfProfile'
+                $ref: './schemas.yaml#/components/schemas/User'
         '400':
           description: Invalid request
           content:
@@ -193,7 +193,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/SelfCreateAccountResponse'
+                $ref: './schemas.yaml#/components/schemas/ID'
         '400':
           description: Invalid request
           content:
