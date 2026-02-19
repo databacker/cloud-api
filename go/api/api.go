@@ -44,8 +44,17 @@ type GetAdminAccountsAccountTracesParams struct {
 
 // PostAdminAccountsAccountUsersJSONBody defines parameters for PostAdminAccountsAccountUsers.
 type PostAdminAccountsAccountUsersJSONBody struct {
+	// Role Role to assign to the user in the account
+	Role string `json:"role" yaml:"role"`
+
 	// User User ID to add to account
 	User string `json:"user" yaml:"user"`
+}
+
+// PatchAdminAccountsAccountUsersUserJSONBody defines parameters for PatchAdminAccountsAccountUsersUser.
+type PatchAdminAccountsAccountUsersUserJSONBody struct {
+	// Role Role to assign to the user in the account
+	Role string `json:"role" yaml:"role"`
 }
 
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
@@ -65,6 +74,9 @@ type PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody = externalR
 
 // PostAdminAccountsAccountUsersJSONRequestBody defines body for PostAdminAccountsAccountUsers for application/json ContentType.
 type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJSONBody
+
+// PatchAdminAccountsAccountUsersUserJSONRequestBody defines body for PatchAdminAccountsAccountUsersUser for application/json ContentType.
+type PatchAdminAccountsAccountUsersUserJSONRequestBody PatchAdminAccountsAccountUsersUserJSONBody
 
 // PostAdminUsersJSONRequestBody defines body for PostAdminUsers for application/json ContentType.
 type PostAdminUsersJSONRequestBody = NewUser
@@ -140,6 +152,9 @@ type ServerInterface interface {
 
 	// (DELETE /admin/accounts/{account}/users/{user})
 	DeleteAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string)
+
+	// (PATCH /admin/accounts/{account}/users/{user})
+	PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string)
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request)
@@ -270,6 +285,11 @@ func (_ Unimplemented) PostAdminAccountsAccountUsers(w http.ResponseWriter, r *h
 
 // (DELETE /admin/accounts/{account}/users/{user})
 func (_ Unimplemented) DeleteAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PATCH /admin/accounts/{account}/users/{user})
+func (_ Unimplemented) PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1205,6 +1225,46 @@ func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountUsersUser(w http.Re
 	handler.ServeHTTP(w, r)
 }
 
+// PatchAdminAccountsAccountUsersUser operation middleware
+func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "user" -------------
+	var user string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "user", chi.URLParam(r, "user"), &user, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchAdminAccountsAccountUsersUser(w, r, account, user)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminSystemHealthz operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request) {
 
@@ -1471,6 +1531,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/accounts/{account}/users/{user}", wrapper.DeleteAdminAccountsAccountUsersUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/admin/accounts/{account}/users/{user}", wrapper.PatchAdminAccountsAccountUsersUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/system/healthz", wrapper.GetAdminSystemHealthz)
@@ -2142,6 +2205,32 @@ func (response DeleteAdminAccountsAccountUsersUser404Response) VisitDeleteAdminA
 	return nil
 }
 
+type PatchAdminAccountsAccountUsersUserRequestObject struct {
+	Account string `json:"account"`
+	User    string `json:"user"`
+	Body    *PatchAdminAccountsAccountUsersUserJSONRequestBody
+}
+
+type PatchAdminAccountsAccountUsersUserResponseObject interface {
+	VisitPatchAdminAccountsAccountUsersUserResponse(w http.ResponseWriter) error
+}
+
+type PatchAdminAccountsAccountUsersUser200Response struct {
+}
+
+func (response PatchAdminAccountsAccountUsersUser200Response) VisitPatchAdminAccountsAccountUsersUserResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type PatchAdminAccountsAccountUsersUser404Response struct {
+}
+
+func (response PatchAdminAccountsAccountUsersUser404Response) VisitPatchAdminAccountsAccountUsersUserResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type GetAdminSystemHealthzRequestObject struct {
 }
 
@@ -2304,6 +2393,9 @@ type StrictServerInterface interface {
 
 	// (DELETE /admin/accounts/{account}/users/{user})
 	DeleteAdminAccountsAccountUsersUser(ctx context.Context, request DeleteAdminAccountsAccountUsersUserRequestObject) (DeleteAdminAccountsAccountUsersUserResponseObject, error)
+
+	// (PATCH /admin/accounts/{account}/users/{user})
+	PatchAdminAccountsAccountUsersUser(ctx context.Context, request PatchAdminAccountsAccountUsersUserRequestObject) (PatchAdminAccountsAccountUsersUserResponseObject, error)
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(ctx context.Context, request GetAdminSystemHealthzRequestObject) (GetAdminSystemHealthzResponseObject, error)
@@ -2992,6 +3084,40 @@ func (sh *strictHandler) DeleteAdminAccountsAccountUsersUser(w http.ResponseWrit
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(DeleteAdminAccountsAccountUsersUserResponseObject); ok {
 		if err := validResponse.VisitDeleteAdminAccountsAccountUsersUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PatchAdminAccountsAccountUsersUser operation middleware
+func (sh *strictHandler) PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string) {
+	var request PatchAdminAccountsAccountUsersUserRequestObject
+
+	request.Account = account
+	request.User = user
+
+	var body PatchAdminAccountsAccountUsersUserJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PatchAdminAccountsAccountUsersUser(ctx, request.(PatchAdminAccountsAccountUsersUserRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PatchAdminAccountsAccountUsersUser")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PatchAdminAccountsAccountUsersUserResponseObject); ok {
+		if err := validResponse.VisitPatchAdminAccountsAccountUsersUserResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

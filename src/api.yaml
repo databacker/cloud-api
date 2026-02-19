@@ -580,8 +580,12 @@ paths:
                 user:
                   type: string
                   description: User ID to add to account
+                role:
+                  type: string
+                  description: Role to assign to the user in the account
               required:
                 - user
+                - role
       responses:
         '201':
           description: user successfully added to account
@@ -602,4 +606,25 @@ paths:
       responses:
         '204':
           description: user successfully removed from account
+        <<: *not-found-response
+    patch:
+      description: update a user's role in an account
+      parameters:
+        - *account-param
+        - *user-param
+      requestBody:
+        description: role to assign to the user in the account
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  description: Role to assign to the user in the account
+              required:
+                - role
+      responses:
+        '200':
+          description: user successfully updated in account
         <<: *not-found-response
