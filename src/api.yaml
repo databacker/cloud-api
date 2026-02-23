@@ -13,6 +13,20 @@ security:
 
 # Common parameters and responses
 x-parameters:
+  limit: &limit-param
+    in: query
+    name: limit
+    schema:
+      type: integer
+    required: false
+    description: Maximum number of results to return
+  offset: &offset-param
+    in: query
+    name: offset
+    schema:
+      type: integer
+    required: false
+    description: Number of results to skip
   account: &account-param
     in: path
     name: account
@@ -170,6 +184,9 @@ paths:
   /admin/self/accounts:
     get:
       description: list the accounts the calling user belongs to, along with their role in each
+      parameters:
+      - *offset-param
+      - *limit-param
       responses:
         '200':
           description: list of accounts with roles
@@ -230,6 +247,9 @@ paths:
   /admin/accounts:      
     get:
       description: list all of the accounts for which the authenticated user has access
+      parameters:
+      - *offset-param
+      - *limit-param
       responses:
         '404':
           description: no accounts available
@@ -324,6 +344,8 @@ paths:
       description: list all of the instances in a given account
       parameters:
         - *account-param
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
@@ -418,6 +440,8 @@ paths:
       parameters:
         - *account-param
         - *instance-param
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
@@ -435,6 +459,8 @@ paths:
       parameters:
         - *account-param
         - *log-param
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
@@ -470,10 +496,8 @@ paths:
           in: query
           schema:
             type: number
-        - name: limit
-          in: query
-          schema:
-            type: integer          
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
@@ -508,10 +532,8 @@ paths:
           in: query
           schema:
             type: number
-        - name: limit
-          in: query
-          schema:
-            type: integer          
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
@@ -562,6 +584,8 @@ paths:
       parameters:
         - *account-param
         - *instance-param
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
@@ -659,6 +683,8 @@ paths:
       description: list users in an account
       parameters:
         - *account-param
+        - *offset-param
+        - *limit-param
       responses:
         <<: *not-found-response
         '200':
