@@ -130,6 +130,11 @@ type GetAdminSelfAccountsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
+// GetAdminSelfEmailVerifyParams defines parameters for GetAdminSelfEmailVerify.
+type GetAdminSelfEmailVerifyParams struct {
+	Token string `form:"token" json:"token" yaml:"token"`
+}
+
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
 type PostAdminAccountsJSONRequestBody = Account
 
@@ -152,7 +157,7 @@ type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJ
 type PatchAdminAccountsAccountUsersUserJSONRequestBody PatchAdminAccountsAccountUsersUserJSONBody
 
 // PostAdminRegisterJSONRequestBody defines body for PostAdminRegister for application/json ContentType.
-type PostAdminRegisterJSONRequestBody = UserBody
+type PostAdminRegisterJSONRequestBody = UserWithEmail
 
 // PatchAdminSelfJSONRequestBody defines body for PatchAdminSelf for application/json ContentType.
 type PatchAdminSelfJSONRequestBody = UserBody
@@ -160,8 +165,11 @@ type PatchAdminSelfJSONRequestBody = UserBody
 // PostAdminSelfAccountsJSONRequestBody defines body for PostAdminSelfAccounts for application/json ContentType.
 type PostAdminSelfAccountsJSONRequestBody = AccountBody
 
+// PatchAdminSelfEmailJSONRequestBody defines body for PatchAdminSelfEmail for application/json ContentType.
+type PatchAdminSelfEmailJSONRequestBody = Email
+
 // PostAdminUsersJSONRequestBody defines body for PostAdminUsers for application/json ContentType.
-type PostAdminUsersJSONRequestBody = UserBody
+type PostAdminUsersJSONRequestBody = UserWithEmail
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -252,6 +260,12 @@ type ServerInterface interface {
 
 	// (POST /admin/self/accounts)
 	PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request)
+	// Change user email address
+	// (PATCH /admin/self/email)
+	PatchAdminSelfEmail(w http.ResponseWriter, r *http.Request)
+	// Verify a pending email address
+	// (GET /admin/self/email/verify)
+	GetAdminSelfEmailVerify(w http.ResponseWriter, r *http.Request, params GetAdminSelfEmailVerifyParams)
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request)
@@ -412,6 +426,18 @@ func (_ Unimplemented) GetAdminSelfAccounts(w http.ResponseWriter, r *http.Reque
 
 // (POST /admin/self/accounts)
 func (_ Unimplemented) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Change user email address
+// (PATCH /admin/self/email)
+func (_ Unimplemented) PatchAdminSelfEmail(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Verify a pending email address
+// (GET /admin/self/email/verify)
+func (_ Unimplemented) GetAdminSelfEmailVerify(w http.ResponseWriter, r *http.Request, params GetAdminSelfEmailVerifyParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1640,6 +1666,66 @@ func (siw *ServerInterfaceWrapper) PostAdminSelfAccounts(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
+// PatchAdminSelfEmail operation middleware
+func (siw *ServerInterfaceWrapper) PatchAdminSelfEmail(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchAdminSelfEmail(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminSelfEmailVerify operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminSelfEmailVerify(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminSelfEmailVerifyParams
+
+	// ------------- Required query parameter "token" -------------
+
+	if paramValue := r.URL.Query().Get("token"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "token"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "token", r.URL.Query(), &params.Token)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "token", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminSelfEmailVerify(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminSystemHealthz operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request) {
 
@@ -1924,6 +2010,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/self/accounts", wrapper.PostAdminSelfAccounts)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/admin/self/email", wrapper.PatchAdminSelfEmail)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/self/email/verify", wrapper.GetAdminSelfEmailVerify)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/system/healthz", wrapper.GetAdminSystemHealthz)
@@ -2782,6 +2874,71 @@ func (response PostAdminSelfAccounts422JSONResponse) VisitPostAdminSelfAccountsR
 	return json.NewEncoder(w).Encode(response)
 }
 
+type PatchAdminSelfEmailRequestObject struct {
+	Body *PatchAdminSelfEmailJSONRequestBody
+}
+
+type PatchAdminSelfEmailResponseObject interface {
+	VisitPatchAdminSelfEmailResponse(w http.ResponseWriter) error
+}
+
+type PatchAdminSelfEmail204Response struct {
+}
+
+func (response PatchAdminSelfEmail204Response) VisitPatchAdminSelfEmailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type PatchAdminSelfEmail400Response struct {
+}
+
+func (response PatchAdminSelfEmail400Response) VisitPatchAdminSelfEmailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type PatchAdminSelfEmail401Response struct {
+}
+
+func (response PatchAdminSelfEmail401Response) VisitPatchAdminSelfEmailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetAdminSelfEmailVerifyRequestObject struct {
+	Params GetAdminSelfEmailVerifyParams
+}
+
+type GetAdminSelfEmailVerifyResponseObject interface {
+	VisitGetAdminSelfEmailVerifyResponse(w http.ResponseWriter) error
+}
+
+type GetAdminSelfEmailVerify200JSONResponse User
+
+func (response GetAdminSelfEmailVerify200JSONResponse) VisitGetAdminSelfEmailVerifyResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminSelfEmailVerify400Response struct {
+}
+
+func (response GetAdminSelfEmailVerify400Response) VisitGetAdminSelfEmailVerifyResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetAdminSelfEmailVerify401Response struct {
+}
+
+func (response GetAdminSelfEmailVerify401Response) VisitGetAdminSelfEmailVerifyResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type GetAdminSystemHealthzRequestObject struct {
 }
 
@@ -2962,6 +3119,12 @@ type StrictServerInterface interface {
 
 	// (POST /admin/self/accounts)
 	PostAdminSelfAccounts(ctx context.Context, request PostAdminSelfAccountsRequestObject) (PostAdminSelfAccountsResponseObject, error)
+	// Change user email address
+	// (PATCH /admin/self/email)
+	PatchAdminSelfEmail(ctx context.Context, request PatchAdminSelfEmailRequestObject) (PatchAdminSelfEmailResponseObject, error)
+	// Verify a pending email address
+	// (GET /admin/self/email/verify)
+	GetAdminSelfEmailVerify(ctx context.Context, request GetAdminSelfEmailVerifyRequestObject) (GetAdminSelfEmailVerifyResponseObject, error)
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(ctx context.Context, request GetAdminSystemHealthzRequestObject) (GetAdminSystemHealthzResponseObject, error)
@@ -3834,6 +3997,63 @@ func (sh *strictHandler) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Re
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PostAdminSelfAccountsResponseObject); ok {
 		if err := validResponse.VisitPostAdminSelfAccountsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PatchAdminSelfEmail operation middleware
+func (sh *strictHandler) PatchAdminSelfEmail(w http.ResponseWriter, r *http.Request) {
+	var request PatchAdminSelfEmailRequestObject
+
+	var body PatchAdminSelfEmailJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PatchAdminSelfEmail(ctx, request.(PatchAdminSelfEmailRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PatchAdminSelfEmail")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PatchAdminSelfEmailResponseObject); ok {
+		if err := validResponse.VisitPatchAdminSelfEmailResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminSelfEmailVerify operation middleware
+func (sh *strictHandler) GetAdminSelfEmailVerify(w http.ResponseWriter, r *http.Request, params GetAdminSelfEmailVerifyParams) {
+	var request GetAdminSelfEmailVerifyRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminSelfEmailVerify(ctx, request.(GetAdminSelfEmailVerifyRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminSelfEmailVerify")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminSelfEmailVerifyResponseObject); ok {
+		if err := validResponse.VisitGetAdminSelfEmailVerifyResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

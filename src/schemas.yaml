@@ -63,6 +63,14 @@ components:
         - $ref: '#/components/schemas/AccountBody'
         - $ref: '#/components/schemas/ID'
 
+    Email:
+      type: object
+      properties:
+        email:
+          type: string
+          description: email address of the user
+          example: user@example.com
+
     UserBody:
       type: object
       description: information for a new user
@@ -73,11 +81,16 @@ components:
         name:
           type: string
           description: full name of the user
+    UserWithEmail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserBody'
+        - $ref: '#/components/schemas/Email'
 
     User:
       type: object
       allOf:
-        - $ref: '#/components/schemas/UserBody'
+        - $ref: '#/components/schemas/UserWithEmail'
         - $ref: '#/components/schemas/ID'
     LogLine:
       type: object
@@ -262,6 +275,30 @@ components:
         role:
           type: string
           description: role of the calling user in this account
+    PatchAdminSelfRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      additionalProperties: false
+
+    EmailChangePending:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [verification_required]
+        email:
+          type: string
+          format: email
+        expires_at:
+          type: string
+          format: date-time
+      required: [status, email, expires_at]
+      additionalProperties: false
 
   securitySchemes:
     # note that we could explicitly use the "type: oauth2" with flows, but that would

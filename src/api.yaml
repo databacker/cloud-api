@@ -126,7 +126,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/UserBody'
+              $ref: './schemas.yaml#/components/schemas/UserWithEmail'
       responses:
         '201':
           description: successfully registered user
@@ -180,6 +180,46 @@ paths:
             application/json:
               schema:
                 *error-message-schema
+
+  /admin/self/email:
+    patch:
+      summary: Change user email address
+      description: Request to change the email address. Triggers verification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/Email'
+      responses:
+        '204':
+          description: Email change requested, verification sent.
+        '400':
+          description: Invalid email or already in use.
+        '401':
+          description: Authentication required.
+
+  /admin/self/email/verify:
+    get:
+      summary: Verify a pending email address
+      operationId: GetAdminSelfEmailVerify
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/User'
+        '400':
+          description: Invalid or expired token
+        '401':
+          description: Unauthorized
 
   /admin/self/accounts:
     get:
@@ -653,7 +693,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/UserBody'
+              $ref: './schemas.yaml#/components/schemas/UserWithEmail'
       responses:
         '201':
           description: successfully created user

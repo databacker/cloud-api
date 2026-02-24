@@ -9,6 +9,11 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for EmailChangePendingStatus.
+const (
+	VerificationRequired EmailChangePendingStatus = "verification_required"
+)
+
 // Account defines model for Account.
 type Account struct {
 	// Description description of the account
@@ -29,6 +34,22 @@ type AccountBody struct {
 	// Name name of the account
 	Name string `json:"name" yaml:"name"`
 }
+
+// Email defines model for Email.
+type Email struct {
+	// Email email address of the user
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+}
+
+// EmailChangePending defines model for EmailChangePending.
+type EmailChangePending struct {
+	Email     openapi_types.Email      `json:"email" yaml:"email"`
+	ExpiresAt time.Time                `json:"expires_at" yaml:"expires_at"`
+	Status    EmailChangePendingStatus `json:"status" yaml:"status"`
+}
+
+// EmailChangePendingStatus defines model for EmailChangePending.Status.
+type EmailChangePendingStatus string
 
 // FlatTrace defines model for FlatTrace.
 type FlatTrace struct {
@@ -135,6 +156,12 @@ type Metadata struct {
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
 }
 
+// PatchAdminSelfRequest defines model for PatchAdminSelfRequest.
+type PatchAdminSelfRequest struct {
+	Email *openapi_types.Email `json:"email,omitempty" yaml:"email,omitempty"`
+	Name  *string              `json:"name,omitempty" yaml:"name,omitempty"`
+}
+
 // SelfAccountEntry an account the calling user belongs to, with their role
 type SelfAccountEntry struct {
 	// ID unique ID of the account
@@ -222,6 +249,15 @@ type User struct {
 
 // UserBody information for a new user
 type UserBody struct {
+	// Email email address of the user
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+
+	// Name full name of the user
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+}
+
+// UserWithEmail defines model for UserWithEmail.
+type UserWithEmail struct {
 	// Email email address of the user
 	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
 
