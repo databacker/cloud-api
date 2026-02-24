@@ -9,6 +9,22 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for AccountRetentionTier.
+const (
+	AccountRetentionTierBasic    AccountRetentionTier = "basic"
+	AccountRetentionTierCustom   AccountRetentionTier = "custom"
+	AccountRetentionTierPremium  AccountRetentionTier = "premium"
+	AccountRetentionTierStandard AccountRetentionTier = "standard"
+)
+
+// Defines values for AccountBodyRetentionTier.
+const (
+	AccountBodyRetentionTierBasic    AccountBodyRetentionTier = "basic"
+	AccountBodyRetentionTierCustom   AccountBodyRetentionTier = "custom"
+	AccountBodyRetentionTierPremium  AccountBodyRetentionTier = "premium"
+	AccountBodyRetentionTierStandard AccountBodyRetentionTier = "standard"
+)
+
 // Defines values for EmailChangePendingStatus.
 const (
 	VerificationRequired EmailChangePendingStatus = "verification_required"
@@ -23,9 +39,14 @@ type Account struct {
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Name name of the account
-	Name          string `json:"name" yaml:"name"`
-	RetentionDays *int32 `json:"retention_days,omitempty" yaml:"retention_days,omitempty"`
+	Name string `json:"name" yaml:"name"`
+
+	// RetentionTier Retention tier for logs/traces (non-numeric label)
+	RetentionTier *AccountRetentionTier `json:"retention_tier,omitempty" yaml:"retention_tier,omitempty"`
 }
+
+// AccountRetentionTier Retention tier for logs/traces (non-numeric label)
+type AccountRetentionTier string
 
 // AccountBody information for a new databacker account
 type AccountBody struct {
@@ -33,9 +54,14 @@ type AccountBody struct {
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
 	// Name name of the account
-	Name          string `json:"name" yaml:"name"`
-	RetentionDays *int32 `json:"retention_days,omitempty" yaml:"retention_days,omitempty"`
+	Name string `json:"name" yaml:"name"`
+
+	// RetentionTier Retention tier for logs/traces (non-numeric label)
+	RetentionTier *AccountBodyRetentionTier `json:"retention_tier,omitempty" yaml:"retention_tier,omitempty"`
 }
+
+// AccountBodyRetentionTier Retention tier for logs/traces (non-numeric label)
+type AccountBodyRetentionTier string
 
 // Email defines model for Email.
 type Email struct {

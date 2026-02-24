@@ -55,9 +55,10 @@ components:
         description:
           type: string
           description: description of the account
-        retention_days:
-          type: integer
-          format: int32
+        retention_tier:
+          type: string
+          description: Retention tier for logs/traces (non-numeric label)
+          enum: [basic, standard, premium, custom]
       required:
         - name
     Account:
