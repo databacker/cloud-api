@@ -23,7 +23,8 @@ type Account struct {
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Name name of the account
-	Name string `json:"name" yaml:"name"`
+	Name          string `json:"name" yaml:"name"`
+	RetentionDays *int32 `json:"retention_days,omitempty" yaml:"retention_days,omitempty"`
 }
 
 // AccountBody information for a new databacker account
@@ -32,7 +33,8 @@ type AccountBody struct {
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
 	// Name name of the account
-	Name string `json:"name" yaml:"name"`
+	Name          string `json:"name" yaml:"name"`
+	RetentionDays *int32 `json:"retention_days,omitempty" yaml:"retention_days,omitempty"`
 }
 
 // Email defines model for Email.

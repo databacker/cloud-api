@@ -55,6 +55,9 @@ components:
         description:
           type: string
           description: description of the account
+        retention_days:
+          type: integer
+          format: int32
       required:
         - name
     Account:
