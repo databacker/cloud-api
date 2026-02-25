@@ -1,8 +1,8 @@
 all: sdk
 
-.PHONY: all sdk sdk-container go submodules
+.PHONY: all sdk sdk-container go ts submodules
 
-sdk: submodules go
+sdk: submodules go ts
 	@echo Done building SDKs
 
 submodules:
@@ -20,3 +20,5 @@ go:
 	oapi-codegen -config ./cfg-schemas.yml ./src/schemas.yaml
 	oapi-codegen -config ./cfg-api.yml ./src/api.yaml
 
+ts:
+	openapi-typescript ./src/api.yaml -o ./ts/api.d.ts
