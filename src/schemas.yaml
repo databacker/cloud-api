@@ -1,3 +1,37 @@
+  PaginatedUsers:
+    type: object
+    properties:
+      users:
+        type: array
+        items:
+          $ref: '#/components/schemas/User'
+      total:
+        type: integer
+      limit:
+        type: integer
+      offset:
+        type: integer
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
+  PaginatedAccountMembers:
+    type: object
+    properties:
+      users:
+        type: array
+        items:
+          $ref: '#/components/schemas/AccountMember'
+      total:
+        type: integer
+      limit:
+        type: integer
+      offset:
+        type: integer
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
 openapi: "3.0.0"
 info:
   title: Databack Cloud API

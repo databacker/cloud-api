@@ -703,9 +703,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/User'
+                $ref: './schemas.yaml#/components/schemas/PaginatedUsers'
     post:
       description: create a new user (admin only)
       requestBody:
@@ -752,9 +750,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/AccountMember'
+                $ref: './schemas.yaml#/components/schemas/PaginatedAccountMembers'
     post:
       description: add a user to an account
       parameters:
