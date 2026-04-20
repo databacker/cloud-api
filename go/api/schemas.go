@@ -25,6 +25,14 @@ const (
 	AccountBodyRetentionTierStandard AccountBodyRetentionTier = "standard"
 )
 
+// Defines values for AccountMemberRole.
+const (
+	Admin  AccountMemberRole = "admin"
+	Member AccountMemberRole = "member"
+	Owner  AccountMemberRole = "owner"
+	Viewer AccountMemberRole = "viewer"
+)
+
 // Defines values for EmailChangePendingStatus.
 const (
 	VerificationRequired EmailChangePendingStatus = "verification_required"
@@ -62,6 +70,18 @@ type AccountBody struct {
 
 // AccountBodyRetentionTier Retention tier for logs/traces (non-numeric label)
 type AccountBodyRetentionTier string
+
+// AccountMember defines model for AccountMember.
+type AccountMember struct {
+	// Role role of the user in the account
+	Role AccountMemberRole `json:"role" yaml:"role"`
+
+	// User unique ID of the user
+	User string `json:"user" yaml:"user"`
+}
+
+// AccountMemberRole role of the user in the account
+type AccountMemberRole string
 
 // Email defines model for Email.
 type Email struct {

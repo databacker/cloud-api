@@ -1452,7 +1452,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": string[];
+                        "application/json": components["schemas"]["AccountMember"][];
                     };
                 };
                 /** @description not found */
@@ -1932,6 +1932,15 @@ export interface components {
             kind: "local" | "remote" | "encrypted";
             metadata: components["schemas"]["Metadata"];
             spec: Record<string, never>;
+        };
+        AccountMember: {
+            /** @description unique ID of the user */
+            user: string;
+            /**
+             * @description role of the user in the account
+             * @enum {string}
+             */
+            role: "owner" | "admin" | "member" | "viewer";
         };
     };
     responses: never;

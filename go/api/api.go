@@ -2615,7 +2615,7 @@ type GetAdminAccountsAccountUsersResponseObject interface {
 	VisitGetAdminAccountsAccountUsersResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountUsers200JSONResponse []string
+type GetAdminAccountsAccountUsers200JSONResponse []AccountMember
 
 func (response GetAdminAccountsAccountUsers200JSONResponse) VisitGetAdminAccountsAccountUsersResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")

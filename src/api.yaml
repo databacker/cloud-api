@@ -734,7 +734,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string # just list of user IDs
+                  $ref: './schemas.yaml#/components/schemas/AccountMember'
     post:
       description: add a user to an account
       parameters:
