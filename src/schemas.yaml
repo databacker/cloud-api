@@ -80,6 +80,16 @@ components:
               items:
                 $ref: '#/components/schemas/TraceSummary'
 
+    PaginatedBackupEvents:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            events:
+              type: array
+              items:
+                $ref: '#/components/schemas/BackupEvent'
+
     PaginatedUsers:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'
@@ -328,6 +338,59 @@ components:
         size:
           type: integer
           description: size of trace in bytes
+
+    BackupEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          description: unique backup run identifier
+          example: backup-run-id
+        account_id:
+          type: string
+          description: ID of the account the backup belongs to
+        instance_id:
+          type: string
+          description: ID of the instance the backup belongs to
+        instance_name:
+          type: string
+          description: display name of the instance at the time of the backup
+        start_time:
+          type: string
+          format: date-time
+          description: timestamp for when the backup started
+        end_time:
+          type: string
+          format: date-time
+          description: timestamp for when the backup completed or failed
+        duration_ms:
+          type: integer
+          description: total duration of the backup in milliseconds
+        status:
+          type: string
+          description: backup result status, such as success or failure
+          example: success
+        completion:
+          type: integer
+          description: completion code, using a subset of http codes
+        bytes:
+          type: integer
+          description: total bytes processed for the backup
+        log_id:
+          type: string
+          description: ID of the associated backup log, if available
+        trace_id:
+          type: string
+          description: ID of the associated backup trace, if available
+        error_message:
+          type: string
+          description: error summary when the backup does not succeed
+      required:
+        - id
+        - account_id
+        - instance_id
+        - start_time
+        - status
 
     TraceSearchResponse:
       type: object

@@ -888,6 +888,172 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/accounts/{account}/instances/{instance}/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get backup event summaries for a specific instance */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description backup status to filter by */
+                    status?: string;
+                    start_time?: string;
+                    end_time?: string;
+                    /** @description when true, return only the latest backup event per instance */
+                    latest_per_instance?: boolean;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the databacker instance */
+                    instance: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description backup events for the specified instance */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedBackupEvents"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get backup event summaries across all instances in an account */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description filter to a specific instance ID */
+                    instance?: string;
+                    /** @description backup status to filter by */
+                    status?: string;
+                    start_time?: string;
+                    end_time?: string;
+                    /** @description when true, return only the latest backup event per instance */
+                    latest_per_instance?: boolean;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description backup events for the account */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedBackupEvents"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/backups/{backup}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get a specific backup event */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the backup run */
+                    backup: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description backup event details */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BackupEvent"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/accounts/{account}/logs/{log}": {
         parameters: {
             query?: never;
@@ -1728,6 +1894,49 @@ export interface components {
         };
         PaginatedLogSummaries: components["schemas"]["PaginationMetadata"] & {
             logs?: components["schemas"]["LogSummary"][];
+        };
+        BackupEvent: {
+            /**
+             * @description unique backup run identifier
+             * @example backup-run-id
+             */
+            id: string;
+            /** @description ID of the account the backup belongs to */
+            account_id: string;
+            /** @description ID of the instance the backup belongs to */
+            instance_id: string;
+            /** @description display name of the instance at the time of the backup */
+            instance_name?: string;
+            /**
+             * Format: date-time
+             * @description timestamp for when the backup started
+             */
+            start_time: string;
+            /**
+             * Format: date-time
+             * @description timestamp for when the backup completed or failed
+             */
+            end_time?: string;
+            /** @description total duration of the backup in milliseconds */
+            duration_ms?: number;
+            /**
+             * @description backup result status, such as success or failure
+             * @example success
+             */
+            status: string;
+            /** @description completion code, using a subset of http codes */
+            completion?: number;
+            /** @description total bytes processed for the backup */
+            bytes?: number;
+            /** @description ID of the associated backup log, if available */
+            log_id?: string;
+            /** @description ID of the associated backup trace, if available */
+            trace_id?: string;
+            /** @description error summary when the backup does not succeed */
+            error_message?: string;
+        };
+        PaginatedBackupEvents: components["schemas"]["PaginationMetadata"] & {
+            events?: components["schemas"]["BackupEvent"][];
         };
         LogLine: {
             /**

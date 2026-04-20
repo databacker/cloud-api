@@ -76,6 +76,13 @@ x-parameters:
       type: string
     required: true
     description: Unique ID of the user
+  backup: &backup-param
+    in: path
+    name: backup
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the backup run
 
 x-responses:
   not-found: &not-found-response
@@ -484,6 +491,100 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedLogSummaries'
+
+  /admin/accounts/{account}/instances/{instance}/backups:
+    get:
+      description: get backup event summaries for a specific instance
+      parameters:
+        - *account-param
+        - *instance-param
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: backup status to filter by
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: latest_per_instance
+          in: query
+          schema:
+            type: boolean
+          description: when true, return only the latest backup event per instance
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup events for the specified instance
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBackupEvents'
+
+  /admin/accounts/{account}/backups:
+    get:
+      description: get backup event summaries across all instances in an account
+      parameters:
+        - *account-param
+        - name: instance
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter to a specific instance ID
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: backup status to filter by
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: latest_per_instance
+          in: query
+          schema:
+            type: boolean
+          description: when true, return only the latest backup event per instance
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup events for the account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBackupEvents'
+
+  /admin/accounts/{account}/backups/{backup}:
+    get:
+      description: get a specific backup event
+      parameters:
+        - *account-param
+        - *backup-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup event details
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BackupEvent'
 
   /admin/accounts/{account}/logs/{log}:
     get:

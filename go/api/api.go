@@ -29,8 +29,45 @@ type GetAdminAccountsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
+// GetAdminAccountsAccountBackupsParams defines parameters for GetAdminAccountsAccountBackups.
+type GetAdminAccountsAccountBackupsParams struct {
+	// Instance filter to a specific instance ID
+	Instance *string `form:"instance,omitempty" json:"instance,omitempty" yaml:"instance,omitempty"`
+
+	// Status backup status to filter by
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty"`
+	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
+	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
+
+	// LatestPerInstance when true, return only the latest backup event per instance
+	LatestPerInstance *bool `form:"latest_per_instance,omitempty" json:"latest_per_instance,omitempty" yaml:"latest_per_instance,omitempty"`
+
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
 // GetAdminAccountsAccountInstancesParams defines parameters for GetAdminAccountsAccountInstances.
 type GetAdminAccountsAccountInstancesParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// GetAdminAccountsAccountInstancesInstanceBackupsParams defines parameters for GetAdminAccountsAccountInstancesInstanceBackups.
+type GetAdminAccountsAccountInstancesInstanceBackupsParams struct {
+	// Status backup status to filter by
+	Status    *string    `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty"`
+	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
+	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
+
+	// LatestPerInstance when true, return only the latest backup event per instance
+	LatestPerInstance *bool `form:"latest_per_instance,omitempty" json:"latest_per_instance,omitempty" yaml:"latest_per_instance,omitempty"`
+
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
 
@@ -201,6 +238,12 @@ type ServerInterface interface {
 	// (PATCH /admin/accounts/{account})
 	PatchAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string)
 
+	// (GET /admin/accounts/{account}/backups)
+	GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountBackupsParams)
+
+	// (GET /admin/accounts/{account}/backups/{backup})
+	GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request, account string, backup string)
+
 	// (DELETE /admin/accounts/{account}/configs/{config})
 	DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string)
 
@@ -221,6 +264,9 @@ type ServerInterface interface {
 
 	// (PATCH /admin/accounts/{account}/instances/{instance})
 	PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/backups)
+	GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceBackupsParams)
 
 	// (GET /admin/accounts/{account}/instances/{instance}/configs)
 	GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceConfigsParams)
@@ -324,6 +370,16 @@ func (_ Unimplemented) PatchAdminAccountsAccount(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (GET /admin/accounts/{account}/backups)
+func (_ Unimplemented) GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountBackupsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/backups/{backup})
+func (_ Unimplemented) GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request, account string, backup string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (DELETE /admin/accounts/{account}/configs/{config})
 func (_ Unimplemented) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
 	w.WriteHeader(http.StatusNotImplemented)
@@ -356,6 +412,11 @@ func (_ Unimplemented) GetAdminAccountsAccountInstancesInstance(w http.ResponseW
 
 // (PATCH /admin/accounts/{account}/instances/{instance})
 func (_ Unimplemented) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/instances/{instance}/backups)
+func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceBackupsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -644,6 +705,136 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccount(w http.ResponseWrit
 	handler.ServeHTTP(w, r)
 }
 
+// GetAdminAccountsAccountBackups operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminAccountsAccountBackupsParams
+
+	// ------------- Optional query parameter "instance" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "instance", r.URL.Query(), &params.Instance)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "status" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "status", r.URL.Query(), &params.Status)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "status", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "start_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "end_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "latest_per_instance" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "latest_per_instance", r.URL.Query(), &params.LatestPerInstance)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_instance", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountBackups(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountBackupsBackup operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "backup" -------------
+	var backup string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "backup", chi.URLParam(r, "backup"), &backup, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "backup", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountBackupsBackup(w, r, account, backup)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // DeleteAdminAccountsAccountConfigsConfig operation middleware
 func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request) {
 
@@ -916,6 +1107,97 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountInstancesInstance(w 
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchAdminAccountsAccountInstancesInstance(w, r, account, instance)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountInstancesInstanceBackups operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "instance" -------------
+	var instance string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminAccountsAccountInstancesInstanceBackupsParams
+
+	// ------------- Optional query parameter "status" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "status", r.URL.Query(), &params.Status)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "status", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "start_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "end_time" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "latest_per_instance" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "latest_per_instance", r.URL.Query(), &params.LatestPerInstance)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_instance", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountInstancesInstanceBackups(w, r, account, instance, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2009,6 +2291,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Patch(options.BaseURL+"/admin/accounts/{account}", wrapper.PatchAdminAccountsAccount)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/backups", wrapper.GetAdminAccountsAccountBackups)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}", wrapper.GetAdminAccountsAccountBackupsBackup)
+	})
+	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/accounts/{account}/configs/{config}", wrapper.DeleteAdminAccountsAccountConfigsConfig)
 	})
 	r.Group(func(r chi.Router) {
@@ -2028,6 +2316,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.PatchAdminAccountsAccountInstancesInstance)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/backups", wrapper.GetAdminAccountsAccountInstancesInstanceBackups)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/configs", wrapper.GetAdminAccountsAccountInstancesInstanceConfigs)
@@ -2255,6 +2546,58 @@ func (response PatchAdminAccountsAccount404Response) VisitPatchAdminAccountsAcco
 	return nil
 }
 
+type GetAdminAccountsAccountBackupsRequestObject struct {
+	Account string `json:"account"`
+	Params  GetAdminAccountsAccountBackupsParams
+}
+
+type GetAdminAccountsAccountBackupsResponseObject interface {
+	VisitGetAdminAccountsAccountBackupsResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountBackups200JSONResponse PaginatedBackupEvents
+
+func (response GetAdminAccountsAccountBackups200JSONResponse) VisitGetAdminAccountsAccountBackupsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountBackups404Response struct {
+}
+
+func (response GetAdminAccountsAccountBackups404Response) VisitGetAdminAccountsAccountBackupsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountBackupsBackupRequestObject struct {
+	Account string `json:"account"`
+	Backup  string `json:"backup"`
+}
+
+type GetAdminAccountsAccountBackupsBackupResponseObject interface {
+	VisitGetAdminAccountsAccountBackupsBackupResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountBackupsBackup200JSONResponse BackupEvent
+
+func (response GetAdminAccountsAccountBackupsBackup200JSONResponse) VisitGetAdminAccountsAccountBackupsBackupResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountBackupsBackup404Response struct {
+}
+
+func (response GetAdminAccountsAccountBackupsBackup404Response) VisitGetAdminAccountsAccountBackupsBackupResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type DeleteAdminAccountsAccountConfigsConfigRequestObject struct {
 	Account string `json:"account"`
 	Config  string `json:"config"`
@@ -2457,6 +2800,33 @@ type PatchAdminAccountsAccountInstancesInstance404Response struct {
 }
 
 func (response PatchAdminAccountsAccountInstancesInstance404Response) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountInstancesInstanceBackupsRequestObject struct {
+	Account  string `json:"account"`
+	Instance string `json:"instance"`
+	Params   GetAdminAccountsAccountInstancesInstanceBackupsParams
+}
+
+type GetAdminAccountsAccountInstancesInstanceBackupsResponseObject interface {
+	VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountInstancesInstanceBackups200JSONResponse PaginatedBackupEvents
+
+func (response GetAdminAccountsAccountInstancesInstanceBackups200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountInstancesInstanceBackups404Response struct {
+}
+
+func (response GetAdminAccountsAccountInstancesInstanceBackups404Response) VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3144,6 +3514,12 @@ type StrictServerInterface interface {
 	// (PATCH /admin/accounts/{account})
 	PatchAdminAccountsAccount(ctx context.Context, request PatchAdminAccountsAccountRequestObject) (PatchAdminAccountsAccountResponseObject, error)
 
+	// (GET /admin/accounts/{account}/backups)
+	GetAdminAccountsAccountBackups(ctx context.Context, request GetAdminAccountsAccountBackupsRequestObject) (GetAdminAccountsAccountBackupsResponseObject, error)
+
+	// (GET /admin/accounts/{account}/backups/{backup})
+	GetAdminAccountsAccountBackupsBackup(ctx context.Context, request GetAdminAccountsAccountBackupsBackupRequestObject) (GetAdminAccountsAccountBackupsBackupResponseObject, error)
+
 	// (DELETE /admin/accounts/{account}/configs/{config})
 	DeleteAdminAccountsAccountConfigsConfig(ctx context.Context, request DeleteAdminAccountsAccountConfigsConfigRequestObject) (DeleteAdminAccountsAccountConfigsConfigResponseObject, error)
 
@@ -3164,6 +3540,9 @@ type StrictServerInterface interface {
 
 	// (PATCH /admin/accounts/{account}/instances/{instance})
 	PatchAdminAccountsAccountInstancesInstance(ctx context.Context, request PatchAdminAccountsAccountInstancesInstanceRequestObject) (PatchAdminAccountsAccountInstancesInstanceResponseObject, error)
+
+	// (GET /admin/accounts/{account}/instances/{instance}/backups)
+	GetAdminAccountsAccountInstancesInstanceBackups(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceBackupsRequestObject) (GetAdminAccountsAccountInstancesInstanceBackupsResponseObject, error)
 
 	// (GET /admin/accounts/{account}/instances/{instance}/configs)
 	GetAdminAccountsAccountInstancesInstanceConfigs(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceConfigsRequestObject) (GetAdminAccountsAccountInstancesInstanceConfigsResponseObject, error)
@@ -3409,6 +3788,60 @@ func (sh *strictHandler) PatchAdminAccountsAccount(w http.ResponseWriter, r *htt
 	}
 }
 
+// GetAdminAccountsAccountBackups operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountBackupsParams) {
+	var request GetAdminAccountsAccountBackupsRequestObject
+
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountBackups(ctx, request.(GetAdminAccountsAccountBackupsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountBackups")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountBackupsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountBackupsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountBackupsBackup operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request, account string, backup string) {
+	var request GetAdminAccountsAccountBackupsBackupRequestObject
+
+	request.Account = account
+	request.Backup = backup
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountBackupsBackup(ctx, request.(GetAdminAccountsAccountBackupsBackupRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountBackupsBackup")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountBackupsBackupResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountBackupsBackupResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // DeleteAdminAccountsAccountConfigsConfig operation middleware
 func (sh *strictHandler) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
 	var request DeleteAdminAccountsAccountConfigsConfigRequestObject
@@ -3604,6 +4037,34 @@ func (sh *strictHandler) PatchAdminAccountsAccountInstancesInstance(w http.Respo
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PatchAdminAccountsAccountInstancesInstanceResponseObject); ok {
 		if err := validResponse.VisitPatchAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountInstancesInstanceBackups operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceBackupsParams) {
+	var request GetAdminAccountsAccountInstancesInstanceBackupsRequestObject
+
+	request.Account = account
+	request.Instance = instance
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountInstancesInstanceBackups(ctx, request.(GetAdminAccountsAccountInstancesInstanceBackupsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceBackups")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceBackupsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

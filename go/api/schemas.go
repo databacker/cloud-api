@@ -83,6 +83,48 @@ type AccountMember struct {
 // AccountMemberRole role of the user in the account
 type AccountMemberRole string
 
+// BackupEvent defines model for BackupEvent.
+type BackupEvent struct {
+	// AccountID ID of the account the backup belongs to
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// Bytes total bytes processed for the backup
+	Bytes *int `json:"bytes,omitempty" yaml:"bytes,omitempty"`
+
+	// Completion completion code, using a subset of http codes
+	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
+
+	// DurationMs total duration of the backup in milliseconds
+	DurationMs *int `json:"duration_ms,omitempty" yaml:"duration_ms,omitempty"`
+
+	// EndTime timestamp for when the backup completed or failed
+	EndTime *time.Time `json:"end_time,omitempty" yaml:"end_time,omitempty"`
+
+	// ErrorMessage error summary when the backup does not succeed
+	ErrorMessage *string `json:"error_message,omitempty" yaml:"error_message,omitempty"`
+
+	// ID unique backup run identifier
+	ID string `json:"id" yaml:"id"`
+
+	// InstanceID ID of the instance the backup belongs to
+	InstanceID string `json:"instance_id" yaml:"instance_id"`
+
+	// InstanceName display name of the instance at the time of the backup
+	InstanceName *string `json:"instance_name,omitempty" yaml:"instance_name,omitempty"`
+
+	// LogID ID of the associated backup log, if available
+	LogID *string `json:"log_id,omitempty" yaml:"log_id,omitempty"`
+
+	// StartTime timestamp for when the backup started
+	StartTime time.Time `json:"start_time" yaml:"start_time"`
+
+	// Status backup result status, such as success or failure
+	Status string `json:"status" yaml:"status"`
+
+	// TraceID ID of the associated backup trace, if available
+	TraceID *string `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+}
+
 // Email defines model for Email.
 type Email struct {
 	// Email email address of the user
@@ -222,6 +264,16 @@ type PaginatedAccounts struct {
 	Limit    *int       `json:"limit,omitempty" yaml:"limit,omitempty"`
 	Offset   *int       `json:"offset,omitempty" yaml:"offset,omitempty"`
 	Total    *int       `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedBackupEvents defines model for PaginatedBackupEvents.
+type PaginatedBackupEvents struct {
+	Events  *[]BackupEvent `json:"events,omitempty" yaml:"events,omitempty"`
+	HasNext *bool          `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool          `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int           `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int           `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int           `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
 // PaginatedInstances defines model for PaginatedInstances.
