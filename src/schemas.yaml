@@ -1,37 +1,3 @@
-  PaginatedUsers:
-    type: object
-    properties:
-      users:
-        type: array
-        items:
-          $ref: '#/components/schemas/User'
-      total:
-        type: integer
-      limit:
-        type: integer
-      offset:
-        type: integer
-      has_next:
-        type: boolean
-      has_prev:
-        type: boolean
-  PaginatedAccountMembers:
-    type: object
-    properties:
-      users:
-        type: array
-        items:
-          $ref: '#/components/schemas/AccountMember'
-      total:
-        type: integer
-      limit:
-        type: integer
-      offset:
-        type: integer
-      has_next:
-        type: boolean
-      has_prev:
-        type: boolean
 openapi: "3.0.0"
 info:
   title: Databack Cloud API
@@ -40,6 +6,100 @@ info:
 paths: {} # technically not needed under openapi3, but does not hurt, and aids backwards-compatibility
 components:
   schemas:
+    PaginationMetadata:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    PaginatedSelfAccounts:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            accounts:
+              type: array
+              items:
+                $ref: '#/components/schemas/SelfAccountEntry'
+
+    PaginatedAccounts:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            accounts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Account'
+
+    PaginatedInstances:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            instances:
+              type: array
+              items:
+                type: string
+
+    PaginatedLogSummaries:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            logs:
+              type: array
+              items:
+                $ref: '#/components/schemas/LogSummary'
+
+    PaginatedLogs:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            logs:
+              type: array
+              items:
+                $ref: '#/components/schemas/Log'
+
+    PaginatedTraceSummaries:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            traces:
+              type: array
+              items:
+                $ref: '#/components/schemas/TraceSummary'
+
+    PaginatedUsers:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+
+    PaginatedAccountMembers:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/AccountMember'
+
     ID:
       type: object
       properties:

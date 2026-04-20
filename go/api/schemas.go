@@ -204,6 +204,95 @@ type Metadata struct {
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
 }
 
+// PaginatedAccountMembers defines model for PaginatedAccountMembers.
+type PaginatedAccountMembers struct {
+	HasNext *bool            `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool            `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int             `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int             `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int             `json:"total,omitempty" yaml:"total,omitempty"`
+	Users   *[]AccountMember `json:"users,omitempty" yaml:"users,omitempty"`
+}
+
+// PaginatedAccounts defines model for PaginatedAccounts.
+type PaginatedAccounts struct {
+	Accounts *[]Account `json:"accounts,omitempty" yaml:"accounts,omitempty"`
+	HasNext  *bool      `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev  *bool      `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit    *int       `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset   *int       `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total    *int       `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedInstances defines model for PaginatedInstances.
+type PaginatedInstances struct {
+	HasNext   *bool     `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev   *bool     `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Instances *[]string `json:"instances,omitempty" yaml:"instances,omitempty"`
+	Limit     *int      `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset    *int      `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total     *int      `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedLogSummaries defines model for PaginatedLogSummaries.
+type PaginatedLogSummaries struct {
+	HasNext *bool         `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool         `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int          `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Logs    *[]LogSummary `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Offset  *int          `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int          `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedLogs defines model for PaginatedLogs.
+type PaginatedLogs struct {
+	HasNext *bool  `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool  `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int   `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Logs    *[]Log `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Offset  *int   `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int   `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedSelfAccounts defines model for PaginatedSelfAccounts.
+type PaginatedSelfAccounts struct {
+	Accounts *[]SelfAccountEntry `json:"accounts,omitempty" yaml:"accounts,omitempty"`
+	HasNext  *bool               `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev  *bool               `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit    *int                `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset   *int                `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total    *int                `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedTraceSummaries defines model for PaginatedTraceSummaries.
+type PaginatedTraceSummaries struct {
+	HasNext *bool           `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool           `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int            `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int            `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int            `json:"total,omitempty" yaml:"total,omitempty"`
+	Traces  *[]TraceSummary `json:"traces,omitempty" yaml:"traces,omitempty"`
+}
+
+// PaginatedUsers defines model for PaginatedUsers.
+type PaginatedUsers struct {
+	HasNext *bool   `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool   `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int    `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int    `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int    `json:"total,omitempty" yaml:"total,omitempty"`
+	Users   *[]User `json:"users,omitempty" yaml:"users,omitempty"`
+}
+
+// PaginationMetadata defines model for PaginationMetadata.
+type PaginationMetadata struct {
+	HasNext *bool `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int  `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int  `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int  `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
 // PatchAdminSelfRequest defines model for PatchAdminSelfRequest.
 type PatchAdminSelfRequest struct {
 	Email *openapi_types.Email `json:"email,omitempty" yaml:"email,omitempty"`

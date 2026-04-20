@@ -233,9 +233,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/SelfAccountEntry'
+                $ref: './schemas.yaml#/components/schemas/PaginatedSelfAccounts'
     post:
       description: create a new account; the calling user is automatically made the owner
       requestBody:
@@ -298,9 +296,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/Account'
+                $ref: './schemas.yaml#/components/schemas/PaginatedAccounts'
     post:
       description: create a new account, normally limited to system administrators
       requestBody:
@@ -393,9 +389,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string # just list of IDs
+                $ref: './schemas.yaml#/components/schemas/PaginatedInstances'
     post:
       description: create a new licensed databacker instance in the given account
       parameters:
@@ -489,9 +483,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/LogSummary'
+                $ref: './schemas.yaml#/components/schemas/PaginatedLogSummaries'
 
   /admin/accounts/{account}/logs/{log}:
     get:
@@ -508,9 +500,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/Log'
+                $ref: './schemas.yaml#/components/schemas/PaginatedLogs'
   /admin/accounts/{account}/instances/{instance}/traces:
     get:
       description: get list of backup traces for a specific instance, searchable based on parameters
@@ -545,9 +535,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/TraceSummary'
+                $ref: './schemas.yaml#/components/schemas/PaginatedTraceSummaries'
   /admin/accounts/{account}/traces:
     get:
       description: get list of backup traces for a specific account across all instances, searchable based on parameters
@@ -581,9 +569,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/TraceSummary'
+                $ref: './schemas.yaml#/components/schemas/PaginatedTraceSummaries'
 
   /admin/accounts/{account}/traces/{trace}:
     get:
@@ -633,9 +619,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
+                allOf:
+                  - $ref: './schemas.yaml#/components/schemas/PaginationMetadata'
+                  - type: object
+                    properties:
+                      configs:
+                        type: array
+                        items:
+                          $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
     post:
       description: create a new device config
       parameters:

@@ -2113,7 +2113,7 @@ type GetAdminAccountsResponseObject interface {
 	VisitGetAdminAccountsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccounts200JSONResponse []Account
+type GetAdminAccounts200JSONResponse PaginatedAccounts
 
 func (response GetAdminAccounts200JSONResponse) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2315,7 +2315,7 @@ type GetAdminAccountsAccountInstancesResponseObject interface {
 	VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstances200JSONResponse []string
+type GetAdminAccountsAccountInstances200JSONResponse PaginatedInstances
 
 func (response GetAdminAccountsAccountInstances200JSONResponse) VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2471,7 +2471,14 @@ type GetAdminAccountsAccountInstancesInstanceConfigsResponseObject interface {
 	VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse []externalRef0.Config
+type GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse struct {
+	Configs *[]externalRef0.Config `json:"configs,omitempty" yaml:"configs,omitempty"`
+	HasNext *bool                  `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool                  `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int                   `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int                   `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int                   `json:"total,omitempty" yaml:"total,omitempty"`
+}
 
 func (response GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2528,7 +2535,7 @@ type GetAdminAccountsAccountInstancesInstanceLogsResponseObject interface {
 	VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse []LogSummary
+type GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse PaginatedLogSummaries
 
 func (response GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2555,7 +2562,7 @@ type GetAdminAccountsAccountInstancesInstanceTracesResponseObject interface {
 	VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse []TraceSummary
+type GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse PaginatedTraceSummaries
 
 func (response GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2582,7 +2589,7 @@ type GetAdminAccountsAccountLogsLogResponseObject interface {
 	VisitGetAdminAccountsAccountLogsLogResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountLogsLog200JSONResponse []Log
+type GetAdminAccountsAccountLogsLog200JSONResponse PaginatedLogs
 
 func (response GetAdminAccountsAccountLogsLog200JSONResponse) VisitGetAdminAccountsAccountLogsLogResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2608,7 +2615,7 @@ type GetAdminAccountsAccountTracesResponseObject interface {
 	VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountTraces200JSONResponse []TraceSummary
+type GetAdminAccountsAccountTraces200JSONResponse PaginatedTraceSummaries
 
 func (response GetAdminAccountsAccountTraces200JSONResponse) VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2687,7 +2694,7 @@ type GetAdminAccountsAccountUsersResponseObject interface {
 	VisitGetAdminAccountsAccountUsersResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountUsers200JSONResponse []AccountMember
+type GetAdminAccountsAccountUsers200JSONResponse PaginatedAccountMembers
 
 func (response GetAdminAccountsAccountUsers200JSONResponse) VisitGetAdminAccountsAccountUsersResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2898,7 +2905,7 @@ type GetAdminSelfAccountsResponseObject interface {
 	VisitGetAdminSelfAccountsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminSelfAccounts200JSONResponse []SelfAccountEntry
+type GetAdminSelfAccounts200JSONResponse PaginatedSelfAccounts
 
 func (response GetAdminSelfAccounts200JSONResponse) VisitGetAdminSelfAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -3058,7 +3065,7 @@ type GetAdminUsersResponseObject interface {
 	VisitGetAdminUsersResponse(w http.ResponseWriter) error
 }
 
-type GetAdminUsers200JSONResponse []User
+type GetAdminUsers200JSONResponse PaginatedUsers
 
 func (response GetAdminUsers200JSONResponse) VisitGetAdminUsersResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")

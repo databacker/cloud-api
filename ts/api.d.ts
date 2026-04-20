@@ -292,7 +292,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SelfAccountEntry"][];
+                        "application/json": components["schemas"]["PaginatedSelfAccounts"];
                     };
                 };
             };
@@ -421,7 +421,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Account"][];
+                        "application/json": components["schemas"]["PaginatedAccounts"];
                     };
                 };
                 /** @description no accounts available */
@@ -639,7 +639,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": string[];
+                        "application/json": components["schemas"]["PaginatedInstances"];
                     };
                 };
                 /** @description not found */
@@ -868,7 +868,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LogSummary"][];
+                        "application/json": components["schemas"]["PaginatedLogSummaries"];
                     };
                 };
                 /** @description not found */
@@ -921,7 +921,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Log"][];
+                        "application/json": components["schemas"]["PaginatedLogs"];
                     };
                 };
                 /** @description not found */
@@ -979,7 +979,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["TraceSummary"][];
+                        "application/json": components["schemas"]["PaginatedTraceSummaries"];
                     };
                 };
                 /** @description not found */
@@ -1035,7 +1035,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["TraceSummary"][];
+                        "application/json": components["schemas"]["PaginatedTraceSummaries"];
                     };
                 };
                 /** @description not found */
@@ -1186,7 +1186,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Config"][];
+                        "application/json": components["schemas"]["PaginationMetadata"] & {
+                            configs?: components["schemas"]["Config"][];
+                        };
                     };
                 };
                 /** @description not found */
@@ -1355,7 +1357,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["User"][];
+                        "application/json": components["schemas"]["PaginatedUsers"];
                     };
                 };
             };
@@ -1479,7 +1481,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["AccountMember"][];
+                        "application/json": components["schemas"]["PaginatedAccountMembers"];
                     };
                 };
                 /** @description not found */
@@ -1659,6 +1661,13 @@ export interface components {
             id?: string;
         };
         User: components["schemas"]["UserWithEmail"] & components["schemas"]["ID"];
+        PaginationMetadata: {
+            total?: number;
+            limit?: number;
+            offset?: number;
+            has_next?: boolean;
+            has_prev?: boolean;
+        };
         /** @description an account the calling user belongs to, with their role */
         SelfAccountEntry: {
             /**
@@ -1670,6 +1679,9 @@ export interface components {
             name?: string;
             /** @description role of the calling user in this account */
             role?: string;
+        };
+        PaginatedSelfAccounts: components["schemas"]["PaginationMetadata"] & {
+            accounts?: components["schemas"]["SelfAccountEntry"][];
         };
         /** @description information for a new databacker account */
         AccountBody: {
@@ -1685,6 +1697,12 @@ export interface components {
         };
         /** @description information for a databacker account with ID */
         Account: components["schemas"]["AccountBody"] & components["schemas"]["ID"];
+        PaginatedAccounts: components["schemas"]["PaginationMetadata"] & {
+            accounts?: components["schemas"]["Account"][];
+        };
+        PaginatedInstances: components["schemas"]["PaginationMetadata"] & {
+            instances?: string[];
+        };
         /** @description information for a new licensed databacker instance */
         InstanceBody: {
             /** @description ECDSA public key to associate with the instance, PEM-encoded */
@@ -1707,6 +1725,9 @@ export interface components {
             completion?: number;
             /** @description size of logs in bytes */
             size?: number;
+        };
+        PaginatedLogSummaries: components["schemas"]["PaginationMetadata"] & {
+            logs?: components["schemas"]["LogSummary"][];
         };
         LogLine: {
             /**
@@ -1733,6 +1754,9 @@ export interface components {
             /** @description List of log lines for a backup run */
             lines?: components["schemas"]["LogLine"][];
         };
+        PaginatedLogs: components["schemas"]["PaginationMetadata"] & {
+            logs?: components["schemas"]["Log"][];
+        };
         TraceSummary: {
             /** @example 550e8400-e29b-41d4-a716-446655440000 */
             id?: string;
@@ -1746,6 +1770,9 @@ export interface components {
             completion?: number;
             /** @description size of trace in bytes */
             size?: number;
+        };
+        PaginatedTraceSummaries: components["schemas"]["PaginationMetadata"] & {
+            traces?: components["schemas"]["TraceSummary"][];
         };
         Span: {
             span_id?: string;
@@ -1960,6 +1987,9 @@ export interface components {
             metadata: components["schemas"]["Metadata"];
             spec: Record<string, never>;
         };
+        PaginatedUsers: components["schemas"]["PaginationMetadata"] & {
+            users?: components["schemas"]["User"][];
+        };
         AccountMember: {
             /** @description unique ID of the user */
             user: string;
@@ -1968,6 +1998,9 @@ export interface components {
              * @enum {string}
              */
             role: "owner" | "admin" | "member" | "viewer";
+        };
+        PaginatedAccountMembers: components["schemas"]["PaginationMetadata"] & {
+            users?: components["schemas"]["AccountMember"][];
         };
     };
     responses: never;
