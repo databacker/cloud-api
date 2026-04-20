@@ -1332,7 +1332,34 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** @description list all users in the system (admin only) */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                    /** @description Search term to filter users by name or email */
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description list of all users */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["User"][];
+                    };
+                };
+            };
+        };
         put?: never;
         /** @description create a new user (admin only) */
         post: {

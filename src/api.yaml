@@ -686,6 +686,26 @@ paths:
         <<: *not-found-response
 
   /admin/users:
+    get:
+      description: list all users in the system (admin only)
+      parameters:
+        - *offset-param
+        - *limit-param
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Search term to filter users by name or email
+      responses:
+        '200':
+          description: list of all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/components/schemas/User'
     post:
       description: create a new user (admin only)
       requestBody:

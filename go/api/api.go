@@ -135,6 +135,18 @@ type GetAdminSelfEmailVerifyParams struct {
 	Token string `form:"token" json:"token" yaml:"token"`
 }
 
+// GetAdminUsersParams defines parameters for GetAdminUsers.
+type GetAdminUsersParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+
+	// Search Search term to filter users by name or email
+	Search *string `form:"search,omitempty" json:"search,omitempty" yaml:"search,omitempty"`
+}
+
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
 type PostAdminAccountsJSONRequestBody = Account
 
@@ -272,6 +284,9 @@ type ServerInterface interface {
 
 	// (GET /admin/system/stats)
 	GetAdminSystemStats(w http.ResponseWriter, r *http.Request)
+
+	// (GET /admin/users)
+	GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams)
 
 	// (POST /admin/users)
 	PostAdminUsers(w http.ResponseWriter, r *http.Request)
@@ -448,6 +463,11 @@ func (_ Unimplemented) GetAdminSystemHealthz(w http.ResponseWriter, r *http.Requ
 
 // (GET /admin/system/stats)
 func (_ Unimplemented) GetAdminSystemStats(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/users)
+func (_ Unimplemented) GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1760,6 +1780,55 @@ func (siw *ServerInterfaceWrapper) GetAdminSystemStats(w http.ResponseWriter, r 
 	handler.ServeHTTP(w, r)
 }
 
+// GetAdminUsers operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminUsers(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminUsersParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "search" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "search", r.URL.Query(), &params.Search)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "search", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminUsers(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // PostAdminUsers operation middleware
 func (siw *ServerInterfaceWrapper) PostAdminUsers(w http.ResponseWriter, r *http.Request) {
 
@@ -2022,6 +2091,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/system/stats", wrapper.GetAdminSystemStats)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/users", wrapper.GetAdminUsers)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/users", wrapper.PostAdminUsers)
@@ -2978,6 +3050,23 @@ func (response GetAdminSystemStats200JSONResponse) VisitGetAdminSystemStatsRespo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetAdminUsersRequestObject struct {
+	Params GetAdminUsersParams
+}
+
+type GetAdminUsersResponseObject interface {
+	VisitGetAdminUsersResponse(w http.ResponseWriter) error
+}
+
+type GetAdminUsers200JSONResponse []User
+
+func (response GetAdminUsers200JSONResponse) VisitGetAdminUsersResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type PostAdminUsersRequestObject struct {
 	Body *PostAdminUsersJSONRequestBody
 }
@@ -3131,6 +3220,9 @@ type StrictServerInterface interface {
 
 	// (GET /admin/system/stats)
 	GetAdminSystemStats(ctx context.Context, request GetAdminSystemStatsRequestObject) (GetAdminSystemStatsResponseObject, error)
+
+	// (GET /admin/users)
+	GetAdminUsers(ctx context.Context, request GetAdminUsersRequestObject) (GetAdminUsersResponseObject, error)
 
 	// (POST /admin/users)
 	PostAdminUsers(ctx context.Context, request PostAdminUsersRequestObject) (PostAdminUsersResponseObject, error)
@@ -4102,6 +4194,32 @@ func (sh *strictHandler) GetAdminSystemStats(w http.ResponseWriter, r *http.Requ
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminSystemStatsResponseObject); ok {
 		if err := validResponse.VisitGetAdminSystemStatsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminUsers operation middleware
+func (sh *strictHandler) GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams) {
+	var request GetAdminUsersRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminUsers(ctx, request.(GetAdminUsersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminUsers")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminUsersResponseObject); ok {
+		if err := validResponse.VisitGetAdminUsersResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
