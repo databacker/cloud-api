@@ -41,6 +41,13 @@ x-parameters:
       type: string
     required: true
     description: Unique ID of the databacker instance
+  database: &database-param
+    in: path
+    name: database
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the database target
   trace: &trace-param
     in: path
     name: trace
@@ -524,6 +531,126 @@ paths:
         <<: *not-found-response
         '200':
           description: backup events for the specified instance
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBackupEvents'
+
+  /admin/accounts/{account}/instances/{instance}/databases:
+    get:
+      description: list database targets associated with a specific instance
+      parameters:
+        - *account-param
+        - *instance-param
+        - name: system
+          in: query
+          schema:
+            type: string
+          description: filter to a specific database engine type
+        - name: transport
+          in: query
+          schema:
+            type: string
+          description: filter to a specific network transport
+        - name: address
+          in: query
+          schema:
+            type: string
+          description: filter to a specific hostname, IP, or socket path
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: database targets associated with the specified instance
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedDatabases'
+
+  /admin/accounts/{account}/databases:
+    get:
+      description: list database targets in a given account; a database target is a database engine endpoint or socket used as a backup source
+      parameters:
+        - *account-param
+        - name: instance
+          in: query
+          schema:
+            type: string
+          description: filter to database targets associated with a specific instance ID
+        - name: system
+          in: query
+          schema:
+            type: string
+          description: filter to a specific database engine type
+        - name: transport
+          in: query
+          schema:
+            type: string
+          description: filter to a specific network transport
+        - name: address
+          in: query
+          schema:
+            type: string
+          description: filter to a specific hostname, IP, or socket path
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: database targets for the given account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedDatabases'
+
+  /admin/accounts/{account}/databases/{database}:
+    get:
+      description: get information about a specific database target
+      parameters:
+        - *account-param
+        - *database-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: details of the database target
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+
+  /admin/accounts/{account}/databases/{database}/backups:
+    get:
+      description: get backup event summaries for a specific database target
+      parameters:
+        - *account-param
+        - *database-param
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: backup status to filter by
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: latest_per_instance
+          in: query
+          schema:
+            type: boolean
+          description: when true, return only the latest backup event per instance within this database target view
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup events for the specified database target
           content:
             application/json:
               schema:

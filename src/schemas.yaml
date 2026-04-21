@@ -50,6 +50,16 @@ components:
               items:
                 type: string
 
+    PaginatedDatabases:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            databases:
+              type: array
+              items:
+                $ref: '#/components/schemas/Database'
+
     PaginatedLogSummaries:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'
@@ -149,6 +159,56 @@ components:
       allOf:
         - $ref: '#/components/schemas/InstanceBody'
         - $ref: '#/components/schemas/ID'
+
+    Database:
+      type: object
+      description: A database target is a database engine endpoint or socket used as a backup source.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the database target
+        account_id:
+          type: string
+          description: ID of the account that owns the database target
+        instance_id:
+          type: string
+          nullable: true
+          description: ID of the instance currently associated with the database target, if any
+        system:
+          type: string
+          description: Database engine type
+          example: mysql
+        transport:
+          type: string
+          description: Network transport used to reach the database target
+          example: tcp
+        address:
+          type: string
+          description: Hostname or IP address for TCP, or socket path for unix transport
+        port:
+          type: integer
+          nullable: true
+          description: TCP port for the database target, if applicable
+        display_name:
+          type: string
+          nullable: true
+          description: Human-friendly display name for the database target
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the database target was created
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the database target was last updated
+      required:
+        - id
+        - account_id
+        - system
+        - transport
+        - address
     AccountBody:
       type: object
       description: information for a new databacker account
@@ -355,6 +415,26 @@ components:
         instance_name:
           type: string
           description: display name of the instance at the time of the backup
+        database_id:
+          type: string
+          nullable: true
+          description: ID of the database target used for the backup, if the target is known
+        db_system:
+          type: string
+          nullable: true
+          description: Snapshot of the database engine used by the backup
+        network_transport:
+          type: string
+          nullable: true
+          description: Snapshot of the transport used by the backup
+        server_address:
+          type: string
+          nullable: true
+          description: Snapshot of the server hostname, IP, or socket path used by the backup
+        server_port:
+          type: integer
+          nullable: true
+          description: Snapshot of the server port used by the backup, if applicable
         start_time:
           type: string
           format: date-time

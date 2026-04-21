@@ -94,6 +94,12 @@ type BackupEvent struct {
 	// Completion completion code, using a subset of http codes
 	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
 
+	// DatabaseID ID of the database target used for the backup, if the target is known
+	DatabaseID *string `json:"database_id" yaml:"database_id"`
+
+	// DBSystem Snapshot of the database engine used by the backup
+	DBSystem *string `json:"db_system" yaml:"db_system"`
+
 	// DurationMs total duration of the backup in milliseconds
 	DurationMs *int `json:"duration_ms,omitempty" yaml:"duration_ms,omitempty"`
 
@@ -115,6 +121,15 @@ type BackupEvent struct {
 	// LogID ID of the associated backup log, if available
 	LogID *string `json:"log_id,omitempty" yaml:"log_id,omitempty"`
 
+	// NetworkTransport Snapshot of the transport used by the backup
+	NetworkTransport *string `json:"network_transport" yaml:"network_transport"`
+
+	// ServerAddress Snapshot of the server hostname, IP, or socket path used by the backup
+	ServerAddress *string `json:"server_address" yaml:"server_address"`
+
+	// ServerPort Snapshot of the server port used by the backup, if applicable
+	ServerPort *int `json:"server_port" yaml:"server_port"`
+
 	// StartTime timestamp for when the backup started
 	StartTime time.Time `json:"start_time" yaml:"start_time"`
 
@@ -123,6 +138,39 @@ type BackupEvent struct {
 
 	// TraceID ID of the associated backup trace, if available
 	TraceID *string `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+}
+
+// Database A database target is a database engine endpoint or socket used as a backup source.
+type Database struct {
+	// AccountID ID of the account that owns the database target
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// Address Hostname or IP address for TCP, or socket path for unix transport
+	Address string `json:"address" yaml:"address"`
+
+	// CreatedAt Timestamp when the database target was created
+	CreatedAt *time.Time `json:"created_at" yaml:"created_at"`
+
+	// DisplayName Human-friendly display name for the database target
+	DisplayName *string `json:"display_name" yaml:"display_name"`
+
+	// ID Unique identifier of the database target
+	ID string `json:"id" yaml:"id"`
+
+	// InstanceID ID of the instance currently associated with the database target, if any
+	InstanceID *string `json:"instance_id" yaml:"instance_id"`
+
+	// Port TCP port for the database target, if applicable
+	Port *int `json:"port" yaml:"port"`
+
+	// System Database engine type
+	System string `json:"system" yaml:"system"`
+
+	// Transport Network transport used to reach the database target
+	Transport string `json:"transport" yaml:"transport"`
+
+	// UpdatedAt Timestamp when the database target was last updated
+	UpdatedAt *time.Time `json:"updated_at" yaml:"updated_at"`
 }
 
 // Email defines model for Email.
@@ -274,6 +322,16 @@ type PaginatedBackupEvents struct {
 	Limit   *int           `json:"limit,omitempty" yaml:"limit,omitempty"`
 	Offset  *int           `json:"offset,omitempty" yaml:"offset,omitempty"`
 	Total   *int           `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedDatabases defines model for PaginatedDatabases.
+type PaginatedDatabases struct {
+	Databases *[]Database `json:"databases,omitempty" yaml:"databases,omitempty"`
+	HasNext   *bool       `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev   *bool       `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit     *int        `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset    *int        `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total     *int        `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
 // PaginatedInstances defines model for PaginatedInstances.
