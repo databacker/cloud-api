@@ -947,6 +947,231 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/accounts/{account}/instances/{instance}/databases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list database targets associated with a specific instance */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description filter to a specific database engine type */
+                    system?: string;
+                    /** @description filter to a specific network transport */
+                    transport?: string;
+                    /** @description filter to a specific hostname, IP, or socket path */
+                    address?: string;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the databacker instance */
+                    instance: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description database targets associated with the specified instance */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedDatabases"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list database targets in a given account; a database target is a database engine endpoint or socket used as a backup source */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description filter to database targets associated with a specific instance ID */
+                    instance?: string;
+                    /** @description filter to a specific database engine type */
+                    system?: string;
+                    /** @description filter to a specific network transport */
+                    transport?: string;
+                    /** @description filter to a specific hostname, IP, or socket path */
+                    address?: string;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description database targets for the given account */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedDatabases"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get information about a specific database target */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description details of the database target */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Database"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get backup event summaries for a specific database target */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description backup status to filter by */
+                    status?: string;
+                    start_time?: string;
+                    end_time?: string;
+                    /** @description when true, return only the latest backup event per instance within this database target view */
+                    latest_per_instance?: boolean;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description backup events for the specified database target */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedBackupEvents"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/accounts/{account}/backups": {
         parameters: {
             query?: never;
@@ -1907,6 +2132,16 @@ export interface components {
             instance_id: string;
             /** @description display name of the instance at the time of the backup */
             instance_name?: string;
+            /** @description ID of the database target used for the backup, if the target is known */
+            database_id?: string | null;
+            /** @description Snapshot of the database engine used by the backup */
+            db_system?: string | null;
+            /** @description Snapshot of the transport used by the backup */
+            network_transport?: string | null;
+            /** @description Snapshot of the server hostname, IP, or socket path used by the backup */
+            server_address?: string | null;
+            /** @description Snapshot of the server port used by the backup, if applicable */
+            server_port?: number | null;
             /**
              * Format: date-time
              * @description timestamp for when the backup started
@@ -1937,6 +2172,44 @@ export interface components {
         };
         PaginatedBackupEvents: components["schemas"]["PaginationMetadata"] & {
             events?: components["schemas"]["BackupEvent"][];
+        };
+        /** @description A database target is a database engine endpoint or socket used as a backup source. */
+        Database: {
+            /** @description Unique identifier of the database target */
+            id: string;
+            /** @description ID of the account that owns the database target */
+            account_id: string;
+            /** @description ID of the instance currently associated with the database target, if any */
+            instance_id?: string | null;
+            /**
+             * @description Database engine type
+             * @example mysql
+             */
+            system: string;
+            /**
+             * @description Network transport used to reach the database target
+             * @example tcp
+             */
+            transport: string;
+            /** @description Hostname or IP address for TCP, or socket path for unix transport */
+            address: string;
+            /** @description TCP port for the database target, if applicable */
+            port?: number | null;
+            /** @description Human-friendly display name for the database target */
+            display_name?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the database target was created
+             */
+            created_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the database target was last updated
+             */
+            updated_at?: string | null;
+        };
+        PaginatedDatabases: components["schemas"]["PaginationMetadata"] & {
+            databases?: components["schemas"]["Database"][];
         };
         LogLine: {
             /**
@@ -2022,7 +2295,7 @@ export interface components {
             /** @description password for the database */
             password?: string;
         };
-        Database: {
+        "schemas-Database": {
             /** @description hostname:port to database */
             server?: string;
             /** @description port to connect to, defaults to 5432, overrides "server" */
@@ -2149,7 +2422,7 @@ export interface components {
         /** @description configuration details for a databack instance */
         ConfigSpec: {
             /** @description configuration information for accessing database to backup */
-            database?: components["schemas"]["Database"];
+            database?: components["schemas"]["schemas-Database"];
             /** @description schedule and details for backups */
             dump?: components["schemas"]["Dump"];
             /**
