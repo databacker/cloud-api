@@ -3,7 +3,7 @@
 This repository describes the northbound API for the cloud service. It provides a set of endpoints that allow users to interact with the cloud service.
 
 This does not cover the open source API between the cloud service and individual
-databacker instances. Those APIs are documented in
+backup engines. Those APIs are documented in
 [databacker api](https://github.com/databacker/api).
 
 ## API Specification
@@ -32,15 +32,28 @@ are used for validating and authorizing requests.
 The JWTs are issued via one of two methods:
 
 * OAuth2 Authorization Code Grant, for end-users (administration, this repository)
-* OAuth2 Client Flow, for databacker instances (reporting, orchestration, [api repository](https://github.com/databacker/api))
+* OAuth2 Client Flow, for backup engines (reporting, orchestration, [api repository](https://github.com/databacker/api))
 
 #### OAuth2 Client Flow
 
-Databacker instances use the [OAuth2 Client Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4).
+Backup engines use the [OAuth2 Client Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4).
 
-The databacker instance authenticates using the ECDSA public key affiliated with the instance, using
-it to generate a JWT, which is submitted for all future requests. Once the JWT expires, the databacker
-instance must re-authenticate.
+The backup engine authenticates using its affiliated ECDSA public key, using it to generate a JWT,
+which is submitted for all future requests. Once the JWT expires, the backup engine must re-authenticate.
+
+## Product Model
+
+The northbound administration API now exposes two explicit concepts:
+
+* Backup engines manage registration, setup, config, lifecycle, and deletion.
+* Databases are the protected resources users review for backup state, failures, logs, and traces.
+
+The API uses `databases` rather than `protected-resources` because the current product and telemetry
+schemas are database-specific. If non-database protected resources are added later, introduce a new
+resource family or a typed protected-resource abstraction then.
+
+Configs belong to backup engines. Backups, logs, and traces belong to databases, with `engine_id`
+available on event payloads for correlation.
 
 ### Endpoints
 
@@ -64,7 +77,7 @@ While this may not be possible permanently, this specification shall attempt to 
 as possible.
 
 As this API is as closely REST compatible as possible, all resources are permanent endpoints,
-e.g. `/config/{instance}` and `/report/{instance}`. New resources will be released at new endpoints.
+e.g. `/config/{engine}` and `/report/{engine}`. New resources will be released at new endpoints.
 
 Specific versions of individual resources are versioned via HTTP headers.
 The `Accept` header is used to specify the version of the resource requested.
@@ -98,12 +111,37 @@ Users with multiple accounts may use the account-specific paths to access resour
 
 In all cases, your authenticated user will be checked for access to the account before giving access to resources.
 
-For example, if my default account is `123`, then the following
-are equivalent:
+For example, if my default account is `123`, then the following account-scoped resources are available:
 
-* `/admin/instances/`
-* `/admin/accounts/123/instances/`
+* `/admin/accounts/123/engines`
+* `/admin/accounts/123/databases`
+* `/admin/accounts/123/databases/{database}/backups`
+* `/admin/accounts/123/databases/{database}/logs`
+* `/admin/accounts/123/databases/{database}/traces`
+* `/admin/accounts/123/engines/{engine}/configs`
 
-However, the following is only valid if my user has access to account `456`:
+The old northbound `/admin/accounts/{account}/instances` resource family has been removed as a
+breaking API change. Frontends should replace instance list/detail/config routes with engine routes,
+and replace instance backup/log/trace routes with database routes.
 
-* `/admin/accounts/456/instances/`
+## Frontend Migration Notes
+
+* Replace `/admin/accounts/{account}/instances` with `/admin/accounts/{account}/engines`.
+* Render engine rows from `EngineSummary`; the list response now returns summary objects instead of IDs.
+* Replace instance-scoped backups/logs/traces with `/admin/accounts/{account}/databases/{database}/...`.
+* Render database rows from `DatabaseSummary`, including latest status, success/failure timestamps, and latest error.
+* Replace `instance_id` and `instance_name` fields in northbound payloads with `engine_id`, `engine_name`,
+  `database_id`, and `database_name` as appropriate.
+* Replace `latest_per_instance` query parameters with `latest_per_database`.
+
+## Backend Seed Contract
+
+This repository contains the API contract and generated bindings, not backend seed scripts. Backend
+implementations should seed deterministic frontend integration data with:
+
+* one admin-capable user, one account owner, and one member-only user
+* one account with multiple backup engines and multiple databases
+* at least one engine config
+* at least one successful backup and one failed backup
+* logs and traces attached to backups/databases
+* stable IDs and timestamps documented by the backend repository's seed command

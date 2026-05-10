@@ -377,7 +377,8 @@ export interface paths {
                     content: {
                         "application/json": {
                             total_accounts?: number;
-                            total_instances?: number;
+                            total_engines?: number;
+                            total_databases?: number;
                             total_users?: number;
                             storage_used_bytes?: number;
                         };
@@ -608,14 +609,14 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/accounts/{account}/instances": {
+    "/admin/accounts/{account}/engines": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description list all of the instances in a given account */
+        /** @description list backup engines in a given account with row summary fields */
         get: {
             parameters: {
                 query?: {
@@ -633,13 +634,13 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description list of instances for the given account */
+                /** @description backup engines for the given account */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["PaginatedInstances"];
+                        "application/json": components["schemas"]["PaginatedEngines"];
                     };
                 };
                 /** @description not found */
@@ -652,7 +653,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description create a new licensed databacker instance in the given account */
+        /** @description register a new backup engine in the given account */
         post: {
             parameters: {
                 query?: never;
@@ -663,20 +664,20 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            /** @description information for new licensed databacker instance */
+            /** @description backup engine registration details */
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["InstanceBody"];
+                    "application/json": components["schemas"]["EngineBody"];
                 };
             };
             responses: {
-                /** @description successfully created instance */
+                /** @description successfully registered backup engine */
                 201: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["InstanceBody"];
+                        "application/json": components["schemas"]["Engine"];
                     };
                 };
                 /** @description Invalid request */
@@ -709,14 +710,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/accounts/{account}/instances/{instance}": {
+    "/admin/accounts/{account}/engines/{engine}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description get information about a specific instance */
+        /** @description get information about a specific backup engine */
         get: {
             parameters: {
                 query?: never;
@@ -724,20 +725,20 @@ export interface paths {
                 path: {
                     /** @description Account ID */
                     account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
+                    /** @description Unique ID of the backup engine */
+                    engine: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description details of the instance */
+                /** @description details of the backup engine */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["InstanceBody"];
+                        "application/json": components["schemas"]["Engine"];
                     };
                 };
                 /** @description not found */
@@ -751,7 +752,7 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        /** @description delete a specific instance */
+        /** @description delete a specific backup engine */
         delete: {
             parameters: {
                 query?: never;
@@ -759,14 +760,14 @@ export interface paths {
                 path: {
                     /** @description Account ID */
                     account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
+                    /** @description Unique ID of the backup engine */
+                    engine: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description instance successfully deleted */
+                /** @description backup engine successfully deleted */
                 204: {
                     headers: {
                         [name: string]: unknown;
@@ -784,7 +785,7 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        /** @description update configuration of a specific instance */
+        /** @description update a specific backup engine */
         patch: {
             parameters: {
                 query?: never;
@@ -792,25 +793,25 @@ export interface paths {
                 path: {
                     /** @description Account ID */
                     account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
+                    /** @description Unique ID of the backup engine */
+                    engine: string;
                 };
                 cookie?: never;
             };
-            /** @description instance configuration updates */
+            /** @description backup engine updates */
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["InstanceBody"];
+                    "application/json": components["schemas"]["EngineBody"];
                 };
             };
             responses: {
-                /** @description instance successfully updated */
+                /** @description backup engine successfully updated */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["InstanceBody"];
+                        "application/json": components["schemas"]["Engine"];
                     };
                 };
                 /** @description Invalid request */
@@ -835,14 +836,297 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/accounts/{account}/instances/{instance}/logs": {
+    "/admin/accounts/{account}/databases": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description get list of backup logs for a specific instance */
+        /** @description list protected databases in a given account with row summary fields */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description filter to databases protected by a specific backup engine ID */
+                    engine?: string;
+                    /** @description filter to a specific database engine type */
+                    system?: string;
+                    /** @description filter to a specific network transport */
+                    transport?: string;
+                    /** @description filter to a specific hostname, IP, or socket path */
+                    address?: string;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description protected databases for the given account */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedDatabases"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /** @description create a protected database record associated with a backup engine */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                };
+                cookie?: never;
+            };
+            /** @description protected database details */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DatabaseBody"];
+                };
+            };
+            responses: {
+                /** @description successfully created protected database */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Database"];
+                    };
+                };
+                /** @description Invalid request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get information about a specific protected database */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description details of the protected database */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Database"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /** @description delete a protected database record */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description protected database successfully deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** @description update a protected database record */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
+                };
+                cookie?: never;
+            };
+            /** @description protected database updates */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DatabaseBody"];
+                };
+            };
+            responses: {
+                /** @description protected database successfully updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Database"];
+                    };
+                };
+                /** @description Invalid request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get backup event summaries for a specific protected database */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description backup status to filter by */
+                    status?: string;
+                    start_time?: string;
+                    end_time?: string;
+                    /** @description when true, return only the latest backup event for this database */
+                    latest_per_database?: boolean;
+                    /** @description Number of results to skip */
+                    offset?: number;
+                    /** @description Maximum number of results to return */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Account ID */
+                    account: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description backup events for the specified protected database */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedBackupEvents"];
+                    };
+                };
+                /** @description not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get backup log summaries for a specific protected database */
         get: {
             parameters: {
                 query?: {
@@ -855,14 +1139,14 @@ export interface paths {
                 path: {
                     /** @description Account ID */
                     account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
+                    /** @description Unique ID of the database target */
+                    database: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description list of backup logs for a specific instance */
+                /** @description backup logs for the specified protected database */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -888,248 +1172,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/accounts/{account}/instances/{instance}/backups": {
+    "/admin/accounts/{account}/databases/{database}/traces": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description get backup event summaries for a specific instance */
+        /** @description get backup trace summaries for a specific protected database */
         get: {
             parameters: {
                 query?: {
-                    /** @description backup status to filter by */
-                    status?: string;
                     start_time?: string;
                     end_time?: string;
-                    /** @description when true, return only the latest backup event per instance */
-                    latest_per_instance?: boolean;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description backup events for the specified instance */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedBackupEvents"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/instances/{instance}/databases": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description list database targets associated with a specific instance */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description filter to a specific database engine type */
-                    system?: string;
-                    /** @description filter to a specific network transport */
-                    transport?: string;
-                    /** @description filter to a specific hostname, IP, or socket path */
-                    address?: string;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description database targets associated with the specified instance */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedDatabases"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/databases": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description list database targets in a given account; a database target is a database engine endpoint or socket used as a backup source */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description filter to database targets associated with a specific instance ID */
-                    instance?: string;
-                    /** @description filter to a specific database engine type */
-                    system?: string;
-                    /** @description filter to a specific network transport */
-                    transport?: string;
-                    /** @description filter to a specific hostname, IP, or socket path */
-                    address?: string;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description database targets for the given account */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedDatabases"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/databases/{database}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get information about a specific database target */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the database target */
-                    database: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description details of the database target */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Database"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/databases/{database}/backups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get backup event summaries for a specific database target */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description backup status to filter by */
-                    status?: string;
-                    start_time?: string;
-                    end_time?: string;
-                    /** @description when true, return only the latest backup event per instance within this database target view */
-                    latest_per_instance?: boolean;
+                    /** @description key=value filter (repeatable) */
+                    attribute?: string;
+                    min_duration_ms?: number;
                     /** @description Number of results to skip */
                     offset?: number;
                     /** @description Maximum number of results to return */
@@ -1146,13 +1204,13 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description backup events for the specified database target */
+                /** @description backup traces for the specified protected database */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["PaginatedBackupEvents"];
+                        "application/json": components["schemas"]["PaginatedTraceSummaries"];
                     };
                 };
                 /** @description not found */
@@ -1179,18 +1237,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description get backup event summaries across all instances in an account */
+        /** @description get backup event summaries across all protected databases in an account */
         get: {
             parameters: {
                 query?: {
-                    /** @description filter to a specific instance ID */
-                    instance?: string;
+                    /** @description filter to backups produced by a specific backup engine ID */
+                    engine?: string;
+                    /** @description filter to backups for a specific protected database ID */
+                    database?: string;
                     /** @description backup status to filter by */
                     status?: string;
                     start_time?: string;
                     end_time?: string;
-                    /** @description when true, return only the latest backup event per instance */
-                    latest_per_instance?: boolean;
+                    /** @description when true, return only the latest backup event per protected database */
+                    latest_per_database?: boolean;
                     /** @description Number of results to skip */
                     offset?: number;
                     /** @description Maximum number of results to return */
@@ -1332,64 +1392,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/accounts/{account}/instances/{instance}/traces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get list of backup traces for a specific instance, searchable based on parameters */
-        get: {
-            parameters: {
-                query?: {
-                    start_time?: string;
-                    end_time?: string;
-                    /** @description key=value filter (repeatable) */
-                    attribute?: string;
-                    min_duration_ms?: number;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description list of backup traces for a specific instance */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedTraceSummaries"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/accounts/{account}/traces": {
         parameters: {
             query?: never;
@@ -1397,10 +1399,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description get list of backup traces for a specific account across all instances, searchable based on parameters */
+        /** @description get list of backup traces for a specific account across all protected databases, searchable based on parameters */
         get: {
             parameters: {
                 query?: {
+                    /** @description filter to traces produced by a specific backup engine ID */
+                    engine?: string;
+                    /** @description filter to traces for a specific protected database ID */
+                    database?: string;
                     start_time?: string;
                     end_time?: string;
                     /** @description key=value filter (repeatable) */
@@ -1544,14 +1550,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/accounts/{account}/instances/{instance}/configs": {
+    "/admin/accounts/{account}/engines/{engine}/configs": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description list all of the device configs for a specific instance */
+        /** @description list cloud-managed configs for a specific backup engine */
         get: {
             parameters: {
                 query?: {
@@ -1564,14 +1570,14 @@ export interface paths {
                 path: {
                     /** @description Account ID */
                     account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
+                    /** @description Unique ID of the backup engine */
+                    engine: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description list of device configs for the given instance */
+                /** @description configs for the given backup engine */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1592,7 +1598,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description create a new device config */
+        /** @description create a new cloud-managed config for a backup engine */
         post: {
             parameters: {
                 query?: never;
@@ -1600,12 +1606,12 @@ export interface paths {
                 path: {
                     /** @description Account ID */
                     account: string;
-                    /** @description Unique ID of the databacker instance */
-                    instance: string;
+                    /** @description Unique ID of the backup engine */
+                    engine: string;
                 };
                 cookie?: never;
             };
-            /** @description information for new device config */
+            /** @description config for the backup engine */
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["Config"];
@@ -2091,34 +2097,176 @@ export interface components {
         PaginatedAccounts: components["schemas"]["PaginationMetadata"] & {
             accounts?: components["schemas"]["Account"][];
         };
-        PaginatedInstances: components["schemas"]["PaginationMetadata"] & {
-            instances?: string[];
+        /** @description backup engine row summary for list views */
+        EngineSummary: {
+            /** @description Unique identifier of the backup engine */
+            id: string;
+            /** @description ID of the account that owns the backup engine */
+            account_id: string;
+            /** @description name of the backup engine */
+            name: string;
+            /** @description description of the backup engine */
+            description?: string | null;
+            /** @enum {string} */
+            registration_state: "pending" | "registered" | "disabled" | "revoked";
+            /** @description number of databases protected by this backup engine */
+            database_count: number;
+            /** @description database ID when this engine is currently associated with one database */
+            connected_database_id?: string | null;
+            /** @description database display name when this engine is currently associated with one database */
+            connected_database_name?: string | null;
+            /** Format: date-time */
+            last_seen?: string | null;
+            /** Format: date-time */
+            last_successful_backup?: string | null;
+            /** Format: date-time */
+            last_failed_backup?: string | null;
+            /** @description status of the latest backup across databases protected by this engine */
+            latest_backup_status?: string | null;
+            version?: string | null;
+            /** @enum {string} */
+            config_state: "none" | "local" | "cloud" | "mixed" | "pending" | "drifted";
         };
-        /** @description information for a new licensed databacker instance */
-        InstanceBody: {
-            /** @description ECDSA public key to associate with the instance, PEM-encoded */
+        PaginatedEngines: components["schemas"]["PaginationMetadata"] & {
+            engines?: components["schemas"]["EngineSummary"][];
+        };
+        /** @description information for a backup engine registration */
+        EngineBody: {
+            /** @description ECDSA public key to associate with the backup engine, PEM-encoded */
             publicKey?: string;
-            /** @description name of the instance */
-            name?: string;
-            /** @description description of the instance */
+            /** @description name of the backup engine */
+            name: string;
+            /** @description description of the backup engine */
             description?: string;
         };
-        LogSummary: {
-            /** @example 550e8400-e29b-41d4-a716-446655440000 */
-            id?: string;
-            /** @description ID of the instance the logs belong to */
-            instance_id?: string;
-            /** @description ID of the account the logs belong to */
+        Engine: components["schemas"]["EngineBody"] & components["schemas"]["ID"] & {
+            /** @description ID of the account that owns the backup engine */
             account_id?: string;
-            /** @description timestamp for start of backup run */
-            date?: number;
-            /** @description completion code, using a subset of http codes */
-            completion?: number;
-            /** @description size of logs in bytes */
-            size?: number;
+            /**
+             * @description registration state for the backup engine
+             * @enum {string}
+             */
+            registration_state?: "pending" | "registered" | "disabled" | "revoked";
+            /**
+             * Format: date-time
+             * @description timestamp of the latest heartbeat or authenticated request
+             */
+            last_seen?: string | null;
+            /** @description backup engine software version, if reported */
+            version?: string | null;
+            /**
+             * @description computed configuration state for the backup engine
+             * @enum {string}
+             */
+            config_state?: "none" | "local" | "cloud" | "mixed" | "pending" | "drifted";
+            /**
+             * Format: date-time
+             * @description timestamp when the backup engine was created
+             */
+            created_at?: string | null;
+            /**
+             * Format: date-time
+             * @description timestamp when the backup engine was last updated
+             */
+            updated_at?: string | null;
         };
-        PaginatedLogSummaries: components["schemas"]["PaginationMetadata"] & {
-            logs?: components["schemas"]["LogSummary"][];
+        /** @description protected database row summary for list views */
+        DatabaseSummary: {
+            /** @description Unique identifier of the database */
+            id: string;
+            /** @description ID of the account that owns the database */
+            account_id: string;
+            /** @description ID of the backup engine that protects this database */
+            engine_id: string;
+            /** @description display name of the backup engine protecting this database */
+            engine_name?: string | null;
+            /** @description Human-friendly display name for the database */
+            name: string;
+            /** @description Database engine type */
+            system: string;
+            /** @description status of the latest backup for this database */
+            latest_backup_status?: string | null;
+            /**
+             * Format: date-time
+             * @description timestamp of the latest successful backup for this database
+             */
+            last_successful_backup?: string | null;
+            /**
+             * Format: date-time
+             * @description timestamp of the latest failed backup for this database
+             */
+            last_failed_backup?: string | null;
+            /** @description error message from the latest failed backup, if available */
+            latest_error_message?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the database target was created
+             */
+            created_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the database target was last updated
+             */
+            updated_at?: string | null;
+        };
+        PaginatedDatabases: components["schemas"]["PaginationMetadata"] & {
+            databases?: components["schemas"]["DatabaseSummary"][];
+        };
+        /** @description A protected database endpoint or socket used as a backup source. */
+        DatabaseBody: {
+            /** @description ID of the backup engine that protects this database */
+            engine_id: string;
+            /** @description Human-friendly display name for the database */
+            name: string;
+            /**
+             * @description Database engine type
+             * @example mysql
+             */
+            system: string;
+            /**
+             * @description Network transport used to reach the database target
+             * @example tcp
+             */
+            transport: string;
+            /** @description Hostname or IP address for TCP, or socket path for unix transport */
+            address: string;
+            /** @description TCP port for the database target, if applicable */
+            port?: number | null;
+            /**
+             * @deprecated
+             * @description Deprecated alias for name retained only for existing stored metadata readers
+             */
+            display_name?: string | null;
+        };
+        Database: components["schemas"]["DatabaseBody"] & components["schemas"]["ID"] & {
+            /** @description ID of the account that owns the database */
+            account_id?: string;
+            /** @description display name of the backup engine protecting this database */
+            engine_name?: string | null;
+            /** @description status of the latest backup for this database */
+            latest_backup_status?: string | null;
+            /**
+             * Format: date-time
+             * @description timestamp of the latest successful backup for this database
+             */
+            last_successful_backup?: string | null;
+            /**
+             * Format: date-time
+             * @description timestamp of the latest failed backup for this database
+             */
+            last_failed_backup?: string | null;
+            /** @description error message from the latest failed backup, if available */
+            latest_error_message?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the database was created
+             */
+            created_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the database was last updated
+             */
+            updated_at?: string | null;
         };
         BackupEvent: {
             /**
@@ -2128,12 +2276,14 @@ export interface components {
             id: string;
             /** @description ID of the account the backup belongs to */
             account_id: string;
-            /** @description ID of the instance the backup belongs to */
-            instance_id: string;
-            /** @description display name of the instance at the time of the backup */
-            instance_name?: string;
-            /** @description ID of the database target used for the backup, if the target is known */
-            database_id?: string | null;
+            /** @description ID of the backup engine that performed the backup */
+            engine_id: string;
+            /** @description display name of the backup engine at the time of the backup */
+            engine_name?: string;
+            /** @description ID of the database used for the backup */
+            database_id: string;
+            /** @description display name of the database at the time of the backup */
+            database_name?: string | null;
             /** @description Snapshot of the database engine used by the backup */
             db_system?: string | null;
             /** @description Snapshot of the transport used by the backup */
@@ -2173,43 +2323,43 @@ export interface components {
         PaginatedBackupEvents: components["schemas"]["PaginationMetadata"] & {
             events?: components["schemas"]["BackupEvent"][];
         };
-        /** @description A database target is a database engine endpoint or socket used as a backup source. */
-        Database: {
-            /** @description Unique identifier of the database target */
-            id: string;
-            /** @description ID of the account that owns the database target */
-            account_id: string;
-            /** @description ID of the instance currently associated with the database target, if any */
-            instance_id?: string | null;
-            /**
-             * @description Database engine type
-             * @example mysql
-             */
-            system: string;
-            /**
-             * @description Network transport used to reach the database target
-             * @example tcp
-             */
-            transport: string;
-            /** @description Hostname or IP address for TCP, or socket path for unix transport */
-            address: string;
-            /** @description TCP port for the database target, if applicable */
-            port?: number | null;
-            /** @description Human-friendly display name for the database target */
-            display_name?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the database target was created
-             */
-            created_at?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the database target was last updated
-             */
-            updated_at?: string | null;
+        LogSummary: {
+            /** @example 550e8400-e29b-41d4-a716-446655440000 */
+            id?: string;
+            /** @description ID of the database the logs belong to */
+            database_id?: string;
+            /** @description ID of the backup engine that produced the logs */
+            engine_id?: string | null;
+            /** @description ID of the account the logs belong to */
+            account_id?: string;
+            /** @description timestamp for start of backup run */
+            date?: number;
+            /** @description completion code, using a subset of http codes */
+            completion?: number;
+            /** @description size of logs in bytes */
+            size?: number;
         };
-        PaginatedDatabases: components["schemas"]["PaginationMetadata"] & {
-            databases?: components["schemas"]["Database"][];
+        PaginatedLogSummaries: components["schemas"]["PaginationMetadata"] & {
+            logs?: components["schemas"]["LogSummary"][];
+        };
+        TraceSummary: {
+            /** @example 550e8400-e29b-41d4-a716-446655440000 */
+            id?: string;
+            /** @description ID of the database the trace belongs to */
+            database_id?: string;
+            /** @description ID of the backup engine that produced the trace */
+            engine_id?: string | null;
+            /** @description ID of the account the database belongs to */
+            account_id?: string;
+            /** @description timestamp for start of backup run */
+            date?: number;
+            /** @description completion code, using a subset of http codes */
+            completion?: number;
+            /** @description size of trace in bytes */
+            size?: number;
+        };
+        PaginatedTraceSummaries: components["schemas"]["PaginationMetadata"] & {
+            traces?: components["schemas"]["TraceSummary"][];
         };
         LogLine: {
             /**
@@ -2229,8 +2379,10 @@ export interface components {
             message?: string;
         };
         Log: {
-            /** @description ID of the instance the logs belong to */
-            instance_id?: string;
+            /** @description ID of the database the logs belong to */
+            database_id?: string;
+            /** @description ID of the backup engine that produced the logs */
+            engine_id?: string | null;
             /** @description ID of the account the logs belong to */
             account_id?: string;
             /** @description List of log lines for a backup run */
@@ -2238,23 +2390,6 @@ export interface components {
         };
         PaginatedLogs: components["schemas"]["PaginationMetadata"] & {
             logs?: components["schemas"]["Log"][];
-        };
-        TraceSummary: {
-            /** @example 550e8400-e29b-41d4-a716-446655440000 */
-            id?: string;
-            /** @description ID of the instance the trace belongs to */
-            instance_id?: string;
-            /** @description ID of the account the instance belongs to */
-            account_id?: string;
-            /** @description timestamp for start of backup run */
-            date?: number;
-            /** @description completion code, using a subset of http codes */
-            completion?: number;
-            /** @description size of trace in bytes */
-            size?: number;
-        };
-        PaginatedTraceSummaries: components["schemas"]["PaginationMetadata"] & {
-            traces?: components["schemas"]["TraceSummary"][];
         };
         Span: {
             span_id?: string;
@@ -2275,9 +2410,11 @@ export interface components {
         Trace: {
             /** Format: uuid */
             trace_id?: string;
-            /** @description ID of the instance the trace belongs to */
-            instance_id?: string;
-            /** @description ID of the account the instance belongs to */
+            /** @description ID of the database the trace belongs to */
+            database_id?: string;
+            /** @description ID of the backup engine that produced the trace */
+            engine_id?: string | null;
+            /** @description ID of the account the database belongs to */
             account_id?: string;
             root_spans?: components["schemas"]["Span"][];
         };

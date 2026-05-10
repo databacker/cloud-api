@@ -38,6 +38,42 @@ const (
 	VerificationRequired EmailChangePendingStatus = "verification_required"
 )
 
+// Defines values for EngineConfigState.
+const (
+	EngineConfigStateCloud   EngineConfigState = "cloud"
+	EngineConfigStateDrifted EngineConfigState = "drifted"
+	EngineConfigStateLocal   EngineConfigState = "local"
+	EngineConfigStateMixed   EngineConfigState = "mixed"
+	EngineConfigStateNone    EngineConfigState = "none"
+	EngineConfigStatePending EngineConfigState = "pending"
+)
+
+// Defines values for EngineRegistrationState.
+const (
+	EngineRegistrationStateDisabled   EngineRegistrationState = "disabled"
+	EngineRegistrationStatePending    EngineRegistrationState = "pending"
+	EngineRegistrationStateRegistered EngineRegistrationState = "registered"
+	EngineRegistrationStateRevoked    EngineRegistrationState = "revoked"
+)
+
+// Defines values for EngineSummaryConfigState.
+const (
+	EngineSummaryConfigStateCloud   EngineSummaryConfigState = "cloud"
+	EngineSummaryConfigStateDrifted EngineSummaryConfigState = "drifted"
+	EngineSummaryConfigStateLocal   EngineSummaryConfigState = "local"
+	EngineSummaryConfigStateMixed   EngineSummaryConfigState = "mixed"
+	EngineSummaryConfigStateNone    EngineSummaryConfigState = "none"
+	EngineSummaryConfigStatePending EngineSummaryConfigState = "pending"
+)
+
+// Defines values for EngineSummaryRegistrationState.
+const (
+	EngineSummaryRegistrationStateDisabled   EngineSummaryRegistrationState = "disabled"
+	EngineSummaryRegistrationStatePending    EngineSummaryRegistrationState = "pending"
+	EngineSummaryRegistrationStateRegistered EngineSummaryRegistrationState = "registered"
+	EngineSummaryRegistrationStateRevoked    EngineSummaryRegistrationState = "revoked"
+)
+
 // Account defines model for Account.
 type Account struct {
 	// Description description of the account
@@ -94,8 +130,11 @@ type BackupEvent struct {
 	// Completion completion code, using a subset of http codes
 	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
 
-	// DatabaseID ID of the database target used for the backup, if the target is known
-	DatabaseID *string `json:"database_id" yaml:"database_id"`
+	// DatabaseID ID of the database used for the backup
+	DatabaseID string `json:"database_id" yaml:"database_id"`
+
+	// DatabaseName display name of the database at the time of the backup
+	DatabaseName *string `json:"database_name" yaml:"database_name"`
 
 	// DBSystem Snapshot of the database engine used by the backup
 	DBSystem *string `json:"db_system" yaml:"db_system"`
@@ -106,17 +145,17 @@ type BackupEvent struct {
 	// EndTime timestamp for when the backup completed or failed
 	EndTime *time.Time `json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
+	// EngineID ID of the backup engine that performed the backup
+	EngineID string `json:"engine_id" yaml:"engine_id"`
+
+	// EngineName display name of the backup engine at the time of the backup
+	EngineName *string `json:"engine_name,omitempty" yaml:"engine_name,omitempty"`
+
 	// ErrorMessage error summary when the backup does not succeed
 	ErrorMessage *string `json:"error_message,omitempty" yaml:"error_message,omitempty"`
 
 	// ID unique backup run identifier
 	ID string `json:"id" yaml:"id"`
-
-	// InstanceID ID of the instance the backup belongs to
-	InstanceID string `json:"instance_id" yaml:"instance_id"`
-
-	// InstanceName display name of the instance at the time of the backup
-	InstanceName *string `json:"instance_name,omitempty" yaml:"instance_name,omitempty"`
 
 	// LogID ID of the associated backup log, if available
 	LogID *string `json:"log_id,omitempty" yaml:"log_id,omitempty"`
@@ -140,25 +179,44 @@ type BackupEvent struct {
 	TraceID *string `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
 }
 
-// Database A database target is a database engine endpoint or socket used as a backup source.
+// Database defines model for Database.
 type Database struct {
-	// AccountID ID of the account that owns the database target
-	AccountID string `json:"account_id" yaml:"account_id"`
+	// AccountID ID of the account that owns the database
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
 
 	// Address Hostname or IP address for TCP, or socket path for unix transport
 	Address string `json:"address" yaml:"address"`
 
-	// CreatedAt Timestamp when the database target was created
+	// CreatedAt Timestamp when the database was created
 	CreatedAt *time.Time `json:"created_at" yaml:"created_at"`
 
-	// DisplayName Human-friendly display name for the database target
+	// DisplayName Deprecated alias for name retained only for existing stored metadata readers
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	DisplayName *string `json:"display_name" yaml:"display_name"`
 
-	// ID Unique identifier of the database target
-	ID string `json:"id" yaml:"id"`
+	// EngineID ID of the backup engine that protects this database
+	EngineID string `json:"engine_id" yaml:"engine_id"`
 
-	// InstanceID ID of the instance currently associated with the database target, if any
-	InstanceID *string `json:"instance_id" yaml:"instance_id"`
+	// EngineName display name of the backup engine protecting this database
+	EngineName *string `json:"engine_name" yaml:"engine_name"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// LastFailedBackup timestamp of the latest failed backup for this database
+	LastFailedBackup *time.Time `json:"last_failed_backup" yaml:"last_failed_backup"`
+
+	// LastSuccessfulBackup timestamp of the latest successful backup for this database
+	LastSuccessfulBackup *time.Time `json:"last_successful_backup" yaml:"last_successful_backup"`
+
+	// LatestBackupStatus status of the latest backup for this database
+	LatestBackupStatus *string `json:"latest_backup_status" yaml:"latest_backup_status"`
+
+	// LatestErrorMessage error message from the latest failed backup, if available
+	LatestErrorMessage *string `json:"latest_error_message" yaml:"latest_error_message"`
+
+	// Name Human-friendly display name for the database
+	Name string `json:"name" yaml:"name"`
 
 	// Port TCP port for the database target, if applicable
 	Port *int `json:"port" yaml:"port"`
@@ -168,6 +226,70 @@ type Database struct {
 
 	// Transport Network transport used to reach the database target
 	Transport string `json:"transport" yaml:"transport"`
+
+	// UpdatedAt Timestamp when the database was last updated
+	UpdatedAt *time.Time `json:"updated_at" yaml:"updated_at"`
+}
+
+// DatabaseBody A protected database endpoint or socket used as a backup source.
+type DatabaseBody struct {
+	// Address Hostname or IP address for TCP, or socket path for unix transport
+	Address string `json:"address" yaml:"address"`
+
+	// DisplayName Deprecated alias for name retained only for existing stored metadata readers
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	DisplayName *string `json:"display_name" yaml:"display_name"`
+
+	// EngineID ID of the backup engine that protects this database
+	EngineID string `json:"engine_id" yaml:"engine_id"`
+
+	// Name Human-friendly display name for the database
+	Name string `json:"name" yaml:"name"`
+
+	// Port TCP port for the database target, if applicable
+	Port *int `json:"port" yaml:"port"`
+
+	// System Database engine type
+	System string `json:"system" yaml:"system"`
+
+	// Transport Network transport used to reach the database target
+	Transport string `json:"transport" yaml:"transport"`
+}
+
+// DatabaseSummary protected database row summary for list views
+type DatabaseSummary struct {
+	// AccountID ID of the account that owns the database
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// CreatedAt Timestamp when the database target was created
+	CreatedAt *time.Time `json:"created_at" yaml:"created_at"`
+
+	// EngineID ID of the backup engine that protects this database
+	EngineID string `json:"engine_id" yaml:"engine_id"`
+
+	// EngineName display name of the backup engine protecting this database
+	EngineName *string `json:"engine_name" yaml:"engine_name"`
+
+	// ID Unique identifier of the database
+	ID string `json:"id" yaml:"id"`
+
+	// LastFailedBackup timestamp of the latest failed backup for this database
+	LastFailedBackup *time.Time `json:"last_failed_backup" yaml:"last_failed_backup"`
+
+	// LastSuccessfulBackup timestamp of the latest successful backup for this database
+	LastSuccessfulBackup *time.Time `json:"last_successful_backup" yaml:"last_successful_backup"`
+
+	// LatestBackupStatus status of the latest backup for this database
+	LatestBackupStatus *string `json:"latest_backup_status" yaml:"latest_backup_status"`
+
+	// LatestErrorMessage error message from the latest failed backup, if available
+	LatestErrorMessage *string `json:"latest_error_message" yaml:"latest_error_message"`
+
+	// Name Human-friendly display name for the database
+	Name string `json:"name" yaml:"name"`
+
+	// System Database engine type
+	System string `json:"system" yaml:"system"`
 
 	// UpdatedAt Timestamp when the database target was last updated
 	UpdatedAt *time.Time `json:"updated_at" yaml:"updated_at"`
@@ -189,15 +311,111 @@ type EmailChangePending struct {
 // EmailChangePendingStatus defines model for EmailChangePending.Status.
 type EmailChangePendingStatus string
 
-// FlatTrace defines model for FlatTrace.
-type FlatTrace struct {
-	// AccountID ID of the account the instance belongs to
+// Engine defines model for Engine.
+type Engine struct {
+	// AccountID ID of the account that owns the backup engine
 	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
 
-	// InstanceID ID of the instance the trace belongs to
-	InstanceID *string     `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
-	Spans      *[]SpanFlat `json:"spans,omitempty" yaml:"spans,omitempty"`
-	TraceID    *string     `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+	// ConfigState computed configuration state for the backup engine
+	ConfigState *EngineConfigState `json:"config_state,omitempty" yaml:"config_state,omitempty"`
+
+	// CreatedAt timestamp when the backup engine was created
+	CreatedAt *time.Time `json:"created_at" yaml:"created_at"`
+
+	// Description description of the backup engine
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// LastSeen timestamp of the latest heartbeat or authenticated request
+	LastSeen *time.Time `json:"last_seen" yaml:"last_seen"`
+
+	// Name name of the backup engine
+	Name string `json:"name" yaml:"name"`
+
+	// PublicKey ECDSA public key to associate with the backup engine, PEM-encoded
+	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
+
+	// RegistrationState registration state for the backup engine
+	RegistrationState *EngineRegistrationState `json:"registration_state,omitempty" yaml:"registration_state,omitempty"`
+
+	// UpdatedAt timestamp when the backup engine was last updated
+	UpdatedAt *time.Time `json:"updated_at" yaml:"updated_at"`
+
+	// Version backup engine software version, if reported
+	Version *string `json:"version" yaml:"version"`
+}
+
+// EngineConfigState computed configuration state for the backup engine
+type EngineConfigState string
+
+// EngineRegistrationState registration state for the backup engine
+type EngineRegistrationState string
+
+// EngineBody information for a backup engine registration
+type EngineBody struct {
+	// Description description of the backup engine
+	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
+
+	// Name name of the backup engine
+	Name string `json:"name" yaml:"name"`
+
+	// PublicKey ECDSA public key to associate with the backup engine, PEM-encoded
+	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
+}
+
+// EngineSummary backup engine row summary for list views
+type EngineSummary struct {
+	// AccountID ID of the account that owns the backup engine
+	AccountID   string                   `json:"account_id" yaml:"account_id"`
+	ConfigState EngineSummaryConfigState `json:"config_state" yaml:"config_state"`
+
+	// ConnectedDatabaseID database ID when this engine is currently associated with one database
+	ConnectedDatabaseID *string `json:"connected_database_id" yaml:"connected_database_id"`
+
+	// ConnectedDatabaseName database display name when this engine is currently associated with one database
+	ConnectedDatabaseName *string `json:"connected_database_name" yaml:"connected_database_name"`
+
+	// DatabaseCount number of databases protected by this backup engine
+	DatabaseCount int `json:"database_count" yaml:"database_count"`
+
+	// Description description of the backup engine
+	Description *string `json:"description" yaml:"description"`
+
+	// ID Unique identifier of the backup engine
+	ID                   string     `json:"id" yaml:"id"`
+	LastFailedBackup     *time.Time `json:"last_failed_backup" yaml:"last_failed_backup"`
+	LastSeen             *time.Time `json:"last_seen" yaml:"last_seen"`
+	LastSuccessfulBackup *time.Time `json:"last_successful_backup" yaml:"last_successful_backup"`
+
+	// LatestBackupStatus status of the latest backup across databases protected by this engine
+	LatestBackupStatus *string `json:"latest_backup_status" yaml:"latest_backup_status"`
+
+	// Name name of the backup engine
+	Name              string                         `json:"name" yaml:"name"`
+	RegistrationState EngineSummaryRegistrationState `json:"registration_state" yaml:"registration_state"`
+	Version           *string                        `json:"version" yaml:"version"`
+}
+
+// EngineSummaryConfigState defines model for EngineSummary.ConfigState.
+type EngineSummaryConfigState string
+
+// EngineSummaryRegistrationState defines model for EngineSummary.RegistrationState.
+type EngineSummaryRegistrationState string
+
+// FlatTrace defines model for FlatTrace.
+type FlatTrace struct {
+	// AccountID ID of the account the database belongs to
+	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
+	// DatabaseID ID of the database the trace belongs to
+	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
+
+	// EngineID ID of the backup engine that produced the trace
+	EngineID *string     `json:"engine_id" yaml:"engine_id"`
+	Spans    *[]SpanFlat `json:"spans,omitempty" yaml:"spans,omitempty"`
+	TraceID  *string     `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
 }
 
 // ID defines model for ID.
@@ -206,40 +424,16 @@ type ID struct {
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 }
 
-// Instance defines model for Instance.
-type Instance struct {
-	// Description description of the instance
-	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
-
-	// ID unique ID of the object, as a UUID
-	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
-
-	// Name name of the instance
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-
-	// PublicKey ECDSA public key to associate with the instance, PEM-encoded
-	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
-}
-
-// InstanceBody information for a new licensed databacker instance
-type InstanceBody struct {
-	// Description description of the instance
-	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
-
-	// Name name of the instance
-	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
-
-	// PublicKey ECDSA public key to associate with the instance, PEM-encoded
-	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
-}
-
 // Log defines model for Log.
 type Log struct {
 	// AccountID ID of the account the logs belong to
 	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
 
-	// InstanceID ID of the instance the logs belong to
-	InstanceID *string `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
+	// DatabaseID ID of the database the logs belong to
+	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
+
+	// EngineID ID of the backup engine that produced the logs
+	EngineID *string `json:"engine_id" yaml:"engine_id"`
 
 	// Lines List of log lines for a backup run
 	Lines *[]LogLine `json:"lines,omitempty" yaml:"lines,omitempty"`
@@ -271,12 +465,15 @@ type LogSummary struct {
 	// Completion completion code, using a subset of http codes
 	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
 
-	// Date timestamp for start of backup run
-	Date *int    `json:"date,omitempty" yaml:"date,omitempty"`
-	ID   *string `json:"id,omitempty" yaml:"id,omitempty"`
+	// DatabaseID ID of the database the logs belong to
+	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
 
-	// InstanceID ID of the instance the logs belong to
-	InstanceID *string `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
+	// Date timestamp for start of backup run
+	Date *int `json:"date,omitempty" yaml:"date,omitempty"`
+
+	// EngineID ID of the backup engine that produced the logs
+	EngineID *string `json:"engine_id" yaml:"engine_id"`
+	ID       *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Size size of logs in bytes
 	Size *int `json:"size,omitempty" yaml:"size,omitempty"`
@@ -326,22 +523,22 @@ type PaginatedBackupEvents struct {
 
 // PaginatedDatabases defines model for PaginatedDatabases.
 type PaginatedDatabases struct {
-	Databases *[]Database `json:"databases,omitempty" yaml:"databases,omitempty"`
-	HasNext   *bool       `json:"has_next,omitempty" yaml:"has_next,omitempty"`
-	HasPrev   *bool       `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
-	Limit     *int        `json:"limit,omitempty" yaml:"limit,omitempty"`
-	Offset    *int        `json:"offset,omitempty" yaml:"offset,omitempty"`
-	Total     *int        `json:"total,omitempty" yaml:"total,omitempty"`
+	Databases *[]DatabaseSummary `json:"databases,omitempty" yaml:"databases,omitempty"`
+	HasNext   *bool              `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev   *bool              `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit     *int               `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset    *int               `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total     *int               `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
-// PaginatedInstances defines model for PaginatedInstances.
-type PaginatedInstances struct {
-	HasNext   *bool     `json:"has_next,omitempty" yaml:"has_next,omitempty"`
-	HasPrev   *bool     `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
-	Instances *[]string `json:"instances,omitempty" yaml:"instances,omitempty"`
-	Limit     *int      `json:"limit,omitempty" yaml:"limit,omitempty"`
-	Offset    *int      `json:"offset,omitempty" yaml:"offset,omitempty"`
-	Total     *int      `json:"total,omitempty" yaml:"total,omitempty"`
+// PaginatedEngines defines model for PaginatedEngines.
+type PaginatedEngines struct {
+	Engines *[]EngineSummary `json:"engines,omitempty" yaml:"engines,omitempty"`
+	HasNext *bool            `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool            `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int             `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int             `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total   *int             `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
 // PaginatedLogSummaries defines model for PaginatedLogSummaries.
@@ -449,13 +646,16 @@ type SpanFlat struct {
 
 // Trace defines model for Trace.
 type Trace struct {
-	// AccountID ID of the account the instance belongs to
+	// AccountID ID of the account the database belongs to
 	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
 
-	// InstanceID ID of the instance the trace belongs to
-	InstanceID *string             `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
-	RootSpans  *[]Span             `json:"root_spans,omitempty" yaml:"root_spans,omitempty"`
-	TraceID    *openapi_types.UUID `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+	// DatabaseID ID of the database the trace belongs to
+	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
+
+	// EngineID ID of the backup engine that produced the trace
+	EngineID  *string             `json:"engine_id" yaml:"engine_id"`
+	RootSpans *[]Span             `json:"root_spans,omitempty" yaml:"root_spans,omitempty"`
+	TraceID   *openapi_types.UUID `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
 }
 
 // TraceSearchResponse defines model for TraceSearchResponse.
@@ -465,18 +665,21 @@ type TraceSearchResponse struct {
 
 // TraceSummary defines model for TraceSummary.
 type TraceSummary struct {
-	// AccountID ID of the account the instance belongs to
+	// AccountID ID of the account the database belongs to
 	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
 
 	// Completion completion code, using a subset of http codes
 	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
 
-	// Date timestamp for start of backup run
-	Date *int    `json:"date,omitempty" yaml:"date,omitempty"`
-	ID   *string `json:"id,omitempty" yaml:"id,omitempty"`
+	// DatabaseID ID of the database the trace belongs to
+	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
 
-	// InstanceID ID of the instance the trace belongs to
-	InstanceID *string `json:"instance_id,omitempty" yaml:"instance_id,omitempty"`
+	// Date timestamp for start of backup run
+	Date *int `json:"date,omitempty" yaml:"date,omitempty"`
+
+	// EngineID ID of the backup engine that produced the trace
+	EngineID *string `json:"engine_id" yaml:"engine_id"`
+	ID       *string `json:"id,omitempty" yaml:"id,omitempty"`
 
 	// Size size of trace in bytes
 	Size *int `json:"size,omitempty" yaml:"size,omitempty"`

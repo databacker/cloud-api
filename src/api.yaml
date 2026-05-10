@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Databack Administration API
-  description: API for administration of databacker instances
+  description: API for administration of databacker backup engines and protected databases
   version: "1.0.0"
 
 servers:
@@ -34,13 +34,13 @@ x-parameters:
       type: string
     required: true
     description: Account ID
-  instance: &instance-param
+  engine: &engine-param
     in: path
-    name: instance
+    name: engine
     schema:
       type: string
     required: true
-    description: Unique ID of the databacker instance
+    description: Unique ID of the backup engine
   database: &database-param
     in: path
     name: database
@@ -289,7 +289,9 @@ paths:
                 properties:
                   total_accounts:
                     type: integer
-                  total_instances:
+                  total_engines:
+                    type: integer
+                  total_databases:
                     type: integer
                   total_users:
                     type: integer
@@ -389,9 +391,9 @@ paths:
         '204':
           description: account successfully deleted
         <<: *not-found-response
-  /admin/accounts/{account}/instances:
+  /admin/accounts/{account}/engines:
     get:
-      description: list all of the instances in a given account
+      description: list backup engines in a given account with row summary fields
       parameters:
         - *account-param
         - *offset-param
@@ -399,28 +401,28 @@ paths:
       responses:
         <<: *not-found-response
         '200':
-          description: list of instances for the given account
+          description: backup engines for the given account
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedInstances'
+                $ref: './schemas.yaml#/components/schemas/PaginatedEngines'
     post:
-      description: create a new licensed databacker instance in the given account
+      description: register a new backup engine in the given account
       parameters:
         - *account-param
       requestBody:
-        description: information for new licensed databacker instance
+        description: backup engine registration details
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/InstanceBody'
+              $ref: './schemas.yaml#/components/schemas/EngineBody'
       responses:
         '201':
-          description: successfully created instance
+          description: successfully registered backup engine
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/InstanceBody'
+                $ref: './schemas.yaml#/components/schemas/Engine'
         '400':
           description: Invalid request
           content:
@@ -433,39 +435,39 @@ paths:
             application/json:
               schema:
                 *error-message-schema
-  /admin/accounts/{account}/instances/{instance}:
+  /admin/accounts/{account}/engines/{engine}:
     get:
-      description: get information about a specific instance
+      description: get information about a specific backup engine
       parameters:
         - *account-param
-        - *instance-param
+        - *engine-param
       responses:
         <<: *not-found-response
         '200':
-          description: details of the instance
+          description: details of the backup engine
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/InstanceBody'
+                $ref: './schemas.yaml#/components/schemas/Engine'
     patch:
-      description: update configuration of a specific instance
+      description: update a specific backup engine
       parameters:
         - *account-param
-        - *instance-param
+        - *engine-param
       requestBody:
-        description: instance configuration updates
+        description: backup engine updates
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/InstanceBody'
+              $ref: './schemas.yaml#/components/schemas/EngineBody'
       responses:
         <<: *not-found-response
         '200':
-          description: instance successfully updated
+          description: backup engine successfully updated
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/InstanceBody'
+                $ref: './schemas.yaml#/components/schemas/Engine'
         '400':
           description: Invalid request
           content:
@@ -473,43 +475,183 @@ paths:
               schema:
                 *error-message-schema
     delete:
-      description: delete a specific instance
+      description: delete a specific backup engine
       parameters:
         - *account-param
-        - *instance-param
+        - *engine-param
       responses:
         '204':
-          description: instance successfully deleted
+          description: backup engine successfully deleted
         <<: *not-found-response
 
-  /admin/accounts/{account}/instances/{instance}/logs:
+  /admin/accounts/{account}/databases:
     get:
-      description: get list of backup logs for a specific instance
+      description: list protected databases in a given account with row summary fields
       parameters:
         - *account-param
-        - *instance-param
+        - name: engine
+          in: query
+          schema:
+            type: string
+          description: filter to databases protected by a specific backup engine ID
+        - name: system
+          in: query
+          schema:
+            type: string
+          description: filter to a specific database engine type
+        - name: transport
+          in: query
+          schema:
+            type: string
+          description: filter to a specific network transport
+        - name: address
+          in: query
+          schema:
+            type: string
+          description: filter to a specific hostname, IP, or socket path
         - *offset-param
         - *limit-param
       responses:
         <<: *not-found-response
         '200':
-          description: list of backup logs for a specific instance
+          description: protected databases for the given account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedDatabases'
+    post:
+      description: create a protected database record associated with a backup engine
+      parameters:
+        - *account-param
+      requestBody:
+        description: protected database details
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/DatabaseBody'
+      responses:
+        '201':
+          description: successfully created protected database
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/accounts/{account}/databases/{database}:
+    get:
+      description: get information about a specific protected database
+      parameters:
+        - *account-param
+        - *database-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: details of the protected database
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+    patch:
+      description: update a protected database record
+      parameters:
+        - *account-param
+        - *database-param
+      requestBody:
+        description: protected database updates
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/DatabaseBody'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: protected database successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+    delete:
+      description: delete a protected database record
+      parameters:
+        - *account-param
+        - *database-param
+      responses:
+        '204':
+          description: protected database successfully deleted
+        <<: *not-found-response
+
+  /admin/accounts/{account}/databases/{database}/backups:
+    get:
+      description: get backup event summaries for a specific protected database
+      parameters:
+        - *account-param
+        - *database-param
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: backup status to filter by
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: latest_per_database
+          in: query
+          schema:
+            type: boolean
+          description: when true, return only the latest backup event for this database
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup events for the specified protected database
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBackupEvents'
+
+  /admin/accounts/{account}/databases/{database}/logs:
+    get:
+      description: get backup log summaries for a specific protected database
+      parameters:
+        - *account-param
+        - *database-param
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup logs for the specified protected database
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedLogSummaries'
 
-  /admin/accounts/{account}/instances/{instance}/backups:
+  /admin/accounts/{account}/databases/{database}/traces:
     get:
-      description: get backup event summaries for a specific instance
+      description: get backup trace summaries for a specific protected database
       parameters:
         - *account-param
-        - *instance-param
-        - name: status
-          in: query
-          schema:
-            type: string
-          description: backup status to filter by
+        - *database-param
         - name: start_time
           in: query
           schema:
@@ -520,153 +662,43 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: latest_per_instance
+        - name: attribute
           in: query
           schema:
-            type: boolean
-          description: when true, return only the latest backup event per instance
+            type: string
+          description: key=value filter (repeatable)
+        - name: min_duration_ms
+          in: query
+          schema:
+            type: number
         - *offset-param
         - *limit-param
       responses:
         <<: *not-found-response
         '200':
-          description: backup events for the specified instance
+          description: backup traces for the specified protected database
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedBackupEvents'
-
-  /admin/accounts/{account}/instances/{instance}/databases:
-    get:
-      description: list database targets associated with a specific instance
-      parameters:
-        - *account-param
-        - *instance-param
-        - name: system
-          in: query
-          schema:
-            type: string
-          description: filter to a specific database engine type
-        - name: transport
-          in: query
-          schema:
-            type: string
-          description: filter to a specific network transport
-        - name: address
-          in: query
-          schema:
-            type: string
-          description: filter to a specific hostname, IP, or socket path
-        - *offset-param
-        - *limit-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: database targets associated with the specified instance
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedDatabases'
-
-  /admin/accounts/{account}/databases:
-    get:
-      description: list database targets in a given account; a database target is a database engine endpoint or socket used as a backup source
-      parameters:
-        - *account-param
-        - name: instance
-          in: query
-          schema:
-            type: string
-          description: filter to database targets associated with a specific instance ID
-        - name: system
-          in: query
-          schema:
-            type: string
-          description: filter to a specific database engine type
-        - name: transport
-          in: query
-          schema:
-            type: string
-          description: filter to a specific network transport
-        - name: address
-          in: query
-          schema:
-            type: string
-          description: filter to a specific hostname, IP, or socket path
-        - *offset-param
-        - *limit-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: database targets for the given account
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedDatabases'
-
-  /admin/accounts/{account}/databases/{database}:
-    get:
-      description: get information about a specific database target
-      parameters:
-        - *account-param
-        - *database-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: details of the database target
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/Database'
-
-  /admin/accounts/{account}/databases/{database}/backups:
-    get:
-      description: get backup event summaries for a specific database target
-      parameters:
-        - *account-param
-        - *database-param
-        - name: status
-          in: query
-          schema:
-            type: string
-          description: backup status to filter by
-        - name: start_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: end_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: latest_per_instance
-          in: query
-          schema:
-            type: boolean
-          description: when true, return only the latest backup event per instance within this database target view
-        - *offset-param
-        - *limit-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: backup events for the specified database target
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedBackupEvents'
+                $ref: './schemas.yaml#/components/schemas/PaginatedTraceSummaries'
 
   /admin/accounts/{account}/backups:
     get:
-      description: get backup event summaries across all instances in an account
+      description: get backup event summaries across all protected databases in an account
       parameters:
         - *account-param
-        - name: instance
+        - name: engine
           in: query
           schema:
             type: string
           required: false
-          description: filter to a specific instance ID
+          description: filter to backups produced by a specific backup engine ID
+        - name: database
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter to backups for a specific protected database ID
         - name: status
           in: query
           schema:
@@ -682,11 +714,11 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: latest_per_instance
+        - name: latest_per_database
           in: query
           schema:
             type: boolean
-          description: when true, return only the latest backup event per instance
+          description: when true, return only the latest backup event per protected database
         - *offset-param
         - *limit-param
       responses:
@@ -729,46 +761,23 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedLogs'
-  /admin/accounts/{account}/instances/{instance}/traces:
-    get:
-      description: get list of backup traces for a specific instance, searchable based on parameters
-      parameters:
-        - *account-param
-        - *instance-param
-        - name: start_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: end_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: attribute
-          in: query
-          schema:
-            type: string
-          description: key=value filter (repeatable)
-        - name: min_duration_ms
-          in: query
-          schema:
-            type: number
-        - *offset-param
-        - *limit-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: list of backup traces for a specific instance
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedTraceSummaries'
   /admin/accounts/{account}/traces:
     get:
-      description: get list of backup traces for a specific account across all instances, searchable based on parameters
+      description: get list of backup traces for a specific account across all protected databases, searchable based on parameters
       parameters:
         - *account-param
+        - name: engine
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter to traces produced by a specific backup engine ID
+        - name: database
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter to traces for a specific protected database ID
         - name: start_time
           in: query
           schema:
@@ -832,18 +841,19 @@ paths:
                 type: array
                 items:
                   $ref: './schemas.yaml#/components/schemas/Span'
-  /admin/accounts/{account}/instances/{instance}/configs:
+
+  /admin/accounts/{account}/engines/{engine}/configs:
     get:
-      description: list all of the device configs for a specific instance
+      description: list cloud-managed configs for a specific backup engine
       parameters:
         - *account-param
-        - *instance-param
+        - *engine-param
         - *offset-param
         - *limit-param
       responses:
         <<: *not-found-response
         '200':
-          description: list of device configs for the given instance
+          description: configs for the given backup engine
           content:
             application/json:
               schema:
@@ -856,12 +866,12 @@ paths:
                         items:
                           $ref: '../external/databacker-api/src/schemas.yaml#/components/schemas/Config'
     post:
-      description: create a new device config
+      description: create a new cloud-managed config for a backup engine
       parameters:
         - *account-param
-        - *instance-param
+        - *engine-param
       requestBody:
-        description: information for new device config
+        description: config for the backup engine
         content:
           application/json:
             schema:

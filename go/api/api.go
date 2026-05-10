@@ -31,16 +31,19 @@ type GetAdminAccountsParams struct {
 
 // GetAdminAccountsAccountBackupsParams defines parameters for GetAdminAccountsAccountBackups.
 type GetAdminAccountsAccountBackupsParams struct {
-	// Instance filter to a specific instance ID
-	Instance *string `form:"instance,omitempty" json:"instance,omitempty" yaml:"instance,omitempty"`
+	// Engine filter to backups produced by a specific backup engine ID
+	Engine *string `form:"engine,omitempty" json:"engine,omitempty" yaml:"engine,omitempty"`
+
+	// Database filter to backups for a specific protected database ID
+	Database *string `form:"database,omitempty" json:"database,omitempty" yaml:"database,omitempty"`
 
 	// Status backup status to filter by
 	Status    *string    `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty"`
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
 	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
-	// LatestPerInstance when true, return only the latest backup event per instance
-	LatestPerInstance *bool `form:"latest_per_instance,omitempty" json:"latest_per_instance,omitempty" yaml:"latest_per_instance,omitempty"`
+	// LatestPerDatabase when true, return only the latest backup event per protected database
+	LatestPerDatabase *bool `form:"latest_per_database,omitempty" json:"latest_per_database,omitempty" yaml:"latest_per_database,omitempty"`
 
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
@@ -51,8 +54,8 @@ type GetAdminAccountsAccountBackupsParams struct {
 
 // GetAdminAccountsAccountDatabasesParams defines parameters for GetAdminAccountsAccountDatabases.
 type GetAdminAccountsAccountDatabasesParams struct {
-	// Instance filter to database targets associated with a specific instance ID
-	Instance *string `form:"instance,omitempty" json:"instance,omitempty" yaml:"instance,omitempty"`
+	// Engine filter to databases protected by a specific backup engine ID
+	Engine *string `form:"engine,omitempty" json:"engine,omitempty" yaml:"engine,omitempty"`
 
 	// System filter to a specific database engine type
 	System *string `form:"system,omitempty" json:"system,omitempty" yaml:"system,omitempty"`
@@ -77,8 +80,8 @@ type GetAdminAccountsAccountDatabasesDatabaseBackupsParams struct {
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
 	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
-	// LatestPerInstance when true, return only the latest backup event per instance within this database target view
-	LatestPerInstance *bool `form:"latest_per_instance,omitempty" json:"latest_per_instance,omitempty" yaml:"latest_per_instance,omitempty"`
+	// LatestPerDatabase when true, return only the latest backup event for this database
+	LatestPerDatabase *bool `form:"latest_per_database,omitempty" json:"latest_per_database,omitempty" yaml:"latest_per_database,omitempty"`
 
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
@@ -87,8 +90,8 @@ type GetAdminAccountsAccountDatabasesDatabaseBackupsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
-// GetAdminAccountsAccountInstancesParams defines parameters for GetAdminAccountsAccountInstances.
-type GetAdminAccountsAccountInstancesParams struct {
+// GetAdminAccountsAccountDatabasesDatabaseLogsParams defines parameters for GetAdminAccountsAccountDatabasesDatabaseLogs.
+type GetAdminAccountsAccountDatabasesDatabaseLogsParams struct {
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
 
@@ -96,61 +99,8 @@ type GetAdminAccountsAccountInstancesParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
-// GetAdminAccountsAccountInstancesInstanceBackupsParams defines parameters for GetAdminAccountsAccountInstancesInstanceBackups.
-type GetAdminAccountsAccountInstancesInstanceBackupsParams struct {
-	// Status backup status to filter by
-	Status    *string    `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty"`
-	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
-	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
-
-	// LatestPerInstance when true, return only the latest backup event per instance
-	LatestPerInstance *bool `form:"latest_per_instance,omitempty" json:"latest_per_instance,omitempty" yaml:"latest_per_instance,omitempty"`
-
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
-// GetAdminAccountsAccountInstancesInstanceConfigsParams defines parameters for GetAdminAccountsAccountInstancesInstanceConfigs.
-type GetAdminAccountsAccountInstancesInstanceConfigsParams struct {
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
-// GetAdminAccountsAccountInstancesInstanceDatabasesParams defines parameters for GetAdminAccountsAccountInstancesInstanceDatabases.
-type GetAdminAccountsAccountInstancesInstanceDatabasesParams struct {
-	// System filter to a specific database engine type
-	System *string `form:"system,omitempty" json:"system,omitempty" yaml:"system,omitempty"`
-
-	// Transport filter to a specific network transport
-	Transport *string `form:"transport,omitempty" json:"transport,omitempty" yaml:"transport,omitempty"`
-
-	// Address filter to a specific hostname, IP, or socket path
-	Address *string `form:"address,omitempty" json:"address,omitempty" yaml:"address,omitempty"`
-
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
-// GetAdminAccountsAccountInstancesInstanceLogsParams defines parameters for GetAdminAccountsAccountInstancesInstanceLogs.
-type GetAdminAccountsAccountInstancesInstanceLogsParams struct {
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
-// GetAdminAccountsAccountInstancesInstanceTracesParams defines parameters for GetAdminAccountsAccountInstancesInstanceTraces.
-type GetAdminAccountsAccountInstancesInstanceTracesParams struct {
+// GetAdminAccountsAccountDatabasesDatabaseTracesParams defines parameters for GetAdminAccountsAccountDatabasesDatabaseTraces.
+type GetAdminAccountsAccountDatabasesDatabaseTracesParams struct {
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
 	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
@@ -158,6 +108,24 @@ type GetAdminAccountsAccountInstancesInstanceTracesParams struct {
 	Attribute     *string  `form:"attribute,omitempty" json:"attribute,omitempty" yaml:"attribute,omitempty"`
 	MinDurationMs *float32 `form:"min_duration_ms,omitempty" json:"min_duration_ms,omitempty" yaml:"min_duration_ms,omitempty"`
 
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// GetAdminAccountsAccountEnginesParams defines parameters for GetAdminAccountsAccountEngines.
+type GetAdminAccountsAccountEnginesParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// GetAdminAccountsAccountEnginesEngineConfigsParams defines parameters for GetAdminAccountsAccountEnginesEngineConfigs.
+type GetAdminAccountsAccountEnginesEngineConfigsParams struct {
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
 
@@ -176,6 +144,11 @@ type GetAdminAccountsAccountLogsLogParams struct {
 
 // GetAdminAccountsAccountTracesParams defines parameters for GetAdminAccountsAccountTraces.
 type GetAdminAccountsAccountTracesParams struct {
+	// Engine filter to traces produced by a specific backup engine ID
+	Engine *string `form:"engine,omitempty" json:"engine,omitempty" yaml:"engine,omitempty"`
+
+	// Database filter to traces for a specific protected database ID
+	Database  *string    `form:"database,omitempty" json:"database,omitempty" yaml:"database,omitempty"`
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
 	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
 
@@ -246,14 +219,20 @@ type PostAdminAccountsJSONRequestBody = Account
 // PatchAdminAccountsAccountJSONRequestBody defines body for PatchAdminAccountsAccount for application/json ContentType.
 type PatchAdminAccountsAccountJSONRequestBody = Account
 
-// PostAdminAccountsAccountInstancesJSONRequestBody defines body for PostAdminAccountsAccountInstances for application/json ContentType.
-type PostAdminAccountsAccountInstancesJSONRequestBody = InstanceBody
+// PostAdminAccountsAccountDatabasesJSONRequestBody defines body for PostAdminAccountsAccountDatabases for application/json ContentType.
+type PostAdminAccountsAccountDatabasesJSONRequestBody = DatabaseBody
 
-// PatchAdminAccountsAccountInstancesInstanceJSONRequestBody defines body for PatchAdminAccountsAccountInstancesInstance for application/json ContentType.
-type PatchAdminAccountsAccountInstancesInstanceJSONRequestBody = InstanceBody
+// PatchAdminAccountsAccountDatabasesDatabaseJSONRequestBody defines body for PatchAdminAccountsAccountDatabasesDatabase for application/json ContentType.
+type PatchAdminAccountsAccountDatabasesDatabaseJSONRequestBody = DatabaseBody
 
-// PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody defines body for PostAdminAccountsAccountInstancesInstanceConfigs for application/json ContentType.
-type PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody = externalRef0.Config
+// PostAdminAccountsAccountEnginesJSONRequestBody defines body for PostAdminAccountsAccountEngines for application/json ContentType.
+type PostAdminAccountsAccountEnginesJSONRequestBody = EngineBody
+
+// PatchAdminAccountsAccountEnginesEngineJSONRequestBody defines body for PatchAdminAccountsAccountEnginesEngine for application/json ContentType.
+type PatchAdminAccountsAccountEnginesEngineJSONRequestBody = EngineBody
+
+// PostAdminAccountsAccountEnginesEngineConfigsJSONRequestBody defines body for PostAdminAccountsAccountEnginesEngineConfigs for application/json ContentType.
+type PostAdminAccountsAccountEnginesEngineConfigsJSONRequestBody = externalRef0.Config
 
 // PostAdminAccountsAccountUsersJSONRequestBody defines body for PostAdminAccountsAccountUsers for application/json ContentType.
 type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJSONBody
@@ -309,44 +288,47 @@ type ServerInterface interface {
 	// (GET /admin/accounts/{account}/databases)
 	GetAdminAccountsAccountDatabases(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountDatabasesParams)
 
+	// (POST /admin/accounts/{account}/databases)
+	PostAdminAccountsAccountDatabases(w http.ResponseWriter, r *http.Request, account string)
+
+	// (DELETE /admin/accounts/{account}/databases/{database})
+	DeleteAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string)
+
 	// (GET /admin/accounts/{account}/databases/{database})
 	GetAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string)
+
+	// (PATCH /admin/accounts/{account}/databases/{database})
+	PatchAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string)
 
 	// (GET /admin/accounts/{account}/databases/{database}/backups)
 	GetAdminAccountsAccountDatabasesDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseBackupsParams)
 
-	// (GET /admin/accounts/{account}/instances)
-	GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountInstancesParams)
+	// (GET /admin/accounts/{account}/databases/{database}/logs)
+	GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams)
 
-	// (POST /admin/accounts/{account}/instances)
-	PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string)
+	// (GET /admin/accounts/{account}/databases/{database}/traces)
+	GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseTracesParams)
 
-	// (DELETE /admin/accounts/{account}/instances/{instance})
-	DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
+	// (GET /admin/accounts/{account}/engines)
+	GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountEnginesParams)
 
-	// (GET /admin/accounts/{account}/instances/{instance})
-	GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
+	// (POST /admin/accounts/{account}/engines)
+	PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string)
 
-	// (PATCH /admin/accounts/{account}/instances/{instance})
-	PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string)
+	// (DELETE /admin/accounts/{account}/engines/{engine})
+	DeleteAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string)
 
-	// (GET /admin/accounts/{account}/instances/{instance}/backups)
-	GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceBackupsParams)
+	// (GET /admin/accounts/{account}/engines/{engine})
+	GetAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string)
 
-	// (GET /admin/accounts/{account}/instances/{instance}/configs)
-	GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceConfigsParams)
+	// (PATCH /admin/accounts/{account}/engines/{engine})
+	PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string)
 
-	// (POST /admin/accounts/{account}/instances/{instance}/configs)
-	PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string)
+	// (GET /admin/accounts/{account}/engines/{engine}/configs)
+	GetAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string, params GetAdminAccountsAccountEnginesEngineConfigsParams)
 
-	// (GET /admin/accounts/{account}/instances/{instance}/databases)
-	GetAdminAccountsAccountInstancesInstanceDatabases(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceDatabasesParams)
-
-	// (GET /admin/accounts/{account}/instances/{instance}/logs)
-	GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceLogsParams)
-
-	// (GET /admin/accounts/{account}/instances/{instance}/traces)
-	GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceTracesParams)
+	// (POST /admin/accounts/{account}/engines/{engine}/configs)
+	PostAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string)
 
 	// (GET /admin/accounts/{account}/logs/{log})
 	GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string, params GetAdminAccountsAccountLogsLogParams)
@@ -463,8 +445,23 @@ func (_ Unimplemented) GetAdminAccountsAccountDatabases(w http.ResponseWriter, r
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (POST /admin/accounts/{account}/databases)
+func (_ Unimplemented) PostAdminAccountsAccountDatabases(w http.ResponseWriter, r *http.Request, account string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (DELETE /admin/accounts/{account}/databases/{database})
+func (_ Unimplemented) DeleteAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (GET /admin/accounts/{account}/databases/{database})
 func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PATCH /admin/accounts/{account}/databases/{database})
+func (_ Unimplemented) PatchAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -473,58 +470,48 @@ func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseBackups(w http.Re
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/accounts/{account}/instances)
-func (_ Unimplemented) GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountInstancesParams) {
+// (GET /admin/accounts/{account}/databases/{database}/logs)
+func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (POST /admin/accounts/{account}/instances)
-func (_ Unimplemented) PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string) {
+// (GET /admin/accounts/{account}/databases/{database}/traces)
+func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseTracesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (DELETE /admin/accounts/{account}/instances/{instance})
-func (_ Unimplemented) DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+// (GET /admin/accounts/{account}/engines)
+func (_ Unimplemented) GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountEnginesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/accounts/{account}/instances/{instance})
-func (_ Unimplemented) GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+// (POST /admin/accounts/{account}/engines)
+func (_ Unimplemented) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (PATCH /admin/accounts/{account}/instances/{instance})
-func (_ Unimplemented) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
+// (DELETE /admin/accounts/{account}/engines/{engine})
+func (_ Unimplemented) DeleteAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/accounts/{account}/instances/{instance}/backups)
-func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceBackupsParams) {
+// (GET /admin/accounts/{account}/engines/{engine})
+func (_ Unimplemented) GetAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/accounts/{account}/instances/{instance}/configs)
-func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceConfigsParams) {
+// (PATCH /admin/accounts/{account}/engines/{engine})
+func (_ Unimplemented) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (POST /admin/accounts/{account}/instances/{instance}/configs)
-func (_ Unimplemented) PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string) {
+// (GET /admin/accounts/{account}/engines/{engine}/configs)
+func (_ Unimplemented) GetAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string, params GetAdminAccountsAccountEnginesEngineConfigsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/accounts/{account}/instances/{instance}/databases)
-func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceDatabases(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceDatabasesParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/accounts/{account}/instances/{instance}/logs)
-func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceLogsParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/accounts/{account}/instances/{instance}/traces)
-func (_ Unimplemented) GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceTracesParams) {
+// (POST /admin/accounts/{account}/engines/{engine}/configs)
+func (_ Unimplemented) PostAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -816,11 +803,19 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.Respons
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetAdminAccountsAccountBackupsParams
 
-	// ------------- Optional query parameter "instance" -------------
+	// ------------- Optional query parameter "engine" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "instance", r.URL.Query(), &params.Instance)
+	err = runtime.BindQueryParameter("form", true, false, "engine", r.URL.Query(), &params.Engine)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "database" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "database", r.URL.Query(), &params.Database)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
 		return
 	}
 
@@ -848,11 +843,11 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.Respons
 		return
 	}
 
-	// ------------- Optional query parameter "latest_per_instance" -------------
+	// ------------- Optional query parameter "latest_per_database" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "latest_per_instance", r.URL.Query(), &params.LatestPerInstance)
+	err = runtime.BindQueryParameter("form", true, false, "latest_per_database", r.URL.Query(), &params.LatestPerDatabase)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_instance", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_database", Err: err})
 		return
 	}
 
@@ -1026,11 +1021,11 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabases(w http.Respo
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetAdminAccountsAccountDatabasesParams
 
-	// ------------- Optional query parameter "instance" -------------
+	// ------------- Optional query parameter "engine" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "instance", r.URL.Query(), &params.Instance)
+	err = runtime.BindQueryParameter("form", true, false, "engine", r.URL.Query(), &params.Engine)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
 		return
 	}
 
@@ -1085,6 +1080,77 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabases(w http.Respo
 	handler.ServeHTTP(w, r)
 }
 
+// PostAdminAccountsAccountDatabases operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountDatabases(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminAccountsAccountDatabases(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteAdminAccountsAccountDatabasesDatabase operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "database" -------------
+	var database string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteAdminAccountsAccountDatabasesDatabase(w, r, account, database)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminAccountsAccountDatabasesDatabase operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request) {
 
@@ -1116,6 +1182,46 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabase(w ht
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetAdminAccountsAccountDatabasesDatabase(w, r, account, database)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PatchAdminAccountsAccountDatabasesDatabase operation middleware
+func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "database" -------------
+	var database string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchAdminAccountsAccountDatabasesDatabase(w, r, account, database)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1181,11 +1287,11 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseBacku
 		return
 	}
 
-	// ------------- Optional query parameter "latest_per_instance" -------------
+	// ------------- Optional query parameter "latest_per_database" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "latest_per_instance", r.URL.Query(), &params.LatestPerInstance)
+	err = runtime.BindQueryParameter("form", true, false, "latest_per_database", r.URL.Query(), &params.LatestPerDatabase)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_instance", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_database", Err: err})
 		return
 	}
 
@@ -1216,8 +1322,8 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseBacku
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminAccountsAccountInstances operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountDatabasesDatabaseLogs operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -1230,6 +1336,15 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstances(w http.Respo
 		return
 	}
 
+	// ------------- Path parameter "database" -------------
+	var database string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
+
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, JWTScopes, []string{})
@@ -1237,7 +1352,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstances(w http.Respo
 	r = r.WithContext(ctx)
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountInstancesParams
+	var params GetAdminAccountsAccountDatabasesDatabaseLogsParams
 
 	// ------------- Optional query parameter "offset" -------------
 
@@ -1256,7 +1371,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstances(w http.Respo
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstances(w, r, account, params)
+		siw.Handler.GetAdminAccountsAccountDatabasesDatabaseLogs(w, r, account, database, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1266,8 +1381,8 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstances(w http.Respo
 	handler.ServeHTTP(w, r)
 }
 
-// PostAdminAccountsAccountInstances operation middleware
-func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request) {
+// GetAdminAccountsAccountDatabasesDatabaseTraces operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -1280,163 +1395,12 @@ func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountInstances(w http.Resp
 		return
 	}
 
-	ctx := r.Context()
+	// ------------- Path parameter "database" -------------
+	var database string
 
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminAccountsAccountInstances(w, r, account)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteAdminAccountsAccountInstancesInstance operation middleware
-func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteAdminAccountsAccountInstancesInstance(w, r, account, instance)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountInstancesInstance operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstancesInstance(w, r, account, instance)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// PatchAdminAccountsAccountInstancesInstance operation middleware
-func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PatchAdminAccountsAccountInstancesInstance(w, r, account, instance)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountInstancesInstanceBackups operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
 		return
 	}
 
@@ -1447,339 +1411,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceBacku
 	r = r.WithContext(ctx)
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountInstancesInstanceBackupsParams
-
-	// ------------- Optional query parameter "status" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "status", r.URL.Query(), &params.Status)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "status", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "start_time" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "end_time" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "latest_per_instance" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "latest_per_instance", r.URL.Query(), &params.LatestPerInstance)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest_per_instance", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstancesInstanceBackups(w, r, account, instance, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountInstancesInstanceConfigs operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountInstancesInstanceConfigsParams
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstancesInstanceConfigs(w, r, account, instance, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// PostAdminAccountsAccountInstancesInstanceConfigs operation middleware
-func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminAccountsAccountInstancesInstanceConfigs(w, r, account, instance)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountInstancesInstanceDatabases operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceDatabases(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountInstancesInstanceDatabasesParams
-
-	// ------------- Optional query parameter "system" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "system", r.URL.Query(), &params.System)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "system", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "transport" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "transport", r.URL.Query(), &params.Transport)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "transport", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "address" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "address", r.URL.Query(), &params.Address)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "address", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstancesInstanceDatabases(w, r, account, instance, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountInstancesInstanceLogs operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountInstancesInstanceLogsParams
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstancesInstanceLogs(w, r, account, instance, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountInstancesInstanceTraces operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "instance" -------------
-	var instance string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "instance", chi.URLParam(r, "instance"), &instance, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "instance", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountInstancesInstanceTracesParams
+	var params GetAdminAccountsAccountDatabasesDatabaseTracesParams
 
 	// ------------- Optional query parameter "start_time" -------------
 
@@ -1830,7 +1462,307 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountInstancesInstanceTrace
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountInstancesInstanceTraces(w, r, account, instance, params)
+		siw.Handler.GetAdminAccountsAccountDatabasesDatabaseTraces(w, r, account, database, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountEngines operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminAccountsAccountEnginesParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountEngines(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostAdminAccountsAccountEngines operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminAccountsAccountEngines(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteAdminAccountsAccountEnginesEngine operation middleware
+func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "engine" -------------
+	var engine string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "engine", chi.URLParam(r, "engine"), &engine, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteAdminAccountsAccountEnginesEngine(w, r, account, engine)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountEnginesEngine operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "engine" -------------
+	var engine string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "engine", chi.URLParam(r, "engine"), &engine, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountEnginesEngine(w, r, account, engine)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PatchAdminAccountsAccountEnginesEngine operation middleware
+func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "engine" -------------
+	var engine string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "engine", chi.URLParam(r, "engine"), &engine, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchAdminAccountsAccountEnginesEngine(w, r, account, engine)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAdminAccountsAccountEnginesEngineConfigs operation middleware
+func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "engine" -------------
+	var engine string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "engine", chi.URLParam(r, "engine"), &engine, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAdminAccountsAccountEnginesEngineConfigsParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAdminAccountsAccountEnginesEngineConfigs(w, r, account, engine, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostAdminAccountsAccountEnginesEngineConfigs operation middleware
+func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "engine" -------------
+	var engine string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "engine", chi.URLParam(r, "engine"), &engine, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAdminAccountsAccountEnginesEngineConfigs(w, r, account, engine)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1921,6 +1853,22 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTraces(w http.Response
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetAdminAccountsAccountTracesParams
+
+	// ------------- Optional query parameter "engine" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "engine", r.URL.Query(), &params.Engine)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "database" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "database", r.URL.Query(), &params.Database)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
 
 	// ------------- Optional query parameter "start_time" -------------
 
@@ -2690,43 +2638,46 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/accounts/{account}/databases", wrapper.GetAdminAccountsAccountDatabases)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/databases", wrapper.PostAdminAccountsAccountDatabases)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/admin/accounts/{account}/databases/{database}", wrapper.DeleteAdminAccountsAccountDatabasesDatabase)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}", wrapper.GetAdminAccountsAccountDatabasesDatabase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/admin/accounts/{account}/databases/{database}", wrapper.PatchAdminAccountsAccountDatabasesDatabase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/backups", wrapper.GetAdminAccountsAccountDatabasesDatabaseBackups)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances", wrapper.GetAdminAccountsAccountInstances)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/logs", wrapper.GetAdminAccountsAccountDatabasesDatabaseLogs)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/admin/accounts/{account}/instances", wrapper.PostAdminAccountsAccountInstances)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/traces", wrapper.GetAdminAccountsAccountDatabasesDatabaseTraces)
 	})
 	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.DeleteAdminAccountsAccountInstancesInstance)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/engines", wrapper.GetAdminAccountsAccountEngines)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.GetAdminAccountsAccountInstancesInstance)
+		r.Post(options.BaseURL+"/admin/accounts/{account}/engines", wrapper.PostAdminAccountsAccountEngines)
 	})
 	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/admin/accounts/{account}/instances/{instance}", wrapper.PatchAdminAccountsAccountInstancesInstance)
+		r.Delete(options.BaseURL+"/admin/accounts/{account}/engines/{engine}", wrapper.DeleteAdminAccountsAccountEnginesEngine)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/backups", wrapper.GetAdminAccountsAccountInstancesInstanceBackups)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/engines/{engine}", wrapper.GetAdminAccountsAccountEnginesEngine)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/configs", wrapper.GetAdminAccountsAccountInstancesInstanceConfigs)
+		r.Patch(options.BaseURL+"/admin/accounts/{account}/engines/{engine}", wrapper.PatchAdminAccountsAccountEnginesEngine)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/configs", wrapper.PostAdminAccountsAccountInstancesInstanceConfigs)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/engines/{engine}/configs", wrapper.GetAdminAccountsAccountEnginesEngineConfigs)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/databases", wrapper.GetAdminAccountsAccountInstancesInstanceDatabases)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/logs", wrapper.GetAdminAccountsAccountInstancesInstanceLogs)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/instances/{instance}/traces", wrapper.GetAdminAccountsAccountInstancesInstanceTraces)
+		r.Post(options.BaseURL+"/admin/accounts/{account}/engines/{engine}/configs", wrapper.PostAdminAccountsAccountEnginesEngineConfigs)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/logs/{log}", wrapper.GetAdminAccountsAccountLogsLog)
@@ -3071,6 +3022,60 @@ func (response GetAdminAccountsAccountDatabases404Response) VisitGetAdminAccount
 	return nil
 }
 
+type PostAdminAccountsAccountDatabasesRequestObject struct {
+	Account string `json:"account"`
+	Body    *PostAdminAccountsAccountDatabasesJSONRequestBody
+}
+
+type PostAdminAccountsAccountDatabasesResponseObject interface {
+	VisitPostAdminAccountsAccountDatabasesResponse(w http.ResponseWriter) error
+}
+
+type PostAdminAccountsAccountDatabases201JSONResponse Database
+
+func (response PostAdminAccountsAccountDatabases201JSONResponse) VisitPostAdminAccountsAccountDatabasesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminAccountsAccountDatabases400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminAccountsAccountDatabases400JSONResponse) VisitPostAdminAccountsAccountDatabasesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteAdminAccountsAccountDatabasesDatabaseRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+}
+
+type DeleteAdminAccountsAccountDatabasesDatabaseResponseObject interface {
+	VisitDeleteAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error
+}
+
+type DeleteAdminAccountsAccountDatabasesDatabase204Response struct {
+}
+
+func (response DeleteAdminAccountsAccountDatabasesDatabase204Response) VisitDeleteAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteAdminAccountsAccountDatabasesDatabase404Response struct {
+}
+
+func (response DeleteAdminAccountsAccountDatabasesDatabase404Response) VisitDeleteAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type GetAdminAccountsAccountDatabasesDatabaseRequestObject struct {
 	Account  string `json:"account"`
 	Database string `json:"database"`
@@ -3093,6 +3098,44 @@ type GetAdminAccountsAccountDatabasesDatabase404Response struct {
 }
 
 func (response GetAdminAccountsAccountDatabasesDatabase404Response) VisitGetAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PatchAdminAccountsAccountDatabasesDatabaseRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+	Body     *PatchAdminAccountsAccountDatabasesDatabaseJSONRequestBody
+}
+
+type PatchAdminAccountsAccountDatabasesDatabaseResponseObject interface {
+	VisitPatchAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error
+}
+
+type PatchAdminAccountsAccountDatabasesDatabase200JSONResponse Database
+
+func (response PatchAdminAccountsAccountDatabasesDatabase200JSONResponse) VisitPatchAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PatchAdminAccountsAccountDatabasesDatabase400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PatchAdminAccountsAccountDatabasesDatabase400JSONResponse) VisitPatchAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PatchAdminAccountsAccountDatabasesDatabase404Response struct {
+}
+
+func (response PatchAdminAccountsAccountDatabasesDatabase404Response) VisitPatchAdminAccountsAccountDatabasesDatabaseResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3124,199 +3167,226 @@ func (response GetAdminAccountsAccountDatabasesDatabaseBackups404Response) Visit
 	return nil
 }
 
-type GetAdminAccountsAccountInstancesRequestObject struct {
-	Account string `json:"account"`
-	Params  GetAdminAccountsAccountInstancesParams
+type GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+	Params   GetAdminAccountsAccountDatabasesDatabaseLogsParams
 }
 
-type GetAdminAccountsAccountInstancesResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject interface {
+	VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstances200JSONResponse PaginatedInstances
+type GetAdminAccountsAccountDatabasesDatabaseLogs200JSONResponse PaginatedLogSummaries
 
-func (response GetAdminAccountsAccountInstances200JSONResponse) VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountDatabasesDatabaseLogs200JSONResponse) VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminAccountsAccountInstances404Response struct {
+type GetAdminAccountsAccountDatabasesDatabaseLogs404Response struct {
 }
 
-func (response GetAdminAccountsAccountInstances404Response) VisitGetAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountDatabasesDatabaseLogs404Response) VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type PostAdminAccountsAccountInstancesRequestObject struct {
+type GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+	Params   GetAdminAccountsAccountDatabasesDatabaseTracesParams
+}
+
+type GetAdminAccountsAccountDatabasesDatabaseTracesResponseObject interface {
+	VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w http.ResponseWriter) error
+}
+
+type GetAdminAccountsAccountDatabasesDatabaseTraces200JSONResponse PaginatedTraceSummaries
+
+func (response GetAdminAccountsAccountDatabasesDatabaseTraces200JSONResponse) VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountDatabasesDatabaseTraces404Response struct {
+}
+
+func (response GetAdminAccountsAccountDatabasesDatabaseTraces404Response) VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAdminAccountsAccountEnginesRequestObject struct {
 	Account string `json:"account"`
-	Body    *PostAdminAccountsAccountInstancesJSONRequestBody
+	Params  GetAdminAccountsAccountEnginesParams
 }
 
-type PostAdminAccountsAccountInstancesResponseObject interface {
-	VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountEnginesResponseObject interface {
+	VisitGetAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error
 }
 
-type PostAdminAccountsAccountInstances201JSONResponse InstanceBody
+type GetAdminAccountsAccountEngines200JSONResponse PaginatedEngines
 
-func (response PostAdminAccountsAccountInstances201JSONResponse) VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountEngines200JSONResponse) VisitGetAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAdminAccountsAccountEngines404Response struct {
+}
+
+func (response GetAdminAccountsAccountEngines404Response) VisitGetAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PostAdminAccountsAccountEnginesRequestObject struct {
+	Account string `json:"account"`
+	Body    *PostAdminAccountsAccountEnginesJSONRequestBody
+}
+
+type PostAdminAccountsAccountEnginesResponseObject interface {
+	VisitPostAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error
+}
+
+type PostAdminAccountsAccountEngines201JSONResponse Engine
+
+func (response PostAdminAccountsAccountEngines201JSONResponse) VisitPostAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAdminAccountsAccountInstances400JSONResponse struct {
+type PostAdminAccountsAccountEngines400JSONResponse struct {
 	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response PostAdminAccountsAccountInstances400JSONResponse) VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+func (response PostAdminAccountsAccountEngines400JSONResponse) VisitPostAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAdminAccountsAccountInstances422JSONResponse struct {
+type PostAdminAccountsAccountEngines422JSONResponse struct {
 	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response PostAdminAccountsAccountInstances422JSONResponse) VisitPostAdminAccountsAccountInstancesResponse(w http.ResponseWriter) error {
+func (response PostAdminAccountsAccountEngines422JSONResponse) VisitPostAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(422)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type DeleteAdminAccountsAccountInstancesInstanceRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
+type DeleteAdminAccountsAccountEnginesEngineRequestObject struct {
+	Account string `json:"account"`
+	Engine  string `json:"engine"`
 }
 
-type DeleteAdminAccountsAccountInstancesInstanceResponseObject interface {
-	VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error
+type DeleteAdminAccountsAccountEnginesEngineResponseObject interface {
+	VisitDeleteAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error
 }
 
-type DeleteAdminAccountsAccountInstancesInstance204Response struct {
+type DeleteAdminAccountsAccountEnginesEngine204Response struct {
 }
 
-func (response DeleteAdminAccountsAccountInstancesInstance204Response) VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response DeleteAdminAccountsAccountEnginesEngine204Response) VisitDeleteAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
 	return nil
 }
 
-type DeleteAdminAccountsAccountInstancesInstance404Response struct {
+type DeleteAdminAccountsAccountEnginesEngine404Response struct {
 }
 
-func (response DeleteAdminAccountsAccountInstancesInstance404Response) VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response DeleteAdminAccountsAccountEnginesEngine404Response) VisitDeleteAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminAccountsAccountInstancesInstanceRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
+type GetAdminAccountsAccountEnginesEngineRequestObject struct {
+	Account string `json:"account"`
+	Engine  string `json:"engine"`
 }
 
-type GetAdminAccountsAccountInstancesInstanceResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountEnginesEngineResponseObject interface {
+	VisitGetAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstancesInstance200JSONResponse InstanceBody
+type GetAdminAccountsAccountEnginesEngine200JSONResponse Engine
 
-func (response GetAdminAccountsAccountInstancesInstance200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountEnginesEngine200JSONResponse) VisitGetAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminAccountsAccountInstancesInstance404Response struct {
+type GetAdminAccountsAccountEnginesEngine404Response struct {
 }
 
-func (response GetAdminAccountsAccountInstancesInstance404Response) VisitGetAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountEnginesEngine404Response) VisitGetAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type PatchAdminAccountsAccountInstancesInstanceRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Body     *PatchAdminAccountsAccountInstancesInstanceJSONRequestBody
+type PatchAdminAccountsAccountEnginesEngineRequestObject struct {
+	Account string `json:"account"`
+	Engine  string `json:"engine"`
+	Body    *PatchAdminAccountsAccountEnginesEngineJSONRequestBody
 }
 
-type PatchAdminAccountsAccountInstancesInstanceResponseObject interface {
-	VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error
+type PatchAdminAccountsAccountEnginesEngineResponseObject interface {
+	VisitPatchAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error
 }
 
-type PatchAdminAccountsAccountInstancesInstance200JSONResponse InstanceBody
+type PatchAdminAccountsAccountEnginesEngine200JSONResponse Engine
 
-func (response PatchAdminAccountsAccountInstancesInstance200JSONResponse) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response PatchAdminAccountsAccountEnginesEngine200JSONResponse) VisitPatchAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PatchAdminAccountsAccountInstancesInstance400JSONResponse struct {
+type PatchAdminAccountsAccountEnginesEngine400JSONResponse struct {
 	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response PatchAdminAccountsAccountInstancesInstance400JSONResponse) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response PatchAdminAccountsAccountEnginesEngine400JSONResponse) VisitPatchAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PatchAdminAccountsAccountInstancesInstance404Response struct {
+type PatchAdminAccountsAccountEnginesEngine404Response struct {
 }
 
-func (response PatchAdminAccountsAccountInstancesInstance404Response) VisitPatchAdminAccountsAccountInstancesInstanceResponse(w http.ResponseWriter) error {
+func (response PatchAdminAccountsAccountEnginesEngine404Response) VisitPatchAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminAccountsAccountInstancesInstanceBackupsRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Params   GetAdminAccountsAccountInstancesInstanceBackupsParams
+type GetAdminAccountsAccountEnginesEngineConfigsRequestObject struct {
+	Account string `json:"account"`
+	Engine  string `json:"engine"`
+	Params  GetAdminAccountsAccountEnginesEngineConfigsParams
 }
 
-type GetAdminAccountsAccountInstancesInstanceBackupsResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w http.ResponseWriter) error
+type GetAdminAccountsAccountEnginesEngineConfigsResponseObject interface {
+	VisitGetAdminAccountsAccountEnginesEngineConfigsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountInstancesInstanceBackups200JSONResponse PaginatedBackupEvents
-
-func (response GetAdminAccountsAccountInstancesInstanceBackups200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountInstancesInstanceBackups404Response struct {
-}
-
-func (response GetAdminAccountsAccountInstancesInstanceBackups404Response) VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountInstancesInstanceConfigsRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Params   GetAdminAccountsAccountInstancesInstanceConfigsParams
-}
-
-type GetAdminAccountsAccountInstancesInstanceConfigsResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse struct {
+type GetAdminAccountsAccountEnginesEngineConfigs200JSONResponse struct {
 	Configs *[]externalRef0.Config `json:"configs,omitempty" yaml:"configs,omitempty"`
 	HasNext *bool                  `json:"has_next,omitempty" yaml:"has_next,omitempty"`
 	HasPrev *bool                  `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
@@ -3325,130 +3395,49 @@ type GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse struct {
 	Total   *int                   `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
-func (response GetAdminAccountsAccountInstancesInstanceConfigs200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountEnginesEngineConfigs200JSONResponse) VisitGetAdminAccountsAccountEnginesEngineConfigsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminAccountsAccountInstancesInstanceConfigs404Response struct {
+type GetAdminAccountsAccountEnginesEngineConfigs404Response struct {
 }
 
-func (response GetAdminAccountsAccountInstancesInstanceConfigs404Response) VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
+func (response GetAdminAccountsAccountEnginesEngineConfigs404Response) VisitGetAdminAccountsAccountEnginesEngineConfigsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type PostAdminAccountsAccountInstancesInstanceConfigsRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Body     *PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody
+type PostAdminAccountsAccountEnginesEngineConfigsRequestObject struct {
+	Account string `json:"account"`
+	Engine  string `json:"engine"`
+	Body    *PostAdminAccountsAccountEnginesEngineConfigsJSONRequestBody
 }
 
-type PostAdminAccountsAccountInstancesInstanceConfigsResponseObject interface {
-	VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error
+type PostAdminAccountsAccountEnginesEngineConfigsResponseObject interface {
+	VisitPostAdminAccountsAccountEnginesEngineConfigsResponse(w http.ResponseWriter) error
 }
 
-type PostAdminAccountsAccountInstancesInstanceConfigs201JSONResponse externalRef0.Config
+type PostAdminAccountsAccountEnginesEngineConfigs201JSONResponse externalRef0.Config
 
-func (response PostAdminAccountsAccountInstancesInstanceConfigs201JSONResponse) VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
+func (response PostAdminAccountsAccountEnginesEngineConfigs201JSONResponse) VisitPostAdminAccountsAccountEnginesEngineConfigsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type PostAdminAccountsAccountInstancesInstanceConfigs400JSONResponse struct {
+type PostAdminAccountsAccountEnginesEngineConfigs400JSONResponse struct {
 	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (response PostAdminAccountsAccountInstancesInstanceConfigs400JSONResponse) VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w http.ResponseWriter) error {
+func (response PostAdminAccountsAccountEnginesEngineConfigs400JSONResponse) VisitPostAdminAccountsAccountEnginesEngineConfigsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
 
 	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountInstancesInstanceDatabasesRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Params   GetAdminAccountsAccountInstancesInstanceDatabasesParams
-}
-
-type GetAdminAccountsAccountInstancesInstanceDatabasesResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesInstanceDatabasesResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountInstancesInstanceDatabases200JSONResponse PaginatedDatabases
-
-func (response GetAdminAccountsAccountInstancesInstanceDatabases200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceDatabasesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountInstancesInstanceDatabases404Response struct {
-}
-
-func (response GetAdminAccountsAccountInstancesInstanceDatabases404Response) VisitGetAdminAccountsAccountInstancesInstanceDatabasesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountInstancesInstanceLogsRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Params   GetAdminAccountsAccountInstancesInstanceLogsParams
-}
-
-type GetAdminAccountsAccountInstancesInstanceLogsResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse PaginatedLogSummaries
-
-func (response GetAdminAccountsAccountInstancesInstanceLogs200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountInstancesInstanceLogs404Response struct {
-}
-
-func (response GetAdminAccountsAccountInstancesInstanceLogs404Response) VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountInstancesInstanceTracesRequestObject struct {
-	Account  string `json:"account"`
-	Instance string `json:"instance"`
-	Params   GetAdminAccountsAccountInstancesInstanceTracesParams
-}
-
-type GetAdminAccountsAccountInstancesInstanceTracesResponseObject interface {
-	VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse PaginatedTraceSummaries
-
-func (response GetAdminAccountsAccountInstancesInstanceTraces200JSONResponse) VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountInstancesInstanceTraces404Response struct {
-}
-
-func (response GetAdminAccountsAccountInstancesInstanceTraces404Response) VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
 }
 
 type GetAdminAccountsAccountLogsLogRequestObject struct {
@@ -3918,7 +3907,8 @@ type GetAdminSystemStatsResponseObject interface {
 type GetAdminSystemStats200JSONResponse struct {
 	StorageUsedBytes *int `json:"storage_used_bytes,omitempty" yaml:"storage_used_bytes,omitempty"`
 	TotalAccounts    *int `json:"total_accounts,omitempty" yaml:"total_accounts,omitempty"`
-	TotalInstances   *int `json:"total_instances,omitempty" yaml:"total_instances,omitempty"`
+	TotalDatabases   *int `json:"total_databases,omitempty" yaml:"total_databases,omitempty"`
+	TotalEngines     *int `json:"total_engines,omitempty" yaml:"total_engines,omitempty"`
 	TotalUsers       *int `json:"total_users,omitempty" yaml:"total_users,omitempty"`
 }
 
@@ -4031,44 +4021,47 @@ type StrictServerInterface interface {
 	// (GET /admin/accounts/{account}/databases)
 	GetAdminAccountsAccountDatabases(ctx context.Context, request GetAdminAccountsAccountDatabasesRequestObject) (GetAdminAccountsAccountDatabasesResponseObject, error)
 
+	// (POST /admin/accounts/{account}/databases)
+	PostAdminAccountsAccountDatabases(ctx context.Context, request PostAdminAccountsAccountDatabasesRequestObject) (PostAdminAccountsAccountDatabasesResponseObject, error)
+
+	// (DELETE /admin/accounts/{account}/databases/{database})
+	DeleteAdminAccountsAccountDatabasesDatabase(ctx context.Context, request DeleteAdminAccountsAccountDatabasesDatabaseRequestObject) (DeleteAdminAccountsAccountDatabasesDatabaseResponseObject, error)
+
 	// (GET /admin/accounts/{account}/databases/{database})
 	GetAdminAccountsAccountDatabasesDatabase(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseRequestObject) (GetAdminAccountsAccountDatabasesDatabaseResponseObject, error)
+
+	// (PATCH /admin/accounts/{account}/databases/{database})
+	PatchAdminAccountsAccountDatabasesDatabase(ctx context.Context, request PatchAdminAccountsAccountDatabasesDatabaseRequestObject) (PatchAdminAccountsAccountDatabasesDatabaseResponseObject, error)
 
 	// (GET /admin/accounts/{account}/databases/{database}/backups)
 	GetAdminAccountsAccountDatabasesDatabaseBackups(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseBackupsRequestObject) (GetAdminAccountsAccountDatabasesDatabaseBackupsResponseObject, error)
 
-	// (GET /admin/accounts/{account}/instances)
-	GetAdminAccountsAccountInstances(ctx context.Context, request GetAdminAccountsAccountInstancesRequestObject) (GetAdminAccountsAccountInstancesResponseObject, error)
+	// (GET /admin/accounts/{account}/databases/{database}/logs)
+	GetAdminAccountsAccountDatabasesDatabaseLogs(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject) (GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject, error)
 
-	// (POST /admin/accounts/{account}/instances)
-	PostAdminAccountsAccountInstances(ctx context.Context, request PostAdminAccountsAccountInstancesRequestObject) (PostAdminAccountsAccountInstancesResponseObject, error)
+	// (GET /admin/accounts/{account}/databases/{database}/traces)
+	GetAdminAccountsAccountDatabasesDatabaseTraces(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject) (GetAdminAccountsAccountDatabasesDatabaseTracesResponseObject, error)
 
-	// (DELETE /admin/accounts/{account}/instances/{instance})
-	DeleteAdminAccountsAccountInstancesInstance(ctx context.Context, request DeleteAdminAccountsAccountInstancesInstanceRequestObject) (DeleteAdminAccountsAccountInstancesInstanceResponseObject, error)
+	// (GET /admin/accounts/{account}/engines)
+	GetAdminAccountsAccountEngines(ctx context.Context, request GetAdminAccountsAccountEnginesRequestObject) (GetAdminAccountsAccountEnginesResponseObject, error)
 
-	// (GET /admin/accounts/{account}/instances/{instance})
-	GetAdminAccountsAccountInstancesInstance(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceRequestObject) (GetAdminAccountsAccountInstancesInstanceResponseObject, error)
+	// (POST /admin/accounts/{account}/engines)
+	PostAdminAccountsAccountEngines(ctx context.Context, request PostAdminAccountsAccountEnginesRequestObject) (PostAdminAccountsAccountEnginesResponseObject, error)
 
-	// (PATCH /admin/accounts/{account}/instances/{instance})
-	PatchAdminAccountsAccountInstancesInstance(ctx context.Context, request PatchAdminAccountsAccountInstancesInstanceRequestObject) (PatchAdminAccountsAccountInstancesInstanceResponseObject, error)
+	// (DELETE /admin/accounts/{account}/engines/{engine})
+	DeleteAdminAccountsAccountEnginesEngine(ctx context.Context, request DeleteAdminAccountsAccountEnginesEngineRequestObject) (DeleteAdminAccountsAccountEnginesEngineResponseObject, error)
 
-	// (GET /admin/accounts/{account}/instances/{instance}/backups)
-	GetAdminAccountsAccountInstancesInstanceBackups(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceBackupsRequestObject) (GetAdminAccountsAccountInstancesInstanceBackupsResponseObject, error)
+	// (GET /admin/accounts/{account}/engines/{engine})
+	GetAdminAccountsAccountEnginesEngine(ctx context.Context, request GetAdminAccountsAccountEnginesEngineRequestObject) (GetAdminAccountsAccountEnginesEngineResponseObject, error)
 
-	// (GET /admin/accounts/{account}/instances/{instance}/configs)
-	GetAdminAccountsAccountInstancesInstanceConfigs(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceConfigsRequestObject) (GetAdminAccountsAccountInstancesInstanceConfigsResponseObject, error)
+	// (PATCH /admin/accounts/{account}/engines/{engine})
+	PatchAdminAccountsAccountEnginesEngine(ctx context.Context, request PatchAdminAccountsAccountEnginesEngineRequestObject) (PatchAdminAccountsAccountEnginesEngineResponseObject, error)
 
-	// (POST /admin/accounts/{account}/instances/{instance}/configs)
-	PostAdminAccountsAccountInstancesInstanceConfigs(ctx context.Context, request PostAdminAccountsAccountInstancesInstanceConfigsRequestObject) (PostAdminAccountsAccountInstancesInstanceConfigsResponseObject, error)
+	// (GET /admin/accounts/{account}/engines/{engine}/configs)
+	GetAdminAccountsAccountEnginesEngineConfigs(ctx context.Context, request GetAdminAccountsAccountEnginesEngineConfigsRequestObject) (GetAdminAccountsAccountEnginesEngineConfigsResponseObject, error)
 
-	// (GET /admin/accounts/{account}/instances/{instance}/databases)
-	GetAdminAccountsAccountInstancesInstanceDatabases(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceDatabasesRequestObject) (GetAdminAccountsAccountInstancesInstanceDatabasesResponseObject, error)
-
-	// (GET /admin/accounts/{account}/instances/{instance}/logs)
-	GetAdminAccountsAccountInstancesInstanceLogs(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceLogsRequestObject) (GetAdminAccountsAccountInstancesInstanceLogsResponseObject, error)
-
-	// (GET /admin/accounts/{account}/instances/{instance}/traces)
-	GetAdminAccountsAccountInstancesInstanceTraces(ctx context.Context, request GetAdminAccountsAccountInstancesInstanceTracesRequestObject) (GetAdminAccountsAccountInstancesInstanceTracesResponseObject, error)
+	// (POST /admin/accounts/{account}/engines/{engine}/configs)
+	PostAdminAccountsAccountEnginesEngineConfigs(ctx context.Context, request PostAdminAccountsAccountEnginesEngineConfigsRequestObject) (PostAdminAccountsAccountEnginesEngineConfigsResponseObject, error)
 
 	// (GET /admin/accounts/{account}/logs/{log})
 	GetAdminAccountsAccountLogsLog(ctx context.Context, request GetAdminAccountsAccountLogsLogRequestObject) (GetAdminAccountsAccountLogsLogResponseObject, error)
@@ -4437,6 +4430,66 @@ func (sh *strictHandler) GetAdminAccountsAccountDatabases(w http.ResponseWriter,
 	}
 }
 
+// PostAdminAccountsAccountDatabases operation middleware
+func (sh *strictHandler) PostAdminAccountsAccountDatabases(w http.ResponseWriter, r *http.Request, account string) {
+	var request PostAdminAccountsAccountDatabasesRequestObject
+
+	request.Account = account
+
+	var body PostAdminAccountsAccountDatabasesJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PostAdminAccountsAccountDatabases(ctx, request.(PostAdminAccountsAccountDatabasesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PostAdminAccountsAccountDatabases")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PostAdminAccountsAccountDatabasesResponseObject); ok {
+		if err := validResponse.VisitPostAdminAccountsAccountDatabasesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteAdminAccountsAccountDatabasesDatabase operation middleware
+func (sh *strictHandler) DeleteAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string) {
+	var request DeleteAdminAccountsAccountDatabasesDatabaseRequestObject
+
+	request.Account = account
+	request.Database = database
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteAdminAccountsAccountDatabasesDatabase(ctx, request.(DeleteAdminAccountsAccountDatabasesDatabaseRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteAdminAccountsAccountDatabasesDatabase")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteAdminAccountsAccountDatabasesDatabaseResponseObject); ok {
+		if err := validResponse.VisitDeleteAdminAccountsAccountDatabasesDatabaseResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetAdminAccountsAccountDatabasesDatabase operation middleware
 func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string) {
 	var request GetAdminAccountsAccountDatabasesDatabaseRequestObject
@@ -4457,6 +4510,40 @@ func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabase(w http.Respons
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseResponseObject); ok {
 		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PatchAdminAccountsAccountDatabasesDatabase operation middleware
+func (sh *strictHandler) PatchAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string) {
+	var request PatchAdminAccountsAccountDatabasesDatabaseRequestObject
+
+	request.Account = account
+	request.Database = database
+
+	var body PatchAdminAccountsAccountDatabasesDatabaseJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PatchAdminAccountsAccountDatabasesDatabase(ctx, request.(PatchAdminAccountsAccountDatabasesDatabaseRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PatchAdminAccountsAccountDatabasesDatabase")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PatchAdminAccountsAccountDatabasesDatabaseResponseObject); ok {
+		if err := validResponse.VisitPatchAdminAccountsAccountDatabasesDatabaseResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4492,26 +4579,27 @@ func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseBackups(w http.
 	}
 }
 
-// GetAdminAccountsAccountInstances operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountInstancesParams) {
-	var request GetAdminAccountsAccountInstancesRequestObject
+// GetAdminAccountsAccountDatabasesDatabaseLogs operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams) {
+	var request GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject
 
 	request.Account = account
+	request.Database = database
 	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstances(ctx, request.(GetAdminAccountsAccountInstancesRequestObject))
+		return sh.ssi.GetAdminAccountsAccountDatabasesDatabaseLogs(ctx, request.(GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstances")
+		handler = middleware(handler, "GetAdminAccountsAccountDatabasesDatabaseLogs")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4519,13 +4607,68 @@ func (sh *strictHandler) GetAdminAccountsAccountInstances(w http.ResponseWriter,
 	}
 }
 
-// PostAdminAccountsAccountInstances operation middleware
-func (sh *strictHandler) PostAdminAccountsAccountInstances(w http.ResponseWriter, r *http.Request, account string) {
-	var request PostAdminAccountsAccountInstancesRequestObject
+// GetAdminAccountsAccountDatabasesDatabaseTraces operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseTracesParams) {
+	var request GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject
+
+	request.Account = account
+	request.Database = database
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountDatabasesDatabaseTraces(ctx, request.(GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountDatabasesDatabaseTraces")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseTracesResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAdminAccountsAccountEngines operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountEnginesParams) {
+	var request GetAdminAccountsAccountEnginesRequestObject
+
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAdminAccountsAccountEngines(ctx, request.(GetAdminAccountsAccountEnginesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAdminAccountsAccountEngines")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAdminAccountsAccountEnginesResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountEnginesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PostAdminAccountsAccountEngines operation middleware
+func (sh *strictHandler) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string) {
+	var request PostAdminAccountsAccountEnginesRequestObject
 
 	request.Account = account
 
-	var body PostAdminAccountsAccountInstancesJSONRequestBody
+	var body PostAdminAccountsAccountEnginesJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -4533,18 +4676,18 @@ func (sh *strictHandler) PostAdminAccountsAccountInstances(w http.ResponseWriter
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostAdminAccountsAccountInstances(ctx, request.(PostAdminAccountsAccountInstancesRequestObject))
+		return sh.ssi.PostAdminAccountsAccountEngines(ctx, request.(PostAdminAccountsAccountEnginesRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostAdminAccountsAccountInstances")
+		handler = middleware(handler, "PostAdminAccountsAccountEngines")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostAdminAccountsAccountInstancesResponseObject); ok {
-		if err := validResponse.VisitPostAdminAccountsAccountInstancesResponse(w); err != nil {
+	} else if validResponse, ok := response.(PostAdminAccountsAccountEnginesResponseObject); ok {
+		if err := validResponse.VisitPostAdminAccountsAccountEnginesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4552,26 +4695,26 @@ func (sh *strictHandler) PostAdminAccountsAccountInstances(w http.ResponseWriter
 	}
 }
 
-// DeleteAdminAccountsAccountInstancesInstance operation middleware
-func (sh *strictHandler) DeleteAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
-	var request DeleteAdminAccountsAccountInstancesInstanceRequestObject
+// DeleteAdminAccountsAccountEnginesEngine operation middleware
+func (sh *strictHandler) DeleteAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
+	var request DeleteAdminAccountsAccountEnginesEngineRequestObject
 
 	request.Account = account
-	request.Instance = instance
+	request.Engine = engine
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteAdminAccountsAccountInstancesInstance(ctx, request.(DeleteAdminAccountsAccountInstancesInstanceRequestObject))
+		return sh.ssi.DeleteAdminAccountsAccountEnginesEngine(ctx, request.(DeleteAdminAccountsAccountEnginesEngineRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteAdminAccountsAccountInstancesInstance")
+		handler = middleware(handler, "DeleteAdminAccountsAccountEnginesEngine")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteAdminAccountsAccountInstancesInstanceResponseObject); ok {
-		if err := validResponse.VisitDeleteAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
+	} else if validResponse, ok := response.(DeleteAdminAccountsAccountEnginesEngineResponseObject); ok {
+		if err := validResponse.VisitDeleteAdminAccountsAccountEnginesEngineResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4579,26 +4722,26 @@ func (sh *strictHandler) DeleteAdminAccountsAccountInstancesInstance(w http.Resp
 	}
 }
 
-// GetAdminAccountsAccountInstancesInstance operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
-	var request GetAdminAccountsAccountInstancesInstanceRequestObject
+// GetAdminAccountsAccountEnginesEngine operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
+	var request GetAdminAccountsAccountEnginesEngineRequestObject
 
 	request.Account = account
-	request.Instance = instance
+	request.Engine = engine
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstancesInstance(ctx, request.(GetAdminAccountsAccountInstancesInstanceRequestObject))
+		return sh.ssi.GetAdminAccountsAccountEnginesEngine(ctx, request.(GetAdminAccountsAccountEnginesEngineRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstance")
+		handler = middleware(handler, "GetAdminAccountsAccountEnginesEngine")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountEnginesEngineResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountEnginesEngineResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4606,14 +4749,14 @@ func (sh *strictHandler) GetAdminAccountsAccountInstancesInstance(w http.Respons
 	}
 }
 
-// PatchAdminAccountsAccountInstancesInstance operation middleware
-func (sh *strictHandler) PatchAdminAccountsAccountInstancesInstance(w http.ResponseWriter, r *http.Request, account string, instance string) {
-	var request PatchAdminAccountsAccountInstancesInstanceRequestObject
+// PatchAdminAccountsAccountEnginesEngine operation middleware
+func (sh *strictHandler) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
+	var request PatchAdminAccountsAccountEnginesEngineRequestObject
 
 	request.Account = account
-	request.Instance = instance
+	request.Engine = engine
 
-	var body PatchAdminAccountsAccountInstancesInstanceJSONRequestBody
+	var body PatchAdminAccountsAccountEnginesEngineJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -4621,18 +4764,18 @@ func (sh *strictHandler) PatchAdminAccountsAccountInstancesInstance(w http.Respo
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PatchAdminAccountsAccountInstancesInstance(ctx, request.(PatchAdminAccountsAccountInstancesInstanceRequestObject))
+		return sh.ssi.PatchAdminAccountsAccountEnginesEngine(ctx, request.(PatchAdminAccountsAccountEnginesEngineRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PatchAdminAccountsAccountInstancesInstance")
+		handler = middleware(handler, "PatchAdminAccountsAccountEnginesEngine")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PatchAdminAccountsAccountInstancesInstanceResponseObject); ok {
-		if err := validResponse.VisitPatchAdminAccountsAccountInstancesInstanceResponse(w); err != nil {
+	} else if validResponse, ok := response.(PatchAdminAccountsAccountEnginesEngineResponseObject); ok {
+		if err := validResponse.VisitPatchAdminAccountsAccountEnginesEngineResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4640,27 +4783,27 @@ func (sh *strictHandler) PatchAdminAccountsAccountInstancesInstance(w http.Respo
 	}
 }
 
-// GetAdminAccountsAccountInstancesInstanceBackups operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceBackups(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceBackupsParams) {
-	var request GetAdminAccountsAccountInstancesInstanceBackupsRequestObject
+// GetAdminAccountsAccountEnginesEngineConfigs operation middleware
+func (sh *strictHandler) GetAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string, params GetAdminAccountsAccountEnginesEngineConfigsParams) {
+	var request GetAdminAccountsAccountEnginesEngineConfigsRequestObject
 
 	request.Account = account
-	request.Instance = instance
+	request.Engine = engine
 	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstancesInstanceBackups(ctx, request.(GetAdminAccountsAccountInstancesInstanceBackupsRequestObject))
+		return sh.ssi.GetAdminAccountsAccountEnginesEngineConfigs(ctx, request.(GetAdminAccountsAccountEnginesEngineConfigsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceBackups")
+		handler = middleware(handler, "GetAdminAccountsAccountEnginesEngineConfigs")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceBackupsResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceBackupsResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetAdminAccountsAccountEnginesEngineConfigsResponseObject); ok {
+		if err := validResponse.VisitGetAdminAccountsAccountEnginesEngineConfigsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4668,42 +4811,14 @@ func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceBackups(w http.
 	}
 }
 
-// GetAdminAccountsAccountInstancesInstanceConfigs operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceConfigsParams) {
-	var request GetAdminAccountsAccountInstancesInstanceConfigsRequestObject
+// PostAdminAccountsAccountEnginesEngineConfigs operation middleware
+func (sh *strictHandler) PostAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string) {
+	var request PostAdminAccountsAccountEnginesEngineConfigsRequestObject
 
 	request.Account = account
-	request.Instance = instance
-	request.Params = params
+	request.Engine = engine
 
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstancesInstanceConfigs(ctx, request.(GetAdminAccountsAccountInstancesInstanceConfigsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceConfigs")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceConfigsResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceConfigsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// PostAdminAccountsAccountInstancesInstanceConfigs operation middleware
-func (sh *strictHandler) PostAdminAccountsAccountInstancesInstanceConfigs(w http.ResponseWriter, r *http.Request, account string, instance string) {
-	var request PostAdminAccountsAccountInstancesInstanceConfigsRequestObject
-
-	request.Account = account
-	request.Instance = instance
-
-	var body PostAdminAccountsAccountInstancesInstanceConfigsJSONRequestBody
+	var body PostAdminAccountsAccountEnginesEngineConfigsJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -4711,102 +4826,18 @@ func (sh *strictHandler) PostAdminAccountsAccountInstancesInstanceConfigs(w http
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostAdminAccountsAccountInstancesInstanceConfigs(ctx, request.(PostAdminAccountsAccountInstancesInstanceConfigsRequestObject))
+		return sh.ssi.PostAdminAccountsAccountEnginesEngineConfigs(ctx, request.(PostAdminAccountsAccountEnginesEngineConfigsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostAdminAccountsAccountInstancesInstanceConfigs")
+		handler = middleware(handler, "PostAdminAccountsAccountEnginesEngineConfigs")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostAdminAccountsAccountInstancesInstanceConfigsResponseObject); ok {
-		if err := validResponse.VisitPostAdminAccountsAccountInstancesInstanceConfigsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountInstancesInstanceDatabases operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceDatabases(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceDatabasesParams) {
-	var request GetAdminAccountsAccountInstancesInstanceDatabasesRequestObject
-
-	request.Account = account
-	request.Instance = instance
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstancesInstanceDatabases(ctx, request.(GetAdminAccountsAccountInstancesInstanceDatabasesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceDatabases")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceDatabasesResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceDatabasesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountInstancesInstanceLogs operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceLogs(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceLogsParams) {
-	var request GetAdminAccountsAccountInstancesInstanceLogsRequestObject
-
-	request.Account = account
-	request.Instance = instance
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstancesInstanceLogs(ctx, request.(GetAdminAccountsAccountInstancesInstanceLogsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceLogs")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceLogsResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceLogsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountInstancesInstanceTraces operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountInstancesInstanceTraces(w http.ResponseWriter, r *http.Request, account string, instance string, params GetAdminAccountsAccountInstancesInstanceTracesParams) {
-	var request GetAdminAccountsAccountInstancesInstanceTracesRequestObject
-
-	request.Account = account
-	request.Instance = instance
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountInstancesInstanceTraces(ctx, request.(GetAdminAccountsAccountInstancesInstanceTracesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountInstancesInstanceTraces")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountInstancesInstanceTracesResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountInstancesInstanceTracesResponse(w); err != nil {
+	} else if validResponse, ok := response.(PostAdminAccountsAccountEnginesEngineConfigsResponseObject); ok {
+		if err := validResponse.VisitPostAdminAccountsAccountEnginesEngineConfigsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
