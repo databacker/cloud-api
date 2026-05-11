@@ -119,7 +119,7 @@ type AccountMember struct {
 // AccountMemberRole role of the user in the account
 type AccountMemberRole string
 
-// BackupEvent defines model for BackupEvent.
+// BackupEvent Backup run metadata. Product timeline events are only included when requested with include=events.
 type BackupEvent struct {
 	// AccountID ID of the account the backup belongs to
 	AccountID string `json:"account_id" yaml:"account_id"`
@@ -154,6 +154,9 @@ type BackupEvent struct {
 	// ErrorMessage error summary when the backup does not succeed
 	ErrorMessage *string `json:"error_message,omitempty" yaml:"error_message,omitempty"`
 
+	// Events Chronological product-level timeline events. Only present when backup detail is requested with include=events.
+	Events *[]BackupTimelineEvent `json:"events,omitempty" yaml:"events,omitempty"`
+
 	// ID unique backup run identifier
 	ID string `json:"id" yaml:"id"`
 
@@ -177,6 +180,77 @@ type BackupEvent struct {
 
 	// TraceID ID of the associated backup trace, if available
 	TraceID *string `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+}
+
+// BackupTimelineEvent Product-level backup timeline event derived from telemetry when available.
+type BackupTimelineEvent struct {
+	// Attributes Product-safe key/value details, not necessarily the full raw OTEL payload
+	Attributes *map[string]interface{} `json:"attributes,omitempty" yaml:"attributes,omitempty"`
+
+	// DurationMs Event duration in milliseconds, if available
+	DurationMs *float32 `json:"duration_ms,omitempty" yaml:"duration_ms,omitempty"`
+
+	// ID Optional stable event identifier
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// Label Human-readable event label
+	Label string `json:"label" yaml:"label"`
+
+	// Message Human-readable event message
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+
+	// ParentSpanID Source parent span ID, if derived from a trace span
+	ParentSpanID *string `json:"parent_span_id" yaml:"parent_span_id"`
+
+	// Phase Product phase for the event
+	Phase string `json:"phase" yaml:"phase"`
+
+	// SpanID Source span ID, if derived from a trace span
+	SpanID *string `json:"span_id,omitempty" yaml:"span_id,omitempty"`
+
+	// Status Product-normalized status
+	Status *string `json:"status,omitempty" yaml:"status,omitempty"`
+
+	// Time Event timestamp
+	Time time.Time `json:"time" yaml:"time"`
+
+	// TraceID Source trace ID, if derived from a trace span
+	TraceID *string `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
+}
+
+// BackupTimelineEvents Chronological product-level events for one backup run.
+type BackupTimelineEvents struct {
+	// AccountID ID of the account the backup belongs to
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// BackupID ID of the backup run
+	BackupID string `json:"backup_id" yaml:"backup_id"`
+
+	// DatabaseID ID of the protected database, if available
+	DatabaseID *string `json:"database_id" yaml:"database_id"`
+
+	// EngineID ID of the backup engine, if available
+	EngineID *string               `json:"engine_id" yaml:"engine_id"`
+	Events   []BackupTimelineEvent `json:"events" yaml:"events"`
+
+	// TraceID Primary trace ID used to derive events, if available
+	TraceID *string `json:"trace_id" yaml:"trace_id"`
+}
+
+// BackupTraceDiagnostics Raw trace diagnostics for one backup run. Product UIs should use backup timeline events for normal status timelines.
+type BackupTraceDiagnostics struct {
+	// AccountID ID of the account the backup belongs to
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// BackupID ID of the backup run
+	BackupID string `json:"backup_id" yaml:"backup_id"`
+
+	// DatabaseID ID of the protected database, if available
+	DatabaseID *string `json:"database_id" yaml:"database_id"`
+
+	// EngineID ID of the backup engine, if available
+	EngineID *string `json:"engine_id" yaml:"engine_id"`
+	Traces   []Trace `json:"traces" yaml:"traces"`
 }
 
 // Database defines model for Database.
@@ -513,6 +587,7 @@ type PaginatedAccounts struct {
 
 // PaginatedBackupEvents defines model for PaginatedBackupEvents.
 type PaginatedBackupEvents struct {
+	// Events Paginated backup run summaries. List endpoints must not embed product timeline events.
 	Events  *[]BackupEvent `json:"events,omitempty" yaml:"events,omitempty"`
 	HasNext *bool          `json:"has_next,omitempty" yaml:"has_next,omitempty"`
 	HasPrev *bool          `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
@@ -569,16 +644,6 @@ type PaginatedSelfAccounts struct {
 	Limit    *int                `json:"limit,omitempty" yaml:"limit,omitempty"`
 	Offset   *int                `json:"offset,omitempty" yaml:"offset,omitempty"`
 	Total    *int                `json:"total,omitempty" yaml:"total,omitempty"`
-}
-
-// PaginatedTraceSummaries defines model for PaginatedTraceSummaries.
-type PaginatedTraceSummaries struct {
-	HasNext *bool           `json:"has_next,omitempty" yaml:"has_next,omitempty"`
-	HasPrev *bool           `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
-	Limit   *int            `json:"limit,omitempty" yaml:"limit,omitempty"`
-	Offset  *int            `json:"offset,omitempty" yaml:"offset,omitempty"`
-	Total   *int            `json:"total,omitempty" yaml:"total,omitempty"`
-	Traces  *[]TraceSummary `json:"traces,omitempty" yaml:"traces,omitempty"`
 }
 
 // PaginatedUsers defines model for PaginatedUsers.
@@ -644,10 +709,13 @@ type SpanFlat struct {
 	StartTime     *time.Time              `json:"start_time,omitempty" yaml:"start_time,omitempty"`
 }
 
-// Trace defines model for Trace.
+// Trace Raw trace diagnostic data for a backup run.
 type Trace struct {
 	// AccountID ID of the account the database belongs to
 	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
+	// BackupID ID of the backup run this trace belongs to
+	BackupID *string `json:"backup_id,omitempty" yaml:"backup_id,omitempty"`
 
 	// DatabaseID ID of the database the trace belongs to
 	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
@@ -656,33 +724,6 @@ type Trace struct {
 	EngineID  *string             `json:"engine_id" yaml:"engine_id"`
 	RootSpans *[]Span             `json:"root_spans,omitempty" yaml:"root_spans,omitempty"`
 	TraceID   *openapi_types.UUID `json:"trace_id,omitempty" yaml:"trace_id,omitempty"`
-}
-
-// TraceSearchResponse defines model for TraceSearchResponse.
-type TraceSearchResponse struct {
-	Traces *[]TraceSummary `json:"traces,omitempty" yaml:"traces,omitempty"`
-}
-
-// TraceSummary defines model for TraceSummary.
-type TraceSummary struct {
-	// AccountID ID of the account the database belongs to
-	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
-
-	// Completion completion code, using a subset of http codes
-	Completion *int `json:"completion,omitempty" yaml:"completion,omitempty"`
-
-	// DatabaseID ID of the database the trace belongs to
-	DatabaseID *string `json:"database_id,omitempty" yaml:"database_id,omitempty"`
-
-	// Date timestamp for start of backup run
-	Date *int `json:"date,omitempty" yaml:"date,omitempty"`
-
-	// EngineID ID of the backup engine that produced the trace
-	EngineID *string `json:"engine_id" yaml:"engine_id"`
-	ID       *string `json:"id,omitempty" yaml:"id,omitempty"`
-
-	// Size size of trace in bytes
-	Size *int `json:"size,omitempty" yaml:"size,omitempty"`
 }
 
 // User defines model for User.

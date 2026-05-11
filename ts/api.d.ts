@@ -1067,50 +1067,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description get backup event summaries for a specific protected database */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description backup status to filter by */
-                    status?: string;
-                    start_time?: string;
-                    end_time?: string;
-                    /** @description when true, return only the latest backup event for this database */
-                    latest_per_database?: boolean;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the database target */
-                    database: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description backup events for the specified protected database */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedBackupEvents"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
+        /** @description get paginated backup run summaries for a specific protected database; timeline events are not embedded in this list response */
+        get: operations["ListDatabaseBackups"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1172,64 +1130,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/accounts/{account}/databases/{database}/traces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get backup trace summaries for a specific protected database */
-        get: {
-            parameters: {
-                query?: {
-                    start_time?: string;
-                    end_time?: string;
-                    /** @description key=value filter (repeatable) */
-                    attribute?: string;
-                    min_duration_ms?: number;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the database target */
-                    database: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description backup traces for the specified protected database */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedTraceSummaries"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/accounts/{account}/backups": {
         parameters: {
             query?: never;
@@ -1237,52 +1137,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description get backup event summaries across all protected databases in an account */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description filter to backups produced by a specific backup engine ID */
-                    engine?: string;
-                    /** @description filter to backups for a specific protected database ID */
-                    database?: string;
-                    /** @description backup status to filter by */
-                    status?: string;
-                    start_time?: string;
-                    end_time?: string;
-                    /** @description when true, return only the latest backup event per protected database */
-                    latest_per_database?: boolean;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description backup events for the account */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedBackupEvents"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
+        /** @description get paginated backup run summaries across all protected databases in an account; timeline events are not embedded in this list response */
+        get: operations["ListAccountBackups"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1298,39 +1154,42 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description get a specific backup event */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the backup run */
-                    backup: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description backup event details */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["BackupEvent"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+        /** @description get a specific backup run. By default this returns metadata without embedded product timeline events; pass include=events to include the chronological product-level event timeline. */
+        get: operations["GetBackup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/backups/{backup}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
+        /** @description get chronological product-level events for exactly one backup run. Events are derived from OTEL traces/spans when available, but the response is product-shaped rather than raw OTEL. */
+        get: operations["GetBackupEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/backups/{backup}/trace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get raw trace diagnostic data for exactly one backup run. Product UIs should use backup timeline events for normal status timelines. */
+        get: operations["GetBackupTrace"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1373,164 +1232,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["PaginatedLogs"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/traces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get list of backup traces for a specific account across all protected databases, searchable based on parameters */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description filter to traces produced by a specific backup engine ID */
-                    engine?: string;
-                    /** @description filter to traces for a specific protected database ID */
-                    database?: string;
-                    start_time?: string;
-                    end_time?: string;
-                    /** @description key=value filter (repeatable) */
-                    attribute?: string;
-                    min_duration_ms?: number;
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description list of backup traces for the account */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedTraceSummaries"];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/traces/{trace}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get the backup traces for a specific backup run */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the trace */
-                    trace: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description backup traces for a specific backup run, streamed */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Trace"][];
-                    };
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/accounts/{account}/traces/{trace}/spans/{span}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description get a specific span within a specific trace */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Account ID */
-                    account: string;
-                    /** @description Unique ID of the trace */
-                    trace: string;
-                    /** @description Unique ID of the span */
-                    span: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description specific span */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Span"][];
                     };
                 };
                 /** @description not found */
@@ -2268,6 +1969,46 @@ export interface components {
              */
             updated_at?: string | null;
         };
+        /** @description Product-level backup timeline event derived from telemetry when available. */
+        BackupTimelineEvent: {
+            /** @description Optional stable event identifier */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description Event timestamp
+             */
+            time: string;
+            /**
+             * @description Product phase for the event
+             * @example database_dump
+             */
+            phase: string;
+            /**
+             * @description Human-readable event label
+             * @example Database dump
+             */
+            label: string;
+            /**
+             * @description Product-normalized status
+             * @example success
+             */
+            status?: string;
+            /** @description Event duration in milliseconds, if available */
+            duration_ms?: number;
+            /** @description Human-readable event message */
+            message?: string;
+            /** @description Product-safe key/value details, not necessarily the full raw OTEL payload */
+            attributes?: {
+                [key: string]: unknown;
+            };
+            /** @description Source trace ID, if derived from a trace span */
+            trace_id?: string;
+            /** @description Source span ID, if derived from a trace span */
+            span_id?: string;
+            /** @description Source parent span ID, if derived from a trace span */
+            parent_span_id?: string | null;
+        };
+        /** @description Backup run metadata. Product timeline events are only included when requested with include=events. */
         BackupEvent: {
             /**
              * @description unique backup run identifier
@@ -2319,8 +2060,11 @@ export interface components {
             trace_id?: string;
             /** @description error summary when the backup does not succeed */
             error_message?: string;
+            /** @description Chronological product-level timeline events. Only present when backup detail is requested with include=events. */
+            events?: components["schemas"]["BackupTimelineEvent"][];
         };
         PaginatedBackupEvents: components["schemas"]["PaginationMetadata"] & {
+            /** @description Paginated backup run summaries. List endpoints must not embed product timeline events. */
             events?: components["schemas"]["BackupEvent"][];
         };
         LogSummary: {
@@ -2342,24 +2086,63 @@ export interface components {
         PaginatedLogSummaries: components["schemas"]["PaginationMetadata"] & {
             logs?: components["schemas"]["LogSummary"][];
         };
-        TraceSummary: {
-            /** @example 550e8400-e29b-41d4-a716-446655440000 */
-            id?: string;
+        /** @description Chronological product-level events for one backup run. */
+        BackupTimelineEvents: {
+            /** @description ID of the backup run */
+            backup_id: string;
+            /** @description ID of the account the backup belongs to */
+            account_id: string;
+            /** @description ID of the protected database, if available */
+            database_id?: string | null;
+            /** @description ID of the backup engine, if available */
+            engine_id?: string | null;
+            /** @description Primary trace ID used to derive events, if available */
+            trace_id?: string | null;
+            events: components["schemas"]["BackupTimelineEvent"][];
+        };
+        Span: {
+            span_id?: string;
+            parent_span_id?: string | null;
+            operation_name?: string;
+            /** Format: date-time */
+            start_time?: string;
+            /** Format: date-time */
+            end_time?: string;
+            duration_ms?: number;
+            attributes?: {
+                [key: string]: unknown;
+            };
+            /** @description Full OpenTelemetry span payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            children?: components["schemas"]["Span"][];
+        };
+        /** @description Raw trace diagnostic data for a backup run. */
+        Trace: {
+            /** Format: uuid */
+            trace_id?: string;
+            /** @description ID of the backup run this trace belongs to */
+            backup_id?: string;
             /** @description ID of the database the trace belongs to */
             database_id?: string;
             /** @description ID of the backup engine that produced the trace */
             engine_id?: string | null;
             /** @description ID of the account the database belongs to */
             account_id?: string;
-            /** @description timestamp for start of backup run */
-            date?: number;
-            /** @description completion code, using a subset of http codes */
-            completion?: number;
-            /** @description size of trace in bytes */
-            size?: number;
+            root_spans?: components["schemas"]["Span"][];
         };
-        PaginatedTraceSummaries: components["schemas"]["PaginationMetadata"] & {
-            traces?: components["schemas"]["TraceSummary"][];
+        /** @description Raw trace diagnostics for one backup run. Product UIs should use backup timeline events for normal status timelines. */
+        BackupTraceDiagnostics: {
+            /** @description ID of the backup run */
+            backup_id: string;
+            /** @description ID of the account the backup belongs to */
+            account_id: string;
+            /** @description ID of the protected database, if available */
+            database_id?: string | null;
+            /** @description ID of the backup engine, if available */
+            engine_id?: string | null;
+            traces: components["schemas"]["Trace"][];
         };
         LogLine: {
             /**
@@ -2390,33 +2173,6 @@ export interface components {
         };
         PaginatedLogs: components["schemas"]["PaginationMetadata"] & {
             logs?: components["schemas"]["Log"][];
-        };
-        Span: {
-            span_id?: string;
-            parent_span_id?: string | null;
-            operation_name?: string;
-            /** Format: date-time */
-            start_time?: string;
-            /** Format: date-time */
-            end_time?: string;
-            duration_ms?: number;
-            attributes?: {
-                [key: string]: unknown;
-            };
-            /** @description Full OpenTelemetry span payload */
-            payload?: Record<string, never>;
-            children?: components["schemas"]["Span"][];
-        };
-        Trace: {
-            /** Format: uuid */
-            trace_id?: string;
-            /** @description ID of the database the trace belongs to */
-            database_id?: string;
-            /** @description ID of the backup engine that produced the trace */
-            engine_id?: string | null;
-            /** @description ID of the account the database belongs to */
-            account_id?: string;
-            root_spans?: components["schemas"]["Span"][];
         };
         Metadata: {
             /** @description name of the config */
@@ -2659,6 +2415,193 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ListDatabaseBackups: {
+        parameters: {
+            query?: {
+                /** @description backup status to filter by */
+                status?: string;
+                start_time?: string;
+                end_time?: string;
+                /** @description when true, return only the latest backup event for this database */
+                latest_per_database?: boolean;
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the database target */
+                database: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description backup summaries for the specified protected database */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBackupEvents"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ListAccountBackups: {
+        parameters: {
+            query?: {
+                /** @description filter to backups produced by a specific backup engine ID */
+                engine?: string;
+                /** @description filter to backups for a specific protected database ID */
+                database?: string;
+                /** @description backup status to filter by */
+                status?: string;
+                start_time?: string;
+                end_time?: string;
+                /** @description when true, return only the latest backup event per protected database */
+                latest_per_database?: boolean;
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description backup summaries for the account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBackupEvents"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetBackup: {
+        parameters: {
+            query?: {
+                /** @description include=events embeds product-level backup timeline events in the response */
+                include?: "events";
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the backup run */
+                backup: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description backup run details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupEvent"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetBackupEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the backup run */
+                backup: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description product-level backup timeline events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupTimelineEvents"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetBackupTrace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the backup run */
+                backup: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description raw trace diagnostics for a backup run */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupTraceDiagnostics"];
+                };
+            };
+            /** @description not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

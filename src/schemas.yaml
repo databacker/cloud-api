@@ -80,16 +80,6 @@ components:
               items:
                 $ref: '#/components/schemas/Log'
 
-    PaginatedTraceSummaries:
-      allOf:
-        - $ref: '#/components/schemas/PaginationMetadata'
-        - type: object
-          properties:
-            traces:
-              type: array
-              items:
-                $ref: '#/components/schemas/TraceSummary'
-
     PaginatedBackupEvents:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'
@@ -97,6 +87,7 @@ components:
           properties:
             events:
               type: array
+              description: Paginated backup run summaries. List endpoints must not embed product timeline events.
               items:
                 $ref: '#/components/schemas/BackupEvent'
 
@@ -508,10 +499,14 @@ components:
 
     Trace:
       type: object
+      description: Raw trace diagnostic data for a backup run.
       properties:
         trace_id:
           type: string
           format: uuid
+        backup_id:
+          type: string
+          description: ID of the backup run this trace belongs to
         database_id:
           type: string
           description: ID of the database the trace belongs to
@@ -549,6 +544,7 @@ components:
           additionalProperties: true
         payload:
           type: object
+          additionalProperties: true
           description: Full OpenTelemetry span payload
         children:
           type: array
@@ -569,34 +565,9 @@ components:
         - user
         - role
 
-    TraceSummary:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-        database_id:
-          type: string
-          description: ID of the database the trace belongs to
-        engine_id:
-          type: string
-          nullable: true
-          description: ID of the backup engine that produced the trace
-        account_id:
-          type: string
-          description: ID of the account the database belongs to
-        date:
-          type: integer
-          description: timestamp for start of backup run
-        completion:
-          type: integer
-          description: completion code, using a subset of http codes
-        size:
-          type: integer
-          description: size of trace in bytes
-
     BackupEvent:
       type: object
+      description: Backup run metadata. Product timeline events are only included when requested with include=events.
       properties:
         id:
           type: string
@@ -664,6 +635,11 @@ components:
         error_message:
           type: string
           description: error summary when the backup does not succeed
+        events:
+          type: array
+          description: Chronological product-level timeline events. Only present when backup detail is requested with include=events.
+          items:
+            $ref: '#/components/schemas/BackupTimelineEvent'
       required:
         - id
         - account_id
@@ -672,13 +648,112 @@ components:
         - start_time
         - status
 
-    TraceSearchResponse:
+    BackupTimelineEvent:
       type: object
+      description: Product-level backup timeline event derived from telemetry when available.
       properties:
+        id:
+          type: string
+          description: Optional stable event identifier
+        time:
+          type: string
+          format: date-time
+          description: Event timestamp
+        phase:
+          type: string
+          description: Product phase for the event
+          example: database_dump
+        label:
+          type: string
+          description: Human-readable event label
+          example: Database dump
+        status:
+          type: string
+          description: Product-normalized status
+          example: success
+        duration_ms:
+          type: number
+          description: Event duration in milliseconds, if available
+        message:
+          type: string
+          description: Human-readable event message
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Product-safe key/value details, not necessarily the full raw OTEL payload
+        trace_id:
+          type: string
+          description: Source trace ID, if derived from a trace span
+        span_id:
+          type: string
+          description: Source span ID, if derived from a trace span
+        parent_span_id:
+          type: string
+          nullable: true
+          description: Source parent span ID, if derived from a trace span
+      required:
+        - time
+        - phase
+        - label
+
+    BackupTimelineEvents:
+      type: object
+      description: Chronological product-level events for one backup run.
+      properties:
+        backup_id:
+          type: string
+          description: ID of the backup run
+        account_id:
+          type: string
+          description: ID of the account the backup belongs to
+        database_id:
+          type: string
+          nullable: true
+          description: ID of the protected database, if available
+        engine_id:
+          type: string
+          nullable: true
+          description: ID of the backup engine, if available
+        trace_id:
+          type: string
+          nullable: true
+          description: Primary trace ID used to derive events, if available
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/BackupTimelineEvent'
+      required:
+        - backup_id
+        - account_id
+        - events
+
+    BackupTraceDiagnostics:
+      type: object
+      description: Raw trace diagnostics for one backup run. Product UIs should use backup timeline events for normal status timelines.
+      properties:
+        backup_id:
+          type: string
+          description: ID of the backup run
+        account_id:
+          type: string
+          description: ID of the account the backup belongs to
+        database_id:
+          type: string
+          nullable: true
+          description: ID of the protected database, if available
+        engine_id:
+          type: string
+          nullable: true
+          description: ID of the backup engine, if available
         traces:
           type: array
           items:
-            $ref: '#/components/schemas/TraceSummary'
+            $ref: '#/components/schemas/Trace'
+      required:
+        - backup_id
+        - account_id
+        - traces
+
     FlatTrace:
       type: object
       properties:
@@ -719,6 +794,7 @@ components:
           additionalProperties: true
         payload:
           type: object
+          additionalProperties: true
 
     SelfAccountEntry:
       type: object

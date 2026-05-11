@@ -20,6 +20,11 @@ const (
 	JWTScopes = "JWT.Scopes"
 )
 
+// Defines values for GetBackupParamsInclude.
+const (
+	Events GetBackupParamsInclude = "events"
+)
+
 // GetAdminAccountsParams defines parameters for GetAdminAccounts.
 type GetAdminAccountsParams struct {
 	// Offset Number of results to skip
@@ -29,8 +34,8 @@ type GetAdminAccountsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
-// GetAdminAccountsAccountBackupsParams defines parameters for GetAdminAccountsAccountBackups.
-type GetAdminAccountsAccountBackupsParams struct {
+// ListAccountBackupsParams defines parameters for ListAccountBackups.
+type ListAccountBackupsParams struct {
 	// Engine filter to backups produced by a specific backup engine ID
 	Engine *string `form:"engine,omitempty" json:"engine,omitempty" yaml:"engine,omitempty"`
 
@@ -51,6 +56,15 @@ type GetAdminAccountsAccountBackupsParams struct {
 	// Limit Maximum number of results to return
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
+
+// GetBackupParams defines parameters for GetBackup.
+type GetBackupParams struct {
+	// Include include=events embeds product-level backup timeline events in the response
+	Include *GetBackupParamsInclude `form:"include,omitempty" json:"include,omitempty" yaml:"include,omitempty"`
+}
+
+// GetBackupParamsInclude defines parameters for GetBackup.
+type GetBackupParamsInclude string
 
 // GetAdminAccountsAccountDatabasesParams defines parameters for GetAdminAccountsAccountDatabases.
 type GetAdminAccountsAccountDatabasesParams struct {
@@ -73,8 +87,8 @@ type GetAdminAccountsAccountDatabasesParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
-// GetAdminAccountsAccountDatabasesDatabaseBackupsParams defines parameters for GetAdminAccountsAccountDatabasesDatabaseBackups.
-type GetAdminAccountsAccountDatabasesDatabaseBackupsParams struct {
+// ListDatabaseBackupsParams defines parameters for ListDatabaseBackups.
+type ListDatabaseBackupsParams struct {
 	// Status backup status to filter by
 	Status    *string    `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty"`
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
@@ -92,22 +106,6 @@ type GetAdminAccountsAccountDatabasesDatabaseBackupsParams struct {
 
 // GetAdminAccountsAccountDatabasesDatabaseLogsParams defines parameters for GetAdminAccountsAccountDatabasesDatabaseLogs.
 type GetAdminAccountsAccountDatabasesDatabaseLogsParams struct {
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
-// GetAdminAccountsAccountDatabasesDatabaseTracesParams defines parameters for GetAdminAccountsAccountDatabasesDatabaseTraces.
-type GetAdminAccountsAccountDatabasesDatabaseTracesParams struct {
-	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
-	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
-
-	// Attribute key=value filter (repeatable)
-	Attribute     *string  `form:"attribute,omitempty" json:"attribute,omitempty" yaml:"attribute,omitempty"`
-	MinDurationMs *float32 `form:"min_duration_ms,omitempty" json:"min_duration_ms,omitempty" yaml:"min_duration_ms,omitempty"`
-
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
 
@@ -135,27 +133,6 @@ type GetAdminAccountsAccountEnginesEngineConfigsParams struct {
 
 // GetAdminAccountsAccountLogsLogParams defines parameters for GetAdminAccountsAccountLogsLog.
 type GetAdminAccountsAccountLogsLogParams struct {
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
-// GetAdminAccountsAccountTracesParams defines parameters for GetAdminAccountsAccountTraces.
-type GetAdminAccountsAccountTracesParams struct {
-	// Engine filter to traces produced by a specific backup engine ID
-	Engine *string `form:"engine,omitempty" json:"engine,omitempty" yaml:"engine,omitempty"`
-
-	// Database filter to traces for a specific protected database ID
-	Database  *string    `form:"database,omitempty" json:"database,omitempty" yaml:"database,omitempty"`
-	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty"`
-	EndTime   *time.Time `form:"end_time,omitempty" json:"end_time,omitempty" yaml:"end_time,omitempty"`
-
-	// Attribute key=value filter (repeatable)
-	Attribute     *string  `form:"attribute,omitempty" json:"attribute,omitempty" yaml:"attribute,omitempty"`
-	MinDurationMs *float32 `form:"min_duration_ms,omitempty" json:"min_duration_ms,omitempty" yaml:"min_duration_ms,omitempty"`
-
 	// Offset Number of results to skip
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
 
@@ -274,10 +251,16 @@ type ServerInterface interface {
 	PatchAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string)
 
 	// (GET /admin/accounts/{account}/backups)
-	GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountBackupsParams)
+	ListAccountBackups(w http.ResponseWriter, r *http.Request, account string, params ListAccountBackupsParams)
 
 	// (GET /admin/accounts/{account}/backups/{backup})
-	GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request, account string, backup string)
+	GetBackup(w http.ResponseWriter, r *http.Request, account string, backup string, params GetBackupParams)
+
+	// (GET /admin/accounts/{account}/backups/{backup}/events)
+	GetBackupEvents(w http.ResponseWriter, r *http.Request, account string, backup string)
+
+	// (GET /admin/accounts/{account}/backups/{backup}/trace)
+	GetBackupTrace(w http.ResponseWriter, r *http.Request, account string, backup string)
 
 	// (DELETE /admin/accounts/{account}/configs/{config})
 	DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string)
@@ -301,13 +284,10 @@ type ServerInterface interface {
 	PatchAdminAccountsAccountDatabasesDatabase(w http.ResponseWriter, r *http.Request, account string, database string)
 
 	// (GET /admin/accounts/{account}/databases/{database}/backups)
-	GetAdminAccountsAccountDatabasesDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseBackupsParams)
+	ListDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params ListDatabaseBackupsParams)
 
 	// (GET /admin/accounts/{account}/databases/{database}/logs)
 	GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams)
-
-	// (GET /admin/accounts/{account}/databases/{database}/traces)
-	GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseTracesParams)
 
 	// (GET /admin/accounts/{account}/engines)
 	GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountEnginesParams)
@@ -332,15 +312,6 @@ type ServerInterface interface {
 
 	// (GET /admin/accounts/{account}/logs/{log})
 	GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string, params GetAdminAccountsAccountLogsLogParams)
-
-	// (GET /admin/accounts/{account}/traces)
-	GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountTracesParams)
-
-	// (GET /admin/accounts/{account}/traces/{trace})
-	GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request, account string, trace string)
-
-	// (GET /admin/accounts/{account}/traces/{trace}/spans/{span})
-	GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, account string, trace string, span string)
 
 	// (GET /admin/accounts/{account}/users)
 	GetAdminAccountsAccountUsers(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountUsersParams)
@@ -421,12 +392,22 @@ func (_ Unimplemented) PatchAdminAccountsAccount(w http.ResponseWriter, r *http.
 }
 
 // (GET /admin/accounts/{account}/backups)
-func (_ Unimplemented) GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountBackupsParams) {
+func (_ Unimplemented) ListAccountBackups(w http.ResponseWriter, r *http.Request, account string, params ListAccountBackupsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (GET /admin/accounts/{account}/backups/{backup})
-func (_ Unimplemented) GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request, account string, backup string) {
+func (_ Unimplemented) GetBackup(w http.ResponseWriter, r *http.Request, account string, backup string, params GetBackupParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/backups/{backup}/events)
+func (_ Unimplemented) GetBackupEvents(w http.ResponseWriter, r *http.Request, account string, backup string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/backups/{backup}/trace)
+func (_ Unimplemented) GetBackupTrace(w http.ResponseWriter, r *http.Request, account string, backup string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -466,17 +447,12 @@ func (_ Unimplemented) PatchAdminAccountsAccountDatabasesDatabase(w http.Respons
 }
 
 // (GET /admin/accounts/{account}/databases/{database}/backups)
-func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseBackupsParams) {
+func (_ Unimplemented) ListDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params ListDatabaseBackupsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (GET /admin/accounts/{account}/databases/{database}/logs)
 func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/accounts/{account}/databases/{database}/traces)
-func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseTracesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -517,21 +493,6 @@ func (_ Unimplemented) PostAdminAccountsAccountEnginesEngineConfigs(w http.Respo
 
 // (GET /admin/accounts/{account}/logs/{log})
 func (_ Unimplemented) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string, params GetAdminAccountsAccountLogsLogParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/accounts/{account}/traces)
-func (_ Unimplemented) GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountTracesParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/accounts/{account}/traces/{trace})
-func (_ Unimplemented) GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request, account string, trace string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/accounts/{account}/traces/{trace}/spans/{span})
-func (_ Unimplemented) GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, account string, trace string, span string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -780,8 +741,8 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccount(w http.ResponseWrit
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminAccountsAccountBackups operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request) {
+// ListAccountBackups operation middleware
+func (siw *ServerInterfaceWrapper) ListAccountBackups(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -801,7 +762,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.Respons
 	r = r.WithContext(ctx)
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountBackupsParams
+	var params ListAccountBackupsParams
 
 	// ------------- Optional query parameter "engine" -------------
 
@@ -868,7 +829,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.Respons
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountBackups(w, r, account, params)
+		siw.Handler.ListAccountBackups(w, r, account, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -878,8 +839,59 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackups(w http.Respons
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminAccountsAccountBackupsBackup operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request) {
+// GetBackup operation middleware
+func (siw *ServerInterfaceWrapper) GetBackup(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "backup" -------------
+	var backup string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "backup", chi.URLParam(r, "backup"), &backup, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "backup", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetBackupParams
+
+	// ------------- Optional query parameter "include" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "include", r.URL.Query(), &params.Include)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "include", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBackup(w, r, account, backup, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBackupEvents operation middleware
+func (siw *ServerInterfaceWrapper) GetBackupEvents(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -908,7 +920,47 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountBackupsBackup(w http.R
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountBackupsBackup(w, r, account, backup)
+		siw.Handler.GetBackupEvents(w, r, account, backup)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBackupTrace operation middleware
+func (siw *ServerInterfaceWrapper) GetBackupTrace(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "backup" -------------
+	var backup string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "backup", chi.URLParam(r, "backup"), &backup, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "backup", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBackupTrace(w, r, account, backup)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1231,8 +1283,8 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountDatabasesDatabase(w 
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminAccountsAccountDatabasesDatabaseBackups operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseBackups(w http.ResponseWriter, r *http.Request) {
+// ListDatabaseBackups operation middleware
+func (siw *ServerInterfaceWrapper) ListDatabaseBackups(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -1261,7 +1313,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseBacku
 	r = r.WithContext(ctx)
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountDatabasesDatabaseBackupsParams
+	var params ListDatabaseBackupsParams
 
 	// ------------- Optional query parameter "status" -------------
 
@@ -1312,7 +1364,7 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseBacku
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountDatabasesDatabaseBackups(w, r, account, database, params)
+		siw.Handler.ListDatabaseBackups(w, r, account, database, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1372,97 +1424,6 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseLogs(
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetAdminAccountsAccountDatabasesDatabaseLogs(w, r, account, database, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountDatabasesDatabaseTraces operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "database" -------------
-	var database string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountDatabasesDatabaseTracesParams
-
-	// ------------- Optional query parameter "start_time" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "end_time" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "attribute" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "attribute", r.URL.Query(), &params.Attribute)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "attribute", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "min_duration_ms" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "min_duration_ms", r.URL.Query(), &params.MinDurationMs)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "min_duration_ms", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountDatabasesDatabaseTraces(w, r, account, database, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1822,193 +1783,6 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountLogsLog(w http.Respons
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetAdminAccountsAccountLogsLog(w, r, account, log, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountTraces operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsAccountTracesParams
-
-	// ------------- Optional query parameter "engine" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "engine", r.URL.Query(), &params.Engine)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "database" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "database", r.URL.Query(), &params.Database)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "start_time" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "start_time", r.URL.Query(), &params.StartTime)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "start_time", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "end_time" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "end_time", r.URL.Query(), &params.EndTime)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "end_time", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "attribute" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "attribute", r.URL.Query(), &params.Attribute)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "attribute", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "min_duration_ms" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "min_duration_ms", r.URL.Query(), &params.MinDurationMs)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "min_duration_ms", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountTraces(w, r, account, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountTracesTrace operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "trace" -------------
-	var trace string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "trace", chi.URLParam(r, "trace"), &trace, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "trace", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountTracesTrace(w, r, account, trace)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminAccountsAccountTracesTraceSpansSpan operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "account" -------------
-	var account string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "trace" -------------
-	var trace string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "trace", chi.URLParam(r, "trace"), &trace, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "trace", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "span" -------------
-	var span string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "span", chi.URLParam(r, "span"), &span, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "span", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccountsAccountTracesTraceSpansSpan(w, r, account, trace, span)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2623,10 +2397,16 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Patch(options.BaseURL+"/admin/accounts/{account}", wrapper.PatchAdminAccountsAccount)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/backups", wrapper.GetAdminAccountsAccountBackups)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/backups", wrapper.ListAccountBackups)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}", wrapper.GetAdminAccountsAccountBackupsBackup)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}", wrapper.GetBackup)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}/events", wrapper.GetBackupEvents)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}/trace", wrapper.GetBackupTrace)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/accounts/{account}/configs/{config}", wrapper.DeleteAdminAccountsAccountConfigsConfig)
@@ -2650,13 +2430,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Patch(options.BaseURL+"/admin/accounts/{account}/databases/{database}", wrapper.PatchAdminAccountsAccountDatabasesDatabase)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/backups", wrapper.GetAdminAccountsAccountDatabasesDatabaseBackups)
+		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/backups", wrapper.ListDatabaseBackups)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/logs", wrapper.GetAdminAccountsAccountDatabasesDatabaseLogs)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/traces", wrapper.GetAdminAccountsAccountDatabasesDatabaseTraces)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/engines", wrapper.GetAdminAccountsAccountEngines)
@@ -2681,15 +2458,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/logs/{log}", wrapper.GetAdminAccountsAccountLogsLog)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/traces", wrapper.GetAdminAccountsAccountTraces)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/traces/{trace}", wrapper.GetAdminAccountsAccountTracesTrace)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts/{account}/traces/{trace}/spans/{span}", wrapper.GetAdminAccountsAccountTracesTraceSpansSpan)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/users", wrapper.GetAdminAccountsAccountUsers)
@@ -2893,54 +2661,107 @@ func (response PatchAdminAccountsAccount404Response) VisitPatchAdminAccountsAcco
 	return nil
 }
 
-type GetAdminAccountsAccountBackupsRequestObject struct {
+type ListAccountBackupsRequestObject struct {
 	Account string `json:"account"`
-	Params  GetAdminAccountsAccountBackupsParams
+	Params  ListAccountBackupsParams
 }
 
-type GetAdminAccountsAccountBackupsResponseObject interface {
-	VisitGetAdminAccountsAccountBackupsResponse(w http.ResponseWriter) error
+type ListAccountBackupsResponseObject interface {
+	VisitListAccountBackupsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountBackups200JSONResponse PaginatedBackupEvents
+type ListAccountBackups200JSONResponse PaginatedBackupEvents
 
-func (response GetAdminAccountsAccountBackups200JSONResponse) VisitGetAdminAccountsAccountBackupsResponse(w http.ResponseWriter) error {
+func (response ListAccountBackups200JSONResponse) VisitListAccountBackupsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminAccountsAccountBackups404Response struct {
+type ListAccountBackups404Response struct {
 }
 
-func (response GetAdminAccountsAccountBackups404Response) VisitGetAdminAccountsAccountBackupsResponse(w http.ResponseWriter) error {
+func (response ListAccountBackups404Response) VisitListAccountBackupsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type GetAdminAccountsAccountBackupsBackupRequestObject struct {
+type GetBackupRequestObject struct {
 	Account string `json:"account"`
 	Backup  string `json:"backup"`
+	Params  GetBackupParams
 }
 
-type GetAdminAccountsAccountBackupsBackupResponseObject interface {
-	VisitGetAdminAccountsAccountBackupsBackupResponse(w http.ResponseWriter) error
+type GetBackupResponseObject interface {
+	VisitGetBackupResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountBackupsBackup200JSONResponse BackupEvent
+type GetBackup200JSONResponse BackupEvent
 
-func (response GetAdminAccountsAccountBackupsBackup200JSONResponse) VisitGetAdminAccountsAccountBackupsBackupResponse(w http.ResponseWriter) error {
+func (response GetBackup200JSONResponse) VisitGetBackupResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminAccountsAccountBackupsBackup404Response struct {
+type GetBackup404Response struct {
 }
 
-func (response GetAdminAccountsAccountBackupsBackup404Response) VisitGetAdminAccountsAccountBackupsBackupResponse(w http.ResponseWriter) error {
+func (response GetBackup404Response) VisitGetBackupResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetBackupEventsRequestObject struct {
+	Account string `json:"account"`
+	Backup  string `json:"backup"`
+}
+
+type GetBackupEventsResponseObject interface {
+	VisitGetBackupEventsResponse(w http.ResponseWriter) error
+}
+
+type GetBackupEvents200JSONResponse BackupTimelineEvents
+
+func (response GetBackupEvents200JSONResponse) VisitGetBackupEventsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBackupEvents404Response struct {
+}
+
+func (response GetBackupEvents404Response) VisitGetBackupEventsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetBackupTraceRequestObject struct {
+	Account string `json:"account"`
+	Backup  string `json:"backup"`
+}
+
+type GetBackupTraceResponseObject interface {
+	VisitGetBackupTraceResponse(w http.ResponseWriter) error
+}
+
+type GetBackupTrace200JSONResponse BackupTraceDiagnostics
+
+func (response GetBackupTrace200JSONResponse) VisitGetBackupTraceResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBackupTrace404Response struct {
+}
+
+func (response GetBackupTrace404Response) VisitGetBackupTraceResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3140,29 +2961,29 @@ func (response PatchAdminAccountsAccountDatabasesDatabase404Response) VisitPatch
 	return nil
 }
 
-type GetAdminAccountsAccountDatabasesDatabaseBackupsRequestObject struct {
+type ListDatabaseBackupsRequestObject struct {
 	Account  string `json:"account"`
 	Database string `json:"database"`
-	Params   GetAdminAccountsAccountDatabasesDatabaseBackupsParams
+	Params   ListDatabaseBackupsParams
 }
 
-type GetAdminAccountsAccountDatabasesDatabaseBackupsResponseObject interface {
-	VisitGetAdminAccountsAccountDatabasesDatabaseBackupsResponse(w http.ResponseWriter) error
+type ListDatabaseBackupsResponseObject interface {
+	VisitListDatabaseBackupsResponse(w http.ResponseWriter) error
 }
 
-type GetAdminAccountsAccountDatabasesDatabaseBackups200JSONResponse PaginatedBackupEvents
+type ListDatabaseBackups200JSONResponse PaginatedBackupEvents
 
-func (response GetAdminAccountsAccountDatabasesDatabaseBackups200JSONResponse) VisitGetAdminAccountsAccountDatabasesDatabaseBackupsResponse(w http.ResponseWriter) error {
+func (response ListDatabaseBackups200JSONResponse) VisitListDatabaseBackupsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminAccountsAccountDatabasesDatabaseBackups404Response struct {
+type ListDatabaseBackups404Response struct {
 }
 
-func (response GetAdminAccountsAccountDatabasesDatabaseBackups404Response) VisitGetAdminAccountsAccountDatabasesDatabaseBackupsResponse(w http.ResponseWriter) error {
+func (response ListDatabaseBackups404Response) VisitListDatabaseBackupsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3190,33 +3011,6 @@ type GetAdminAccountsAccountDatabasesDatabaseLogs404Response struct {
 }
 
 func (response GetAdminAccountsAccountDatabasesDatabaseLogs404Response) VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject struct {
-	Account  string `json:"account"`
-	Database string `json:"database"`
-	Params   GetAdminAccountsAccountDatabasesDatabaseTracesParams
-}
-
-type GetAdminAccountsAccountDatabasesDatabaseTracesResponseObject interface {
-	VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountDatabasesDatabaseTraces200JSONResponse PaginatedTraceSummaries
-
-func (response GetAdminAccountsAccountDatabasesDatabaseTraces200JSONResponse) VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountDatabasesDatabaseTraces404Response struct {
-}
-
-func (response GetAdminAccountsAccountDatabasesDatabaseTraces404Response) VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3463,85 +3257,6 @@ type GetAdminAccountsAccountLogsLog404Response struct {
 }
 
 func (response GetAdminAccountsAccountLogsLog404Response) VisitGetAdminAccountsAccountLogsLogResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountTracesRequestObject struct {
-	Account string `json:"account"`
-	Params  GetAdminAccountsAccountTracesParams
-}
-
-type GetAdminAccountsAccountTracesResponseObject interface {
-	VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountTraces200JSONResponse PaginatedTraceSummaries
-
-func (response GetAdminAccountsAccountTraces200JSONResponse) VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountTraces404Response struct {
-}
-
-func (response GetAdminAccountsAccountTraces404Response) VisitGetAdminAccountsAccountTracesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountTracesTraceRequestObject struct {
-	Account string `json:"account"`
-	Trace   string `json:"trace"`
-}
-
-type GetAdminAccountsAccountTracesTraceResponseObject interface {
-	VisitGetAdminAccountsAccountTracesTraceResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountTracesTrace200JSONResponse []Trace
-
-func (response GetAdminAccountsAccountTracesTrace200JSONResponse) VisitGetAdminAccountsAccountTracesTraceResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountTracesTrace404Response struct {
-}
-
-func (response GetAdminAccountsAccountTracesTrace404Response) VisitGetAdminAccountsAccountTracesTraceResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GetAdminAccountsAccountTracesTraceSpansSpanRequestObject struct {
-	Account string `json:"account"`
-	Trace   string `json:"trace"`
-	Span    string `json:"span"`
-}
-
-type GetAdminAccountsAccountTracesTraceSpansSpanResponseObject interface {
-	VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccountsAccountTracesTraceSpansSpan200JSONResponse []Span
-
-func (response GetAdminAccountsAccountTracesTraceSpansSpan200JSONResponse) VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccountsAccountTracesTraceSpansSpan404Response struct {
-}
-
-func (response GetAdminAccountsAccountTracesTraceSpansSpan404Response) VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -4007,10 +3722,16 @@ type StrictServerInterface interface {
 	PatchAdminAccountsAccount(ctx context.Context, request PatchAdminAccountsAccountRequestObject) (PatchAdminAccountsAccountResponseObject, error)
 
 	// (GET /admin/accounts/{account}/backups)
-	GetAdminAccountsAccountBackups(ctx context.Context, request GetAdminAccountsAccountBackupsRequestObject) (GetAdminAccountsAccountBackupsResponseObject, error)
+	ListAccountBackups(ctx context.Context, request ListAccountBackupsRequestObject) (ListAccountBackupsResponseObject, error)
 
 	// (GET /admin/accounts/{account}/backups/{backup})
-	GetAdminAccountsAccountBackupsBackup(ctx context.Context, request GetAdminAccountsAccountBackupsBackupRequestObject) (GetAdminAccountsAccountBackupsBackupResponseObject, error)
+	GetBackup(ctx context.Context, request GetBackupRequestObject) (GetBackupResponseObject, error)
+
+	// (GET /admin/accounts/{account}/backups/{backup}/events)
+	GetBackupEvents(ctx context.Context, request GetBackupEventsRequestObject) (GetBackupEventsResponseObject, error)
+
+	// (GET /admin/accounts/{account}/backups/{backup}/trace)
+	GetBackupTrace(ctx context.Context, request GetBackupTraceRequestObject) (GetBackupTraceResponseObject, error)
 
 	// (DELETE /admin/accounts/{account}/configs/{config})
 	DeleteAdminAccountsAccountConfigsConfig(ctx context.Context, request DeleteAdminAccountsAccountConfigsConfigRequestObject) (DeleteAdminAccountsAccountConfigsConfigResponseObject, error)
@@ -4034,13 +3755,10 @@ type StrictServerInterface interface {
 	PatchAdminAccountsAccountDatabasesDatabase(ctx context.Context, request PatchAdminAccountsAccountDatabasesDatabaseRequestObject) (PatchAdminAccountsAccountDatabasesDatabaseResponseObject, error)
 
 	// (GET /admin/accounts/{account}/databases/{database}/backups)
-	GetAdminAccountsAccountDatabasesDatabaseBackups(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseBackupsRequestObject) (GetAdminAccountsAccountDatabasesDatabaseBackupsResponseObject, error)
+	ListDatabaseBackups(ctx context.Context, request ListDatabaseBackupsRequestObject) (ListDatabaseBackupsResponseObject, error)
 
 	// (GET /admin/accounts/{account}/databases/{database}/logs)
 	GetAdminAccountsAccountDatabasesDatabaseLogs(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject) (GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject, error)
-
-	// (GET /admin/accounts/{account}/databases/{database}/traces)
-	GetAdminAccountsAccountDatabasesDatabaseTraces(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject) (GetAdminAccountsAccountDatabasesDatabaseTracesResponseObject, error)
 
 	// (GET /admin/accounts/{account}/engines)
 	GetAdminAccountsAccountEngines(ctx context.Context, request GetAdminAccountsAccountEnginesRequestObject) (GetAdminAccountsAccountEnginesResponseObject, error)
@@ -4065,15 +3783,6 @@ type StrictServerInterface interface {
 
 	// (GET /admin/accounts/{account}/logs/{log})
 	GetAdminAccountsAccountLogsLog(ctx context.Context, request GetAdminAccountsAccountLogsLogRequestObject) (GetAdminAccountsAccountLogsLogResponseObject, error)
-
-	// (GET /admin/accounts/{account}/traces)
-	GetAdminAccountsAccountTraces(ctx context.Context, request GetAdminAccountsAccountTracesRequestObject) (GetAdminAccountsAccountTracesResponseObject, error)
-
-	// (GET /admin/accounts/{account}/traces/{trace})
-	GetAdminAccountsAccountTracesTrace(ctx context.Context, request GetAdminAccountsAccountTracesTraceRequestObject) (GetAdminAccountsAccountTracesTraceResponseObject, error)
-
-	// (GET /admin/accounts/{account}/traces/{trace}/spans/{span})
-	GetAdminAccountsAccountTracesTraceSpansSpan(ctx context.Context, request GetAdminAccountsAccountTracesTraceSpansSpanRequestObject) (GetAdminAccountsAccountTracesTraceSpansSpanResponseObject, error)
 
 	// (GET /admin/accounts/{account}/users)
 	GetAdminAccountsAccountUsers(ctx context.Context, request GetAdminAccountsAccountUsersRequestObject) (GetAdminAccountsAccountUsersResponseObject, error)
@@ -4295,26 +4004,26 @@ func (sh *strictHandler) PatchAdminAccountsAccount(w http.ResponseWriter, r *htt
 	}
 }
 
-// GetAdminAccountsAccountBackups operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountBackups(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountBackupsParams) {
-	var request GetAdminAccountsAccountBackupsRequestObject
+// ListAccountBackups operation middleware
+func (sh *strictHandler) ListAccountBackups(w http.ResponseWriter, r *http.Request, account string, params ListAccountBackupsParams) {
+	var request ListAccountBackupsRequestObject
 
 	request.Account = account
 	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountBackups(ctx, request.(GetAdminAccountsAccountBackupsRequestObject))
+		return sh.ssi.ListAccountBackups(ctx, request.(ListAccountBackupsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountBackups")
+		handler = middleware(handler, "ListAccountBackups")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountBackupsResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountBackupsResponse(w); err != nil {
+	} else if validResponse, ok := response.(ListAccountBackupsResponseObject); ok {
+		if err := validResponse.VisitListAccountBackupsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4322,26 +4031,81 @@ func (sh *strictHandler) GetAdminAccountsAccountBackups(w http.ResponseWriter, r
 	}
 }
 
-// GetAdminAccountsAccountBackupsBackup operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountBackupsBackup(w http.ResponseWriter, r *http.Request, account string, backup string) {
-	var request GetAdminAccountsAccountBackupsBackupRequestObject
+// GetBackup operation middleware
+func (sh *strictHandler) GetBackup(w http.ResponseWriter, r *http.Request, account string, backup string, params GetBackupParams) {
+	var request GetBackupRequestObject
 
 	request.Account = account
 	request.Backup = backup
+	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountBackupsBackup(ctx, request.(GetAdminAccountsAccountBackupsBackupRequestObject))
+		return sh.ssi.GetBackup(ctx, request.(GetBackupRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountBackupsBackup")
+		handler = middleware(handler, "GetBackup")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountBackupsBackupResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountBackupsBackupResponse(w); err != nil {
+	} else if validResponse, ok := response.(GetBackupResponseObject); ok {
+		if err := validResponse.VisitGetBackupResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBackupEvents operation middleware
+func (sh *strictHandler) GetBackupEvents(w http.ResponseWriter, r *http.Request, account string, backup string) {
+	var request GetBackupEventsRequestObject
+
+	request.Account = account
+	request.Backup = backup
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBackupEvents(ctx, request.(GetBackupEventsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBackupEvents")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBackupEventsResponseObject); ok {
+		if err := validResponse.VisitGetBackupEventsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBackupTrace operation middleware
+func (sh *strictHandler) GetBackupTrace(w http.ResponseWriter, r *http.Request, account string, backup string) {
+	var request GetBackupTraceRequestObject
+
+	request.Account = account
+	request.Backup = backup
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBackupTrace(ctx, request.(GetBackupTraceRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBackupTrace")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBackupTraceResponseObject); ok {
+		if err := validResponse.VisitGetBackupTraceResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4551,27 +4315,27 @@ func (sh *strictHandler) PatchAdminAccountsAccountDatabasesDatabase(w http.Respo
 	}
 }
 
-// GetAdminAccountsAccountDatabasesDatabaseBackups operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseBackupsParams) {
-	var request GetAdminAccountsAccountDatabasesDatabaseBackupsRequestObject
+// ListDatabaseBackups operation middleware
+func (sh *strictHandler) ListDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params ListDatabaseBackupsParams) {
+	var request ListDatabaseBackupsRequestObject
 
 	request.Account = account
 	request.Database = database
 	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountDatabasesDatabaseBackups(ctx, request.(GetAdminAccountsAccountDatabasesDatabaseBackupsRequestObject))
+		return sh.ssi.ListDatabaseBackups(ctx, request.(ListDatabaseBackupsRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountDatabasesDatabaseBackups")
+		handler = middleware(handler, "ListDatabaseBackups")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseBackupsResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseBackupsResponse(w); err != nil {
+	} else if validResponse, ok := response.(ListDatabaseBackupsResponseObject); ok {
+		if err := validResponse.VisitListDatabaseBackupsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4600,34 +4364,6 @@ func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.Res
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject); ok {
 		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountDatabasesDatabaseTraces operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseTraces(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseTracesParams) {
-	var request GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject
-
-	request.Account = account
-	request.Database = database
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountDatabasesDatabaseTraces(ctx, request.(GetAdminAccountsAccountDatabasesDatabaseTracesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountDatabasesDatabaseTraces")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseTracesResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseTracesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4866,88 +4602,6 @@ func (sh *strictHandler) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminAccountsAccountLogsLogResponseObject); ok {
 		if err := validResponse.VisitGetAdminAccountsAccountLogsLogResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountTraces operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountTraces(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountTracesParams) {
-	var request GetAdminAccountsAccountTracesRequestObject
-
-	request.Account = account
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountTraces(ctx, request.(GetAdminAccountsAccountTracesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountTraces")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountTracesResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountTracesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountTracesTrace operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountTracesTrace(w http.ResponseWriter, r *http.Request, account string, trace string) {
-	var request GetAdminAccountsAccountTracesTraceRequestObject
-
-	request.Account = account
-	request.Trace = trace
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountTracesTrace(ctx, request.(GetAdminAccountsAccountTracesTraceRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountTracesTrace")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountTracesTraceResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountTracesTraceResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminAccountsAccountTracesTraceSpansSpan operation middleware
-func (sh *strictHandler) GetAdminAccountsAccountTracesTraceSpansSpan(w http.ResponseWriter, r *http.Request, account string, trace string, span string) {
-	var request GetAdminAccountsAccountTracesTraceSpansSpanRequestObject
-
-	request.Account = account
-	request.Trace = trace
-	request.Span = span
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccountsAccountTracesTraceSpansSpan(ctx, request.(GetAdminAccountsAccountTracesTraceSpansSpanRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccountsAccountTracesTraceSpansSpan")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsAccountTracesTraceSpansSpanResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsAccountTracesTraceSpansSpanResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

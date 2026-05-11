@@ -48,20 +48,6 @@ x-parameters:
       type: string
     required: true
     description: Unique ID of the database target
-  trace: &trace-param
-    in: path
-    name: trace
-    schema:
-      type: string
-    required: true
-    description: Unique ID of the trace
-  span: &span-param
-    in: path
-    name: span
-    schema:
-      type: string
-    required: true
-    description: Unique ID of the span
   config: &config-param
     in: path
     name: config
@@ -594,7 +580,8 @@ paths:
 
   /admin/accounts/{account}/databases/{database}/backups:
     get:
-      description: get backup event summaries for a specific protected database
+      operationId: ListDatabaseBackups
+      description: get paginated backup run summaries for a specific protected database; timeline events are not embedded in this list response
       parameters:
         - *account-param
         - *database-param
@@ -623,7 +610,7 @@ paths:
       responses:
         <<: *not-found-response
         '200':
-          description: backup events for the specified protected database
+          description: backup summaries for the specified protected database
           content:
             application/json:
               schema:
@@ -646,45 +633,10 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedLogSummaries'
 
-  /admin/accounts/{account}/databases/{database}/traces:
-    get:
-      description: get backup trace summaries for a specific protected database
-      parameters:
-        - *account-param
-        - *database-param
-        - name: start_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: end_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: attribute
-          in: query
-          schema:
-            type: string
-          description: key=value filter (repeatable)
-        - name: min_duration_ms
-          in: query
-          schema:
-            type: number
-        - *offset-param
-        - *limit-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: backup traces for the specified protected database
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedTraceSummaries'
-
   /admin/accounts/{account}/backups:
     get:
-      description: get backup event summaries across all protected databases in an account
+      operationId: ListAccountBackups
+      description: get paginated backup run summaries across all protected databases in an account; timeline events are not embedded in this list response
       parameters:
         - *account-param
         - name: engine
@@ -724,7 +676,7 @@ paths:
       responses:
         <<: *not-found-response
         '200':
-          description: backup events for the account
+          description: backup summaries for the account
           content:
             application/json:
               schema:
@@ -732,18 +684,58 @@ paths:
 
   /admin/accounts/{account}/backups/{backup}:
     get:
-      description: get a specific backup event
+      operationId: GetBackup
+      description: get a specific backup run. By default this returns metadata without embedded product timeline events; pass include=events to include the chronological product-level event timeline.
+      parameters:
+        - *account-param
+        - *backup-param
+        - name: include
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [events]
+          description: include=events embeds product-level backup timeline events in the response
+      responses:
+        <<: *not-found-response
+        '200':
+          description: backup run details
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BackupEvent'
+
+  /admin/accounts/{account}/backups/{backup}/events:
+    get:
+      operationId: GetBackupEvents
+      description: get chronological product-level events for exactly one backup run. Events are derived from OTEL traces/spans when available, but the response is product-shaped rather than raw OTEL.
       parameters:
         - *account-param
         - *backup-param
       responses:
         <<: *not-found-response
         '200':
-          description: backup event details
+          description: product-level backup timeline events
           content:
             application/json:
               schema:
-                $ref: './schemas.yaml#/components/schemas/BackupEvent'
+                $ref: './schemas.yaml#/components/schemas/BackupTimelineEvents'
+
+  /admin/accounts/{account}/backups/{backup}/trace:
+    get:
+      operationId: GetBackupTrace
+      description: get raw trace diagnostic data for exactly one backup run. Product UIs should use backup timeline events for normal status timelines.
+      parameters:
+        - *account-param
+        - *backup-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: raw trace diagnostics for a backup run
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BackupTraceDiagnostics'
 
   /admin/accounts/{account}/logs/{log}:
     get:
@@ -761,87 +753,6 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedLogs'
-  /admin/accounts/{account}/traces:
-    get:
-      description: get list of backup traces for a specific account across all protected databases, searchable based on parameters
-      parameters:
-        - *account-param
-        - name: engine
-          in: query
-          schema:
-            type: string
-          required: false
-          description: filter to traces produced by a specific backup engine ID
-        - name: database
-          in: query
-          schema:
-            type: string
-          required: false
-          description: filter to traces for a specific protected database ID
-        - name: start_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: end_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: attribute
-          in: query
-          schema:
-            type: string
-          description: key=value filter (repeatable)
-        - name: min_duration_ms
-          in: query
-          schema:
-            type: number
-        - *offset-param
-        - *limit-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: list of backup traces for the account
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedTraceSummaries'
-
-  /admin/accounts/{account}/traces/{trace}:
-    get:
-      description: get the backup traces for a specific backup run
-      parameters:
-        - *account-param
-        - *trace-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: backup traces for a specific backup run, streamed
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/Trace'
-  /admin/accounts/{account}/traces/{trace}/spans/{span}:
-    get:
-      description: get a specific span within a specific trace
-      parameters:
-        - *account-param
-        - *trace-param
-        - *span-param
-      responses:
-        <<: *not-found-response
-        '200':
-          description: specific span
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/Span'
-
   /admin/accounts/{account}/engines/{engine}/configs:
     get:
       description: list cloud-managed configs for a specific backup engine
