@@ -102,6 +102,85 @@ x-responses:
             *error-message-schema
 
 paths:      
+  /auth/login:
+    get:
+      summary: Start browser OAuth login
+      operationId: GetAuthLogin
+      description: Starts browser OAuth login. Sets a transient OAuth state cookie and redirects to the configured identity provider authorization URL.
+      security: []
+      parameters:
+        - name: redirect
+          in: query
+          required: false
+          description: Post-login frontend redirect target.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the identity provider authorization URL.
+          headers:
+            Location:
+              description: Configured identity provider authorization URL.
+              schema:
+                type: string
+        '500':
+          description: Authentication flow unavailable.
+
+  /auth/callback:
+    get:
+      summary: Complete browser OAuth login
+      operationId: GetAuthCallback
+      description: Receives the OAuth authorization-code callback. Validates the transient OAuth state cookie and query parameter, exchanges the code for an identity provider token, fetches the user identity, sets the application session cookie, and redirects to the configured frontend destination.
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: false
+          description: Authorization code returned by the identity provider; omitted on some error callbacks.
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          description: OAuth state returned by the identity provider; malformed or missing values are validated by the server.
+          schema:
+            type: string
+        - name: error
+          in: query
+          required: false
+          description: Authorization error returned by the identity provider.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Successful login redirect to the configured frontend destination.
+          headers:
+            Location:
+              description: Configured post-login frontend destination.
+              schema:
+                type: string
+        '400':
+          description: Missing or invalid OAuth state or authorization code.
+        '401':
+          description: Authentication failed or the identity provider returned an authorization error.
+        '500':
+          description: Authentication flow unavailable.
+
+  /auth/logout:
+    get:
+      summary: Terminate browser session
+      operationId: GetAuthLogout
+      description: Terminates the application browser session by clearing the application session cookie and transient OAuth state cookie, then redirects to the configured identity provider logout endpoint or configured post-logout frontend destination.
+      security: []
+      responses:
+        '302':
+          description: Logout redirect.
+          headers:
+            Location:
+              description: Configured identity provider logout endpoint or post-logout frontend destination.
+              schema:
+                type: string
+
   /admin/system/healthz:
     get:
       description: health check endpoint, accessible without authentication

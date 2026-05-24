@@ -4,6 +4,66 @@
  */
 
 export interface paths {
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Start browser OAuth login
+         * @description Starts browser OAuth login. Sets a transient OAuth state cookie and redirects to the configured identity provider authorization URL.
+         */
+        get: operations["GetAuthLogin"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Complete browser OAuth login
+         * @description Receives the OAuth authorization-code callback. Validates the transient OAuth state cookie and query parameter, exchanges the code for an identity provider token, fetches the user identity, sets the application session cookie, and redirects to the configured frontend destination.
+         */
+        get: operations["GetAuthCallback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Terminate browser session
+         * @description Terminates the application browser session by clearing the application session cookie and transient OAuth state cookie, then redirects to the configured identity provider logout endpoint or configured post-logout frontend destination.
+         */
+        get: operations["GetAuthLogout"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/system/healthz": {
         parameters: {
             query?: never;
@@ -2386,6 +2446,104 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    GetAuthLogin: {
+        parameters: {
+            query?: {
+                /** @description Post-login frontend redirect target. */
+                redirect?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirect to the identity provider authorization URL. */
+            302: {
+                headers: {
+                    /** @description Configured identity provider authorization URL. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication flow unavailable. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetAuthCallback: {
+        parameters: {
+            query?: {
+                /** @description Authorization code returned by the identity provider; omitted on some error callbacks. */
+                code?: string;
+                /** @description OAuth state returned by the identity provider; malformed or missing values are validated by the server. */
+                state?: string;
+                /** @description Authorization error returned by the identity provider. */
+                error?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful login redirect to the configured frontend destination. */
+            302: {
+                headers: {
+                    /** @description Configured post-login frontend destination. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid OAuth state or authorization code. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication failed or the identity provider returned an authorization error. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication flow unavailable. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetAuthLogout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logout redirect. */
+            302: {
+                headers: {
+                    /** @description Configured identity provider logout endpoint or post-logout frontend destination. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     GetAdminSelfEmailVerify: {
         parameters: {
             query: {

@@ -190,6 +190,24 @@ type GetAdminUsersParams struct {
 	Search *string `form:"search,omitempty" json:"search,omitempty" yaml:"search,omitempty"`
 }
 
+// GetAuthCallbackParams defines parameters for GetAuthCallback.
+type GetAuthCallbackParams struct {
+	// Code Authorization code returned by the identity provider; omitted on some error callbacks.
+	Code *string `form:"code,omitempty" json:"code,omitempty" yaml:"code,omitempty"`
+
+	// State OAuth state returned by the identity provider; malformed or missing values are validated by the server.
+	State *string `form:"state,omitempty" json:"state,omitempty" yaml:"state,omitempty"`
+
+	// Error Authorization error returned by the identity provider.
+	Error *string `form:"error,omitempty" json:"error,omitempty" yaml:"error,omitempty"`
+}
+
+// GetAuthLoginParams defines parameters for GetAuthLogin.
+type GetAuthLoginParams struct {
+	// Redirect Post-login frontend redirect target.
+	Redirect *string `form:"redirect,omitempty" json:"redirect,omitempty" yaml:"redirect,omitempty"`
+}
+
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
 type PostAdminAccountsJSONRequestBody = Account
 
@@ -360,6 +378,15 @@ type ServerInterface interface {
 
 	// (DELETE /admin/users/{user})
 	DeleteAdminUsersUser(w http.ResponseWriter, r *http.Request, user string)
+	// Complete browser OAuth login
+	// (GET /auth/callback)
+	GetAuthCallback(w http.ResponseWriter, r *http.Request, params GetAuthCallbackParams)
+	// Start browser OAuth login
+	// (GET /auth/login)
+	GetAuthLogin(w http.ResponseWriter, r *http.Request, params GetAuthLoginParams)
+	// Terminate browser session
+	// (GET /auth/logout)
+	GetAuthLogout(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -575,6 +602,24 @@ func (_ Unimplemented) PostAdminUsers(w http.ResponseWriter, r *http.Request) {
 
 // (DELETE /admin/users/{user})
 func (_ Unimplemented) DeleteAdminUsersUser(w http.ResponseWriter, r *http.Request, user string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Complete browser OAuth login
+// (GET /auth/callback)
+func (_ Unimplemented) GetAuthCallback(w http.ResponseWriter, r *http.Request, params GetAuthCallbackParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Start browser OAuth login
+// (GET /auth/login)
+func (_ Unimplemented) GetAuthLogin(w http.ResponseWriter, r *http.Request, params GetAuthLoginParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Terminate browser session
+// (GET /auth/logout)
+func (_ Unimplemented) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -2268,6 +2313,90 @@ func (siw *ServerInterfaceWrapper) DeleteAdminUsersUser(w http.ResponseWriter, r
 	handler.ServeHTTP(w, r)
 }
 
+// GetAuthCallback operation middleware
+func (siw *ServerInterfaceWrapper) GetAuthCallback(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAuthCallbackParams
+
+	// ------------- Optional query parameter "code" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "code", r.URL.Query(), &params.Code)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "code", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "state" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "state", r.URL.Query(), &params.State)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "state", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "error" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "error", r.URL.Query(), &params.Error)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "error", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAuthCallback(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAuthLogin operation middleware
+func (siw *ServerInterfaceWrapper) GetAuthLogin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAuthLoginParams
+
+	// ------------- Optional query parameter "redirect" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "redirect", r.URL.Query(), &params.Redirect)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "redirect", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAuthLogin(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAuthLogout operation middleware
+func (siw *ServerInterfaceWrapper) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAuthLogout(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -2506,6 +2635,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/users/{user}", wrapper.DeleteAdminUsersUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/auth/callback", wrapper.GetAuthCallback)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/auth/login", wrapper.GetAuthLogin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/auth/logout", wrapper.GetAuthLogout)
 	})
 
 	return r
@@ -3703,6 +3841,103 @@ func (response DeleteAdminUsersUser404Response) VisitDeleteAdminUsersUserRespons
 	return nil
 }
 
+type GetAuthCallbackRequestObject struct {
+	Params GetAuthCallbackParams
+}
+
+type GetAuthCallbackResponseObject interface {
+	VisitGetAuthCallbackResponse(w http.ResponseWriter) error
+}
+
+type GetAuthCallback302ResponseHeaders struct {
+	Location string
+}
+
+type GetAuthCallback302Response struct {
+	Headers GetAuthCallback302ResponseHeaders
+}
+
+func (response GetAuthCallback302Response) VisitGetAuthCallbackResponse(w http.ResponseWriter) error {
+	w.Header().Set("Location", fmt.Sprint(response.Headers.Location))
+	w.WriteHeader(302)
+	return nil
+}
+
+type GetAuthCallback400Response struct {
+}
+
+func (response GetAuthCallback400Response) VisitGetAuthCallbackResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetAuthCallback401Response struct {
+}
+
+func (response GetAuthCallback401Response) VisitGetAuthCallbackResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetAuthCallback500Response struct {
+}
+
+func (response GetAuthCallback500Response) VisitGetAuthCallbackResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GetAuthLoginRequestObject struct {
+	Params GetAuthLoginParams
+}
+
+type GetAuthLoginResponseObject interface {
+	VisitGetAuthLoginResponse(w http.ResponseWriter) error
+}
+
+type GetAuthLogin302ResponseHeaders struct {
+	Location string
+}
+
+type GetAuthLogin302Response struct {
+	Headers GetAuthLogin302ResponseHeaders
+}
+
+func (response GetAuthLogin302Response) VisitGetAuthLoginResponse(w http.ResponseWriter) error {
+	w.Header().Set("Location", fmt.Sprint(response.Headers.Location))
+	w.WriteHeader(302)
+	return nil
+}
+
+type GetAuthLogin500Response struct {
+}
+
+func (response GetAuthLogin500Response) VisitGetAuthLoginResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GetAuthLogoutRequestObject struct {
+}
+
+type GetAuthLogoutResponseObject interface {
+	VisitGetAuthLogoutResponse(w http.ResponseWriter) error
+}
+
+type GetAuthLogout302ResponseHeaders struct {
+	Location string
+}
+
+type GetAuthLogout302Response struct {
+	Headers GetAuthLogout302ResponseHeaders
+}
+
+func (response GetAuthLogout302Response) VisitGetAuthLogoutResponse(w http.ResponseWriter) error {
+	w.Header().Set("Location", fmt.Sprint(response.Headers.Location))
+	w.WriteHeader(302)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
@@ -3831,6 +4066,15 @@ type StrictServerInterface interface {
 
 	// (DELETE /admin/users/{user})
 	DeleteAdminUsersUser(ctx context.Context, request DeleteAdminUsersUserRequestObject) (DeleteAdminUsersUserResponseObject, error)
+	// Complete browser OAuth login
+	// (GET /auth/callback)
+	GetAuthCallback(ctx context.Context, request GetAuthCallbackRequestObject) (GetAuthCallbackResponseObject, error)
+	// Start browser OAuth login
+	// (GET /auth/login)
+	GetAuthLogin(ctx context.Context, request GetAuthLoginRequestObject) (GetAuthLoginResponseObject, error)
+	// Terminate browser session
+	// (GET /auth/logout)
+	GetAuthLogout(ctx context.Context, request GetAuthLogoutRequestObject) (GetAuthLogoutResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -5054,6 +5298,82 @@ func (sh *strictHandler) DeleteAdminUsersUser(w http.ResponseWriter, r *http.Req
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(DeleteAdminUsersUserResponseObject); ok {
 		if err := validResponse.VisitDeleteAdminUsersUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAuthCallback operation middleware
+func (sh *strictHandler) GetAuthCallback(w http.ResponseWriter, r *http.Request, params GetAuthCallbackParams) {
+	var request GetAuthCallbackRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAuthCallback(ctx, request.(GetAuthCallbackRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAuthCallback")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAuthCallbackResponseObject); ok {
+		if err := validResponse.VisitGetAuthCallbackResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAuthLogin operation middleware
+func (sh *strictHandler) GetAuthLogin(w http.ResponseWriter, r *http.Request, params GetAuthLoginParams) {
+	var request GetAuthLoginRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAuthLogin(ctx, request.(GetAuthLoginRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAuthLogin")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAuthLoginResponseObject); ok {
+		if err := validResponse.VisitGetAuthLoginResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAuthLogout operation middleware
+func (sh *strictHandler) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
+	var request GetAuthLogoutRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAuthLogout(ctx, request.(GetAuthLogoutRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAuthLogout")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAuthLogoutResponseObject); ok {
+		if err := validResponse.VisitGetAuthLogoutResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
