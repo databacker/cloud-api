@@ -208,6 +208,12 @@ type GetAuthLoginParams struct {
 	Redirect *string `form:"redirect,omitempty" json:"redirect,omitempty" yaml:"redirect,omitempty"`
 }
 
+// GetAuthLogoutParams defines parameters for GetAuthLogout.
+type GetAuthLogoutParams struct {
+	// Redirect Post-logout frontend redirect target; must match a permitted frontend origin.
+	Redirect *string `form:"redirect,omitempty" json:"redirect,omitempty" yaml:"redirect,omitempty"`
+}
+
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
 type PostAdminAccountsJSONRequestBody = Account
 
@@ -386,7 +392,7 @@ type ServerInterface interface {
 	GetAuthLogin(w http.ResponseWriter, r *http.Request, params GetAuthLoginParams)
 	// Terminate browser session
 	// (GET /auth/logout)
-	GetAuthLogout(w http.ResponseWriter, r *http.Request)
+	GetAuthLogout(w http.ResponseWriter, r *http.Request, params GetAuthLogoutParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -619,7 +625,7 @@ func (_ Unimplemented) GetAuthLogin(w http.ResponseWriter, r *http.Request, para
 
 // Terminate browser session
 // (GET /auth/logout)
-func (_ Unimplemented) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
+func (_ Unimplemented) GetAuthLogout(w http.ResponseWriter, r *http.Request, params GetAuthLogoutParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -2386,8 +2392,21 @@ func (siw *ServerInterfaceWrapper) GetAuthLogin(w http.ResponseWriter, r *http.R
 // GetAuthLogout operation middleware
 func (siw *ServerInterfaceWrapper) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAuthLogoutParams
+
+	// ------------- Optional query parameter "redirect" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "redirect", r.URL.Query(), &params.Redirect)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "redirect", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAuthLogout(w, r)
+		siw.Handler.GetAuthLogout(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3918,6 +3937,7 @@ func (response GetAuthLogin500Response) VisitGetAuthLoginResponse(w http.Respons
 }
 
 type GetAuthLogoutRequestObject struct {
+	Params GetAuthLogoutParams
 }
 
 type GetAuthLogoutResponseObject interface {
@@ -3935,6 +3955,14 @@ type GetAuthLogout302Response struct {
 func (response GetAuthLogout302Response) VisitGetAuthLogoutResponse(w http.ResponseWriter) error {
 	w.Header().Set("Location", fmt.Sprint(response.Headers.Location))
 	w.WriteHeader(302)
+	return nil
+}
+
+type GetAuthLogout400Response struct {
+}
+
+func (response GetAuthLogout400Response) VisitGetAuthLogoutResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
 	return nil
 }
 
@@ -5358,8 +5386,10 @@ func (sh *strictHandler) GetAuthLogin(w http.ResponseWriter, r *http.Request, pa
 }
 
 // GetAuthLogout operation middleware
-func (sh *strictHandler) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
+func (sh *strictHandler) GetAuthLogout(w http.ResponseWriter, r *http.Request, params GetAuthLogoutParams) {
 	var request GetAuthLogoutRequestObject
+
+	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
 		return sh.ssi.GetAuthLogout(ctx, request.(GetAuthLogoutRequestObject))

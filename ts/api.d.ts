@@ -53,7 +53,7 @@ export interface paths {
         };
         /**
          * Terminate browser session
-         * @description Terminates the application browser session by clearing the application session cookie and transient OAuth state cookie, then redirects to the configured identity provider logout endpoint or configured post-logout frontend destination.
+         * @description Terminates the application browser session by validating an optional post-logout redirect target against the permitted frontend-origin allowlist, defaulting to the configured post-logout frontend destination when none is provided, and clearing the application session cookie and transient OAuth state cookie. If an identity provider logout endpoint is configured, the validated target is passed as its post_logout_redirect_uri; otherwise the response redirects directly to the validated target.
          */
         get: operations["GetAuthLogout"];
         put?: never;
@@ -2526,7 +2526,10 @@ export interface operations {
     };
     GetAuthLogout: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Post-logout frontend redirect target; must match a permitted frontend origin. */
+                redirect?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2538,6 +2541,13 @@ export interface operations {
                 headers: {
                     /** @description Configured identity provider logout endpoint or post-logout frontend destination. */
                     Location?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid post-logout redirect target. */
+            400: {
+                headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
