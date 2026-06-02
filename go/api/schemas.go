@@ -33,6 +33,69 @@ const (
 	Viewer AccountMemberRole = "viewer"
 )
 
+// Defines values for BillingEntitlementActivationReason.
+const (
+	BillingEntitlementActivationReasonAutomaticDiscovery   BillingEntitlementActivationReason = "automatic_discovery"
+	BillingEntitlementActivationReasonExplicitReactivation BillingEntitlementActivationReason = "explicit_reactivation"
+	BillingEntitlementActivationReasonManualActivation     BillingEntitlementActivationReason = "manual_activation"
+)
+
+// Defines values for BillingEntitlementDeactivationReason.
+const (
+	BillingEntitlementDeactivationReasonAccountClosed BillingEntitlementDeactivationReason = "account_closed"
+	BillingEntitlementDeactivationReasonCorrection    BillingEntitlementDeactivationReason = "correction"
+	BillingEntitlementDeactivationReasonUserRequested BillingEntitlementDeactivationReason = "user_requested"
+)
+
+// Defines values for BillingPriceInterval.
+const (
+	Month BillingPriceInterval = "month"
+)
+
+// Defines values for BillingProductBillableUnit.
+const (
+	ActiveProtectedDatabase BillingProductBillableUnit = "active_protected_database"
+)
+
+// Defines values for BillingReadinessReason.
+const (
+	CreditOnlyPolicy                 BillingReadinessReason = "credit_only_policy"
+	NoReusablePaymentMethod          BillingReadinessReason = "no_reusable_payment_method"
+	ProviderConfirmedPaymentMethod   BillingReadinessReason = "provider_confirmed_payment_method"
+	ProviderPaymentMethodInvalidated BillingReadinessReason = "provider_payment_method_invalidated"
+	ProviderSyncPending              BillingReadinessReason = "provider_sync_pending"
+)
+
+// Defines values for BillingReadinessState.
+const (
+	BillingReady                BillingReadinessState = "billing_ready"
+	Dormant                     BillingReadinessState = "dormant"
+	NotReady                    BillingReadinessState = "not_ready"
+	PendingProviderConfirmation BillingReadinessState = "pending_provider_confirmation"
+)
+
+// Defines values for DatabaseProtectionLifecycleActivationReason.
+const (
+	DatabaseProtectionLifecycleActivationReasonAutomaticDiscovery   DatabaseProtectionLifecycleActivationReason = "automatic_discovery"
+	DatabaseProtectionLifecycleActivationReasonExplicitReactivation DatabaseProtectionLifecycleActivationReason = "explicit_reactivation"
+	DatabaseProtectionLifecycleActivationReasonManualActivation     DatabaseProtectionLifecycleActivationReason = "manual_activation"
+)
+
+// Defines values for DatabaseProtectionLifecycleDeactivationReason.
+const (
+	DatabaseProtectionLifecycleDeactivationReasonAccountClosed DatabaseProtectionLifecycleDeactivationReason = "account_closed"
+	DatabaseProtectionLifecycleDeactivationReasonCorrection    DatabaseProtectionLifecycleDeactivationReason = "correction"
+	DatabaseProtectionLifecycleDeactivationReasonUserRequested DatabaseProtectionLifecycleDeactivationReason = "user_requested"
+)
+
+// Defines values for DatabaseProtectionLifecycleState.
+const (
+	Active              DatabaseProtectionLifecycleState = "active"
+	BlockedActivation   DatabaseProtectionLifecycleState = "blocked_activation"
+	Deactivated         DatabaseProtectionLifecycleState = "deactivated"
+	PendingReactivation DatabaseProtectionLifecycleState = "pending_reactivation"
+)
+
 // Defines values for EmailChangePendingStatus.
 const (
 	VerificationRequired EmailChangePendingStatus = "verification_required"
@@ -74,8 +137,63 @@ const (
 	EngineSummaryRegistrationStateRevoked    EngineSummaryRegistrationState = "revoked"
 )
 
+// Defines values for InvoiceArtifactArtifactType.
+const (
+	HTML             InvoiceArtifactArtifactType = "html"
+	Pdf              InvoiceArtifactArtifactType = "pdf"
+	ProviderRedirect InvoiceArtifactArtifactType = "provider_redirect"
+)
+
+// Defines values for InvoiceSummaryStatus.
+const (
+	Finalized     InvoiceSummaryStatus = "finalized"
+	Open          InvoiceSummaryStatus = "open"
+	Paid          InvoiceSummaryStatus = "paid"
+	Uncollectible InvoiceSummaryStatus = "uncollectible"
+	Void          InvoiceSummaryStatus = "void"
+)
+
+// Defines values for PaymentMethodDisplayStatus.
+const (
+	Invalidated   PaymentMethodDisplayStatus = "invalidated"
+	None          PaymentMethodDisplayStatus = "none"
+	Pending       PaymentMethodDisplayStatus = "pending"
+	SavedReusable PaymentMethodDisplayStatus = "saved_reusable"
+)
+
+// Defines values for PendingReactivationSummaryLatestReportStatus.
+const (
+	Ignored               PendingReactivationSummaryLatestReportStatus = "ignored"
+	RejectedLimitExceeded PendingReactivationSummaryLatestReportStatus = "rejected_limit_exceeded"
+	Retained              PendingReactivationSummaryLatestReportStatus = "retained"
+)
+
+// Defines values for PortalSessionPurpose.
+const (
+	PortalSessionPurposeCommercialProfileManagement PortalSessionPurpose = "commercial_profile_management"
+	PortalSessionPurposeGeneral                     PortalSessionPurpose = "general"
+	PortalSessionPurposeInvoiceSelfService          PortalSessionPurpose = "invoice_self_service"
+	PortalSessionPurposePaymentMethodManagement     PortalSessionPurpose = "payment_method_management"
+	PortalSessionPurposeSetup                       PortalSessionPurpose = "setup"
+)
+
+// Defines values for PortalSessionRequestPurpose.
+const (
+	PortalSessionRequestPurposeCommercialProfileManagement PortalSessionRequestPurpose = "commercial_profile_management"
+	PortalSessionRequestPurposeGeneral                     PortalSessionRequestPurpose = "general"
+	PortalSessionRequestPurposeInvoiceSelfService          PortalSessionRequestPurpose = "invoice_self_service"
+	PortalSessionRequestPurposePaymentMethodManagement     PortalSessionRequestPurpose = "payment_method_management"
+	PortalSessionRequestPurposeSetup                       PortalSessionRequestPurpose = "setup"
+)
+
 // Account defines model for Account.
 type Account struct {
+	// BillingCustomerID Current billing customer assigned to this workspace/account. Signup and default workspace creation automatically associate a dormant billing customer/payment profile.
+	BillingCustomerID *string `json:"billing_customer_id" yaml:"billing_customer_id"`
+
+	// BillingCustomerReadiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
+	BillingCustomerReadiness *BillingReadiness `json:"billing_customer_readiness,omitempty" yaml:"billing_customer_readiness,omitempty"`
+
 	// Description description of the account
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
@@ -253,6 +371,191 @@ type BackupTraceDiagnostics struct {
 	Traces   []Trace `json:"traces" yaml:"traces"`
 }
 
+// BillingCatalog defines model for BillingCatalog.
+type BillingCatalog struct {
+	GeneratedAt *time.Time       `json:"generated_at" yaml:"generated_at"`
+	Products    []BillingProduct `json:"products" yaml:"products"`
+}
+
+// BillingChargeLine defines model for BillingChargeLine.
+type BillingChargeLine struct {
+	AccountID         string    `json:"account_id" yaml:"account_id"`
+	AmountCents       int       `json:"amount_cents" yaml:"amount_cents"`
+	BillingCustomerID string    `json:"billing_customer_id" yaml:"billing_customer_id"`
+	Currency          string    `json:"currency" yaml:"currency"`
+	DatabaseID        *string   `json:"database_id" yaml:"database_id"`
+	IntervalEnd       time.Time `json:"interval_end" yaml:"interval_end"`
+	IntervalStart     time.Time `json:"interval_start" yaml:"interval_start"`
+	PriceID           string    `json:"price_id" yaml:"price_id"`
+	PriceVersion      string    `json:"price_version" yaml:"price_version"`
+	ProductID         string    `json:"product_id" yaml:"product_id"`
+
+	// Quantity Interval-adjusted quantity for the monthly charge period.
+	Quantity float32 `json:"quantity" yaml:"quantity"`
+}
+
+// BillingCustomer defines model for BillingCustomer.
+type BillingCustomer struct {
+	// Accounts Workspaces/accounts currently visible to the caller for this payer.
+	Accounts  *[]BillingCustomerAccountAssociation `json:"accounts,omitempty" yaml:"accounts,omitempty"`
+	CreatedAt *time.Time                           `json:"created_at" yaml:"created_at"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// PaymentMethod Provider/MoR-managed payment method display status. Raw payment credentials are never exposed or accepted by this API.
+	PaymentMethod *PaymentMethodDisplay `json:"payment_method,omitempty" yaml:"payment_method,omitempty"`
+
+	// Profile Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials.
+	Profile *BillingCustomerProfile `json:"profile,omitempty" yaml:"profile,omitempty"`
+
+	// Readiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
+	Readiness *BillingReadiness `json:"readiness,omitempty" yaml:"readiness,omitempty"`
+	UpdatedAt *time.Time        `json:"updated_at" yaml:"updated_at"`
+}
+
+// BillingCustomerAccountAssociation defines model for BillingCustomerAccountAssociation.
+type BillingCustomerAccountAssociation struct {
+	AccountID    string     `json:"account_id" yaml:"account_id"`
+	AccountName  *string    `json:"account_name" yaml:"account_name"`
+	AssociatedAt *time.Time `json:"associated_at" yaml:"associated_at"`
+
+	// Current Whether this billing customer is currently assigned to the account.
+	Current bool `json:"current" yaml:"current"`
+}
+
+// BillingCustomerBody Request to create an additional billing customer/payment profile. Signup and default account creation automatically create a dormant billing customer association, so users do not need this before exploring the product.
+type BillingCustomerBody struct {
+	// AccountID Optional account to associate with the new billing customer when permitted. Workspace reassignment between existing billing customers is out of scope for this contract.
+	AccountID *string `json:"account_id" yaml:"account_id"`
+
+	// Profile Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials.
+	Profile BillingCustomerProfile `json:"profile" yaml:"profile"`
+}
+
+// BillingCustomerProfile Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials.
+type BillingCustomerProfile struct {
+	AddressLine1 *string `json:"address_line1" yaml:"address_line1"`
+	AddressLine2 *string `json:"address_line2" yaml:"address_line2"`
+	City         *string `json:"city" yaml:"city"`
+	Company      *string `json:"company" yaml:"company"`
+
+	// Country ISO 3166 country code when known.
+	Country *string `json:"country" yaml:"country"`
+
+	// Email Billing contact email.
+	Email *openapi_types.Email `json:"email" yaml:"email"`
+
+	// Name Display name for the payer profile.
+	Name       string  `json:"name" yaml:"name"`
+	PostalCode *string `json:"postal_code" yaml:"postal_code"`
+	Region     *string `json:"region" yaml:"region"`
+
+	// TaxIDDisplay Non-sensitive tax identifier display label, if available from Databacker-owned metadata.
+	TaxIDDisplay *string `json:"tax_id_display" yaml:"tax_id_display"`
+}
+
+// BillingEntitlement Auditable billable entitlement interval for one protected database. Historical billed-customer attribution must not be rewritten if a workspace is later assigned to another billing customer.
+type BillingEntitlement struct {
+	// AccountID Workspace/account consuming the protected database entitlement.
+	AccountID        string                             `json:"account_id" yaml:"account_id"`
+	ActivationReason BillingEntitlementActivationReason `json:"activation_reason" yaml:"activation_reason"`
+	Active           bool                               `json:"active" yaml:"active"`
+
+	// BillingCustomerID Payer attributed to this interval.
+	BillingCustomerID string `json:"billing_customer_id" yaml:"billing_customer_id"`
+
+	// DatabaseID Protected database resource identity.
+	DatabaseID string `json:"database_id" yaml:"database_id"`
+
+	// DatabaseStableIdentity Engine-reported stable identity captured for audit.
+	DatabaseStableIdentity *string                               `json:"database_stable_identity" yaml:"database_stable_identity"`
+	DeactivationReason     *BillingEntitlementDeactivationReason `json:"deactivation_reason" yaml:"deactivation_reason"`
+	EndedAt                *time.Time                            `json:"ended_at" yaml:"ended_at"`
+	ID                     string                                `json:"id" yaml:"id"`
+	PriceID                string                                `json:"price_id" yaml:"price_id"`
+	PriceVersion           string                                `json:"price_version" yaml:"price_version"`
+	ProductID              string                                `json:"product_id" yaml:"product_id"`
+	StartedAt              time.Time                             `json:"started_at" yaml:"started_at"`
+}
+
+// BillingEntitlementActivationReason defines model for BillingEntitlement.ActivationReason.
+type BillingEntitlementActivationReason string
+
+// BillingEntitlementDeactivationReason defines model for BillingEntitlement.DeactivationReason.
+type BillingEntitlementDeactivationReason string
+
+// BillingEstimate Estimated charges calculated from entitlement intervals for the requested period.
+type BillingEstimate struct {
+	AccountID         *string             `json:"account_id" yaml:"account_id"`
+	BillingCustomerID *string             `json:"billing_customer_id" yaml:"billing_customer_id"`
+	Currency          string              `json:"currency" yaml:"currency"`
+	Lines             []BillingChargeLine `json:"lines" yaml:"lines"`
+	PeriodEnd         time.Time           `json:"period_end" yaml:"period_end"`
+	PeriodStart       time.Time           `json:"period_start" yaml:"period_start"`
+	TotalAmountCents  int                 `json:"total_amount_cents" yaml:"total_amount_cents"`
+}
+
+// BillingPrice defines model for BillingPrice.
+type BillingPrice struct {
+	// Currency ISO 4217 currency code.
+	Currency       string               `json:"currency" yaml:"currency"`
+	EffectiveFrom  *time.Time           `json:"effective_from" yaml:"effective_from"`
+	EffectiveUntil *time.Time           `json:"effective_until" yaml:"effective_until"`
+	Interval       BillingPriceInterval `json:"interval" yaml:"interval"`
+	PriceID        string               `json:"price_id" yaml:"price_id"`
+
+	// UnitAmountCents Monthly unit price in minor currency units for one active protected database before interval proration.
+	UnitAmountCents int    `json:"unit_amount_cents" yaml:"unit_amount_cents"`
+	Version         string `json:"version" yaml:"version"`
+}
+
+// BillingPriceInterval defines model for BillingPrice.Interval.
+type BillingPriceInterval string
+
+// BillingProduct defines model for BillingProduct.
+type BillingProduct struct {
+	// BillableUnit The base billable product is an active protected database.
+	BillableUnit BillingProductBillableUnit `json:"billable_unit" yaml:"billable_unit"`
+	Name         string                     `json:"name" yaml:"name"`
+	Prices       []BillingPrice             `json:"prices" yaml:"prices"`
+
+	// ProductID Stable product identifier.
+	ProductID string `json:"product_id" yaml:"product_id"`
+}
+
+// BillingProductBillableUnit The base billable product is an active protected database.
+type BillingProductBillableUnit string
+
+// BillingReadiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
+type BillingReadiness struct {
+	ConfirmedAt *time.Time `json:"confirmed_at" yaml:"confirmed_at"`
+
+	// ReadyForPaidActivation True only when new paid database activation or reactivation is allowed.
+	ReadyForPaidActivation bool                    `json:"ready_for_paid_activation" yaml:"ready_for_paid_activation"`
+	Reason                 *BillingReadinessReason `json:"reason" yaml:"reason"`
+	State                  BillingReadinessState   `json:"state" yaml:"state"`
+}
+
+// BillingReadinessReason defines model for BillingReadiness.Reason.
+type BillingReadinessReason string
+
+// BillingReadinessState defines model for BillingReadiness.State.
+type BillingReadinessState string
+
+// BillingSummary Billing summary for either a payer or one workspace. Amounts vary by active entitlement intervals; backup attempts, logs, traces, failures, and health do not directly determine base billing.
+type BillingSummary struct {
+	AccountID                    *string `json:"account_id" yaml:"account_id"`
+	ActiveProtectedDatabaseCount int     `json:"active_protected_database_count" yaml:"active_protected_database_count"`
+	BillingCustomerID            *string `json:"billing_customer_id" yaml:"billing_customer_id"`
+	Currency                     string  `json:"currency" yaml:"currency"`
+	CurrentMonthAmountCents      int     `json:"current_month_amount_cents" yaml:"current_month_amount_cents"`
+	OpenEntitlementCount         int     `json:"open_entitlement_count" yaml:"open_entitlement_count"`
+
+	// Readiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
+	Readiness *BillingReadiness `json:"readiness,omitempty" yaml:"readiness,omitempty"`
+}
+
 // Database defines model for Database.
 type Database struct {
 	// AccountID ID of the account that owns the database
@@ -260,6 +563,9 @@ type Database struct {
 
 	// Address Hostname or IP address for TCP, or socket path for unix transport
 	Address string `json:"address" yaml:"address"`
+
+	// AutomaticDiscoveryChargeAcknowledged When true during engine setup or accepted discovery enrollment, the account administrator has acknowledged that newly discovered protected databases may activate and incur charges only when the assigned billing customer is billing-ready.
+	AutomaticDiscoveryChargeAcknowledged *bool `json:"automatic_discovery_charge_acknowledged" yaml:"automatic_discovery_charge_acknowledged"`
 
 	// CreatedAt Timestamp when the database was created
 	CreatedAt *time.Time `json:"created_at" yaml:"created_at"`
@@ -295,6 +601,12 @@ type Database struct {
 	// Port TCP port for the database target, if applicable
 	Port *int `json:"port" yaml:"port"`
 
+	// ProtectionLifecycle Billable protection lifecycle for a database. This state is separate from operational health, backup success, failures, logs, and traces.
+	ProtectionLifecycle *DatabaseProtectionLifecycle `json:"protection_lifecycle,omitempty" yaml:"protection_lifecycle,omitempty"`
+
+	// StableIdentity Stable engine-reported database identity used to match discovery reports across display-name or endpoint changes. Names and endpoints alone are not sufficient for enrollment, blocked rediscovery, or reactivation evidence.
+	StableIdentity *string `json:"stable_identity" yaml:"stable_identity"`
+
 	// System Database engine type
 	System string `json:"system" yaml:"system"`
 
@@ -310,6 +622,9 @@ type DatabaseBody struct {
 	// Address Hostname or IP address for TCP, or socket path for unix transport
 	Address string `json:"address" yaml:"address"`
 
+	// AutomaticDiscoveryChargeAcknowledged When true during engine setup or accepted discovery enrollment, the account administrator has acknowledged that newly discovered protected databases may activate and incur charges only when the assigned billing customer is billing-ready.
+	AutomaticDiscoveryChargeAcknowledged *bool `json:"automatic_discovery_charge_acknowledged" yaml:"automatic_discovery_charge_acknowledged"`
+
 	// DisplayName Deprecated alias for name retained only for existing stored metadata readers
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	DisplayName *string `json:"display_name" yaml:"display_name"`
@@ -323,12 +638,63 @@ type DatabaseBody struct {
 	// Port TCP port for the database target, if applicable
 	Port *int `json:"port" yaml:"port"`
 
+	// StableIdentity Stable engine-reported database identity used to match discovery reports across display-name or endpoint changes. Names and endpoints alone are not sufficient for enrollment, blocked rediscovery, or reactivation evidence.
+	StableIdentity *string `json:"stable_identity" yaml:"stable_identity"`
+
 	// System Database engine type
 	System string `json:"system" yaml:"system"`
 
 	// Transport Network transport used to reach the database target
 	Transport string `json:"transport" yaml:"transport"`
 }
+
+// DatabaseDeactivationRequest defines model for DatabaseDeactivationRequest.
+type DatabaseDeactivationRequest struct {
+	// Reason Optional user-supplied deactivation reason or note.
+	Reason *string `json:"reason" yaml:"reason"`
+}
+
+// DatabaseLifecycleActionRequest defines model for DatabaseLifecycleActionRequest.
+type DatabaseLifecycleActionRequest struct {
+	// ChargeAcknowledged Must be true for paid activation or reactivation actions that can open a billing entitlement and incur charges.
+	ChargeAcknowledged bool `json:"charge_acknowledged" yaml:"charge_acknowledged"`
+
+	// Reason Optional user-supplied lifecycle reason or note.
+	Reason *string `json:"reason" yaml:"reason"`
+}
+
+// DatabaseProtectionLifecycle Billable protection lifecycle for a database. This state is separate from operational health, backup success, failures, logs, and traces.
+type DatabaseProtectionLifecycle struct {
+	// ActivatedAt Timestamp when the current active protection interval opened.
+	ActivatedAt *time.Time `json:"activated_at" yaml:"activated_at"`
+
+	// ActivationReason Reason the current active interval opened.
+	ActivationReason *DatabaseProtectionLifecycleActivationReason `json:"activation_reason" yaml:"activation_reason"`
+
+	// CurrentEntitlementID Active billing entitlement interval ID, if protection is active.
+	CurrentEntitlementID *string `json:"current_entitlement_id" yaml:"current_entitlement_id"`
+
+	// DeactivatedAt Timestamp when protection was explicitly deactivated.
+	DeactivatedAt *time.Time `json:"deactivated_at" yaml:"deactivated_at"`
+
+	// DeactivationReason Reason protection was explicitly deactivated.
+	DeactivationReason *DatabaseProtectionLifecycleDeactivationReason `json:"deactivation_reason" yaml:"deactivation_reason"`
+
+	// PendingReactivation Summary of reports retained after explicit deactivation. Reports for a deactivated database must not silently reactivate or bill the database.
+	PendingReactivation *PendingReactivationSummary `json:"pending_reactivation,omitempty" yaml:"pending_reactivation,omitempty"`
+
+	// State Current billable protection state. Active databases remain billable until explicitly deactivated.
+	State DatabaseProtectionLifecycleState `json:"state" yaml:"state"`
+}
+
+// DatabaseProtectionLifecycleActivationReason Reason the current active interval opened.
+type DatabaseProtectionLifecycleActivationReason string
+
+// DatabaseProtectionLifecycleDeactivationReason Reason protection was explicitly deactivated.
+type DatabaseProtectionLifecycleDeactivationReason string
+
+// DatabaseProtectionLifecycleState Current billable protection state. Active databases remain billable until explicitly deactivated.
+type DatabaseProtectionLifecycleState string
 
 // DatabaseSummary protected database row summary for list views
 type DatabaseSummary struct {
@@ -362,6 +728,9 @@ type DatabaseSummary struct {
 	// Name Human-friendly display name for the database
 	Name string `json:"name" yaml:"name"`
 
+	// ProtectionLifecycle Billable protection lifecycle for a database. This state is separate from operational health, backup success, failures, logs, and traces.
+	ProtectionLifecycle *DatabaseProtectionLifecycle `json:"protection_lifecycle,omitempty" yaml:"protection_lifecycle,omitempty"`
+
 	// System Database engine type
 	System string `json:"system" yaml:"system"`
 
@@ -389,6 +758,9 @@ type EmailChangePendingStatus string
 type Engine struct {
 	// AccountID ID of the account that owns the backup engine
 	AccountID *string `json:"account_id,omitempty" yaml:"account_id,omitempty"`
+
+	// AutomaticDiscoveryChargeAcknowledged Engine setup acknowledgement that newly discovered protected databases may automatically activate and incur charges only when the workspace's assigned billing customer is billing-ready. This does not override billing readiness requirements.
+	AutomaticDiscoveryChargeAcknowledged *bool `json:"automatic_discovery_charge_acknowledged" yaml:"automatic_discovery_charge_acknowledged"`
 
 	// ConfigState computed configuration state for the backup engine
 	ConfigState *EngineConfigState `json:"config_state,omitempty" yaml:"config_state,omitempty"`
@@ -429,6 +801,9 @@ type EngineRegistrationState string
 
 // EngineBody information for a backup engine registration
 type EngineBody struct {
+	// AutomaticDiscoveryChargeAcknowledged Engine setup acknowledgement that newly discovered protected databases may automatically activate and incur charges only when the workspace's assigned billing customer is billing-ready. This does not override billing readiness requirements.
+	AutomaticDiscoveryChargeAcknowledged *bool `json:"automatic_discovery_charge_acknowledged" yaml:"automatic_discovery_charge_acknowledged"`
+
 	// Description description of the backup engine
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
@@ -497,6 +872,42 @@ type ID struct {
 	// ID unique ID of the object, as a UUID
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 }
+
+// InvoiceArtifact Single finalized invoice artifact. The artifact may be PDF, HTML, or a commerce-provider/MoR-backed redirect depending on provider capabilities.
+type InvoiceArtifact struct {
+	ArtifactType InvoiceArtifactArtifactType `json:"artifact_type" yaml:"artifact_type"`
+	ContentType  *string                     `json:"content_type" yaml:"content_type"`
+	ExpiresAt    *time.Time                  `json:"expires_at" yaml:"expires_at"`
+
+	// HTML Inline HTML artifact when the provider and implementation support it.
+	HTML *string `json:"html" yaml:"html"`
+
+	// Invoice Finalized invoice known for a billing customer.
+	Invoice InvoiceSummary `json:"invoice" yaml:"invoice"`
+
+	// URL Provider/MoR-backed artifact redirect or signed download URL.
+	URL *string `json:"url" yaml:"url"`
+}
+
+// InvoiceArtifactArtifactType defines model for InvoiceArtifact.ArtifactType.
+type InvoiceArtifactArtifactType string
+
+// InvoiceSummary Finalized invoice known for a billing customer.
+type InvoiceSummary struct {
+	AmountDueCents    int                  `json:"amount_due_cents" yaml:"amount_due_cents"`
+	AmountPaidCents   *int                 `json:"amount_paid_cents,omitempty" yaml:"amount_paid_cents,omitempty"`
+	BillingCustomerID string               `json:"billing_customer_id" yaml:"billing_customer_id"`
+	Currency          string               `json:"currency" yaml:"currency"`
+	ID                string               `json:"id" yaml:"id"`
+	IssuedAt          time.Time            `json:"issued_at" yaml:"issued_at"`
+	PeriodEnd         *time.Time           `json:"period_end,omitempty" yaml:"period_end,omitempty"`
+	PeriodStart       *time.Time           `json:"period_start,omitempty" yaml:"period_start,omitempty"`
+	ProviderInvoiceID *string              `json:"provider_invoice_id" yaml:"provider_invoice_id"`
+	Status            InvoiceSummaryStatus `json:"status" yaml:"status"`
+}
+
+// InvoiceSummaryStatus defines model for InvoiceSummary.Status.
+type InvoiceSummaryStatus string
 
 // Log defines model for Log.
 type Log struct {
@@ -596,6 +1007,26 @@ type PaginatedBackupEvents struct {
 	Total   *int           `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
+// PaginatedBillingCustomers defines model for PaginatedBillingCustomers.
+type PaginatedBillingCustomers struct {
+	BillingCustomers *[]BillingCustomer `json:"billing_customers,omitempty" yaml:"billing_customers,omitempty"`
+	HasNext          *bool              `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev          *bool              `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit            *int               `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset           *int               `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total            *int               `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedBillingEntitlements defines model for PaginatedBillingEntitlements.
+type PaginatedBillingEntitlements struct {
+	Entitlements *[]BillingEntitlement `json:"entitlements,omitempty" yaml:"entitlements,omitempty"`
+	HasNext      *bool                 `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev      *bool                 `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit        *int                  `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset       *int                  `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total        *int                  `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
 // PaginatedDatabases defines model for PaginatedDatabases.
 type PaginatedDatabases struct {
 	Databases *[]DatabaseSummary `json:"databases,omitempty" yaml:"databases,omitempty"`
@@ -614,6 +1045,16 @@ type PaginatedEngines struct {
 	Limit   *int             `json:"limit,omitempty" yaml:"limit,omitempty"`
 	Offset  *int             `json:"offset,omitempty" yaml:"offset,omitempty"`
 	Total   *int             `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
+// PaginatedInvoices defines model for PaginatedInvoices.
+type PaginatedInvoices struct {
+	HasNext  *bool             `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev  *bool             `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Invoices *[]InvoiceSummary `json:"invoices,omitempty" yaml:"invoices,omitempty"`
+	Limit    *int              `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset   *int              `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Total    *int              `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
 // PaginatedLogSummaries defines model for PaginatedLogSummaries.
@@ -670,6 +1111,74 @@ type PatchAdminSelfRequest struct {
 	Email *openapi_types.Email `json:"email,omitempty" yaml:"email,omitempty"`
 	Name  *string              `json:"name,omitempty" yaml:"name,omitempty"`
 }
+
+// PaymentMethodDisplay Provider/MoR-managed payment method display status. Raw payment credentials are never exposed or accepted by this API.
+type PaymentMethodDisplay struct {
+	// DisplayBrand Safe display brand such as card network or payment family.
+	DisplayBrand *string `json:"display_brand" yaml:"display_brand"`
+
+	// DisplayLabel Safe masked display label such as last four digits.
+	DisplayLabel *string    `json:"display_label" yaml:"display_label"`
+	ExpiresAt    *time.Time `json:"expires_at" yaml:"expires_at"`
+
+	// Provider Commerce provider or merchant-of-record identifier when selected.
+	Provider   *string                    `json:"provider" yaml:"provider"`
+	Status     PaymentMethodDisplayStatus `json:"status" yaml:"status"`
+	VerifiedAt *time.Time                 `json:"verified_at" yaml:"verified_at"`
+}
+
+// PaymentMethodDisplayStatus defines model for PaymentMethodDisplay.Status.
+type PaymentMethodDisplayStatus string
+
+// PendingReactivationSummary Summary of reports retained after explicit deactivation. Reports for a deactivated database must not silently reactivate or bill the database.
+type PendingReactivationSummary struct {
+	FirstReportedAt *time.Time `json:"first_reported_at" yaml:"first_reported_at"`
+	LastReportedAt  *time.Time `json:"last_reported_at" yaml:"last_reported_at"`
+
+	// LatestEngineID Backup engine that most recently reported this deactivated database.
+	LatestEngineID *string `json:"latest_engine_id" yaml:"latest_engine_id"`
+
+	// LatestReportStatus Disposition of the latest post-deactivation report.
+	LatestReportStatus *PendingReactivationSummaryLatestReportStatus `json:"latest_report_status" yaml:"latest_report_status"`
+
+	// LatestStableIdentity Stable database identity from the most recent retained report.
+	LatestStableIdentity *string `json:"latest_stable_identity" yaml:"latest_stable_identity"`
+
+	// RetainedReportCount Number of post-deactivation reports currently retained as reactivation evidence.
+	RetainedReportCount *int `json:"retained_report_count,omitempty" yaml:"retained_report_count,omitempty"`
+
+	// RetainedReportLimit Configured maximum retained post-deactivation reports for this database.
+	RetainedReportLimit *int `json:"retained_report_limit,omitempty" yaml:"retained_report_limit,omitempty"`
+}
+
+// PendingReactivationSummaryLatestReportStatus Disposition of the latest post-deactivation report.
+type PendingReactivationSummaryLatestReportStatus string
+
+// PortalSession defines model for PortalSession.
+type PortalSession struct {
+	// ClientToken Equivalent hosted-session token when the selected commerce provider uses an embedded client session.
+	ClientToken *string               `json:"client_token" yaml:"client_token"`
+	ExpiresAt   *time.Time            `json:"expires_at" yaml:"expires_at"`
+	Provider    *string               `json:"provider" yaml:"provider"`
+	Purpose     *PortalSessionPurpose `json:"purpose" yaml:"purpose"`
+
+	// URL Provider/MoR-hosted redirect URL when the selected commerce provider uses redirects.
+	URL *string `json:"url" yaml:"url"`
+}
+
+// PortalSessionPurpose defines model for PortalSession.Purpose.
+type PortalSessionPurpose string
+
+// PortalSessionRequest Request a single commerce-provider/MoR-hosted flow for initial setup, payment-method management, provider commercial profile management, invoice self-service, or a general billing portal. The redirect result is advisory only; billing readiness and invoice synchronization require verified provider confirmation through webhook/callback processing or server-side provider lookup.
+type PortalSessionRequest struct {
+	Purpose *PortalSessionRequestPurpose `json:"purpose" yaml:"purpose"`
+
+	// ReturnURL Optional frontend URL to return to after the hosted provider/MoR flow.
+	ReturnURL *string `json:"return_url" yaml:"return_url"`
+}
+
+// PortalSessionRequestPurpose defines model for PortalSessionRequest.Purpose.
+type PortalSessionRequestPurpose string
 
 // SelfAccountEntry an account the calling user belongs to, with their role
 type SelfAccountEntry struct {

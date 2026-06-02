@@ -66,6 +66,21 @@ type GetBackupParams struct {
 // GetBackupParamsInclude defines parameters for GetBackup.
 type GetBackupParamsInclude string
 
+// ListAccountBillingEntitlementsParams defines parameters for ListAccountBillingEntitlements.
+type ListAccountBillingEntitlementsParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// GetAccountBillingEstimateParams defines parameters for GetAccountBillingEstimate.
+type GetAccountBillingEstimateParams struct {
+	PeriodStart *time.Time `form:"period_start,omitempty" json:"period_start,omitempty" yaml:"period_start,omitempty"`
+	PeriodEnd   *time.Time `form:"period_end,omitempty" json:"period_end,omitempty" yaml:"period_end,omitempty"`
+}
+
 // GetAdminAccountsAccountDatabasesParams defines parameters for GetAdminAccountsAccountDatabases.
 type GetAdminAccountsAccountDatabasesParams struct {
 	// Engine filter to databases protected by a specific backup engine ID
@@ -164,6 +179,39 @@ type PatchAdminAccountsAccountUsersUserJSONBody struct {
 	Role string `json:"role" yaml:"role"`
 }
 
+// ListBillingCustomersParams defines parameters for ListBillingCustomers.
+type ListBillingCustomersParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// ListBillingCustomerEntitlementsParams defines parameters for ListBillingCustomerEntitlements.
+type ListBillingCustomerEntitlementsParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// GetBillingCustomerEstimateParams defines parameters for GetBillingCustomerEstimate.
+type GetBillingCustomerEstimateParams struct {
+	PeriodStart *time.Time `form:"period_start,omitempty" json:"period_start,omitempty" yaml:"period_start,omitempty"`
+	PeriodEnd   *time.Time `form:"period_end,omitempty" json:"period_end,omitempty" yaml:"period_end,omitempty"`
+}
+
+// ListBillingCustomerInvoicesParams defines parameters for ListBillingCustomerInvoices.
+type ListBillingCustomerInvoicesParams struct {
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
 // GetAdminSelfAccountsParams defines parameters for GetAdminSelfAccounts.
 type GetAdminSelfAccountsParams struct {
 	// Offset Number of results to skip
@@ -226,6 +274,12 @@ type PostAdminAccountsAccountDatabasesJSONRequestBody = DatabaseBody
 // PatchAdminAccountsAccountDatabasesDatabaseJSONRequestBody defines body for PatchAdminAccountsAccountDatabasesDatabase for application/json ContentType.
 type PatchAdminAccountsAccountDatabasesDatabaseJSONRequestBody = DatabaseBody
 
+// DeactivateDatabaseProtectionJSONRequestBody defines body for DeactivateDatabaseProtection for application/json ContentType.
+type DeactivateDatabaseProtectionJSONRequestBody = DatabaseDeactivationRequest
+
+// ReactivateDatabaseProtectionJSONRequestBody defines body for ReactivateDatabaseProtection for application/json ContentType.
+type ReactivateDatabaseProtectionJSONRequestBody = DatabaseLifecycleActionRequest
+
 // PostAdminAccountsAccountEnginesJSONRequestBody defines body for PostAdminAccountsAccountEngines for application/json ContentType.
 type PostAdminAccountsAccountEnginesJSONRequestBody = EngineBody
 
@@ -240,6 +294,15 @@ type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJ
 
 // PatchAdminAccountsAccountUsersUserJSONRequestBody defines body for PatchAdminAccountsAccountUsersUser for application/json ContentType.
 type PatchAdminAccountsAccountUsersUserJSONRequestBody PatchAdminAccountsAccountUsersUserJSONBody
+
+// CreateBillingCustomerJSONRequestBody defines body for CreateBillingCustomer for application/json ContentType.
+type CreateBillingCustomerJSONRequestBody = BillingCustomerBody
+
+// CreateBillingPortalSessionJSONRequestBody defines body for CreateBillingPortalSession for application/json ContentType.
+type CreateBillingPortalSessionJSONRequestBody = PortalSessionRequest
+
+// PutBillingCustomerProfileJSONRequestBody defines body for PutBillingCustomerProfile for application/json ContentType.
+type PutBillingCustomerProfileJSONRequestBody = BillingCustomerProfile
 
 // PostAdminRegisterJSONRequestBody defines body for PostAdminRegister for application/json ContentType.
 type PostAdminRegisterJSONRequestBody = UserWithEmail
@@ -286,6 +349,15 @@ type ServerInterface interface {
 	// (GET /admin/accounts/{account}/backups/{backup}/trace)
 	GetBackupTrace(w http.ResponseWriter, r *http.Request, account string, backup string)
 
+	// (GET /admin/accounts/{account}/billing/entitlements)
+	ListAccountBillingEntitlements(w http.ResponseWriter, r *http.Request, account string, params ListAccountBillingEntitlementsParams)
+
+	// (GET /admin/accounts/{account}/billing/estimate)
+	GetAccountBillingEstimate(w http.ResponseWriter, r *http.Request, account string, params GetAccountBillingEstimateParams)
+
+	// (GET /admin/accounts/{account}/billing/summary)
+	GetAccountBillingSummary(w http.ResponseWriter, r *http.Request, account string)
+
 	// (DELETE /admin/accounts/{account}/configs/{config})
 	DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string)
 
@@ -310,8 +382,14 @@ type ServerInterface interface {
 	// (GET /admin/accounts/{account}/databases/{database}/backups)
 	ListDatabaseBackups(w http.ResponseWriter, r *http.Request, account string, database string, params ListDatabaseBackupsParams)
 
+	// (POST /admin/accounts/{account}/databases/{database}/deactivate)
+	DeactivateDatabaseProtection(w http.ResponseWriter, r *http.Request, account string, database string)
+
 	// (GET /admin/accounts/{account}/databases/{database}/logs)
 	GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams)
+
+	// (POST /admin/accounts/{account}/databases/{database}/reactivate)
+	ReactivateDatabaseProtection(w http.ResponseWriter, r *http.Request, account string, database string)
 
 	// (GET /admin/accounts/{account}/engines)
 	GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountEnginesParams)
@@ -348,6 +426,39 @@ type ServerInterface interface {
 
 	// (PATCH /admin/accounts/{account}/users/{user})
 	PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string)
+
+	// (GET /admin/billing/catalog)
+	GetBillingCatalog(w http.ResponseWriter, r *http.Request)
+
+	// (GET /admin/billing/customers)
+	ListBillingCustomers(w http.ResponseWriter, r *http.Request, params ListBillingCustomersParams)
+
+	// (POST /admin/billing/customers)
+	CreateBillingCustomer(w http.ResponseWriter, r *http.Request)
+
+	// (GET /admin/billing/customers/{billing_customer})
+	GetBillingCustomer(w http.ResponseWriter, r *http.Request, billingCustomer string)
+
+	// (GET /admin/billing/customers/{billing_customer}/entitlements)
+	ListBillingCustomerEntitlements(w http.ResponseWriter, r *http.Request, billingCustomer string, params ListBillingCustomerEntitlementsParams)
+
+	// (GET /admin/billing/customers/{billing_customer}/estimate)
+	GetBillingCustomerEstimate(w http.ResponseWriter, r *http.Request, billingCustomer string, params GetBillingCustomerEstimateParams)
+
+	// (GET /admin/billing/customers/{billing_customer}/invoices)
+	ListBillingCustomerInvoices(w http.ResponseWriter, r *http.Request, billingCustomer string, params ListBillingCustomerInvoicesParams)
+
+	// (GET /admin/billing/customers/{billing_customer}/invoices/{invoice})
+	GetBillingCustomerInvoice(w http.ResponseWriter, r *http.Request, billingCustomer string, invoice string)
+
+	// (POST /admin/billing/customers/{billing_customer}/portal-session)
+	CreateBillingPortalSession(w http.ResponseWriter, r *http.Request, billingCustomer string)
+
+	// (PUT /admin/billing/customers/{billing_customer}/profile)
+	PutBillingCustomerProfile(w http.ResponseWriter, r *http.Request, billingCustomer string)
+
+	// (GET /admin/billing/customers/{billing_customer}/summary)
+	GetBillingCustomerSummary(w http.ResponseWriter, r *http.Request, billingCustomer string)
 
 	// (POST /admin/register)
 	PostAdminRegister(w http.ResponseWriter, r *http.Request)
@@ -444,6 +555,21 @@ func (_ Unimplemented) GetBackupTrace(w http.ResponseWriter, r *http.Request, ac
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (GET /admin/accounts/{account}/billing/entitlements)
+func (_ Unimplemented) ListAccountBillingEntitlements(w http.ResponseWriter, r *http.Request, account string, params ListAccountBillingEntitlementsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/billing/estimate)
+func (_ Unimplemented) GetAccountBillingEstimate(w http.ResponseWriter, r *http.Request, account string, params GetAccountBillingEstimateParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/billing/summary)
+func (_ Unimplemented) GetAccountBillingSummary(w http.ResponseWriter, r *http.Request, account string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (DELETE /admin/accounts/{account}/configs/{config})
 func (_ Unimplemented) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
 	w.WriteHeader(http.StatusNotImplemented)
@@ -484,8 +610,18 @@ func (_ Unimplemented) ListDatabaseBackups(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (POST /admin/accounts/{account}/databases/{database}/deactivate)
+func (_ Unimplemented) DeactivateDatabaseProtection(w http.ResponseWriter, r *http.Request, account string, database string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (GET /admin/accounts/{account}/databases/{database}/logs)
 func (_ Unimplemented) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/accounts/{account}/databases/{database}/reactivate)
+func (_ Unimplemented) ReactivateDatabaseProtection(w http.ResponseWriter, r *http.Request, account string, database string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -546,6 +682,61 @@ func (_ Unimplemented) DeleteAdminAccountsAccountUsersUser(w http.ResponseWriter
 
 // (PATCH /admin/accounts/{account}/users/{user})
 func (_ Unimplemented) PatchAdminAccountsAccountUsersUser(w http.ResponseWriter, r *http.Request, account string, user string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/catalog)
+func (_ Unimplemented) GetBillingCatalog(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers)
+func (_ Unimplemented) ListBillingCustomers(w http.ResponseWriter, r *http.Request, params ListBillingCustomersParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/billing/customers)
+func (_ Unimplemented) CreateBillingCustomer(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers/{billing_customer})
+func (_ Unimplemented) GetBillingCustomer(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers/{billing_customer}/entitlements)
+func (_ Unimplemented) ListBillingCustomerEntitlements(w http.ResponseWriter, r *http.Request, billingCustomer string, params ListBillingCustomerEntitlementsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers/{billing_customer}/estimate)
+func (_ Unimplemented) GetBillingCustomerEstimate(w http.ResponseWriter, r *http.Request, billingCustomer string, params GetBillingCustomerEstimateParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers/{billing_customer}/invoices)
+func (_ Unimplemented) ListBillingCustomerInvoices(w http.ResponseWriter, r *http.Request, billingCustomer string, params ListBillingCustomerInvoicesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers/{billing_customer}/invoices/{invoice})
+func (_ Unimplemented) GetBillingCustomerInvoice(w http.ResponseWriter, r *http.Request, billingCustomer string, invoice string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/billing/customers/{billing_customer}/portal-session)
+func (_ Unimplemented) CreateBillingPortalSession(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PUT /admin/billing/customers/{billing_customer}/profile)
+func (_ Unimplemented) PutBillingCustomerProfile(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/billing/customers/{billing_customer}/summary)
+func (_ Unimplemented) GetBillingCustomerSummary(w http.ResponseWriter, r *http.Request, billingCustomer string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1021,6 +1212,137 @@ func (siw *ServerInterfaceWrapper) GetBackupTrace(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r)
 }
 
+// ListAccountBillingEntitlements operation middleware
+func (siw *ServerInterfaceWrapper) ListAccountBillingEntitlements(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListAccountBillingEntitlementsParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAccountBillingEntitlements(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAccountBillingEstimate operation middleware
+func (siw *ServerInterfaceWrapper) GetAccountBillingEstimate(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAccountBillingEstimateParams
+
+	// ------------- Optional query parameter "period_start" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "period_start", r.URL.Query(), &params.PeriodStart)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "period_start", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "period_end" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "period_end", r.URL.Query(), &params.PeriodEnd)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "period_end", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAccountBillingEstimate(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAccountBillingSummary operation middleware
+func (siw *ServerInterfaceWrapper) GetAccountBillingSummary(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAccountBillingSummary(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // DeleteAdminAccountsAccountConfigsConfig operation middleware
 func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request) {
 
@@ -1425,6 +1747,46 @@ func (siw *ServerInterfaceWrapper) ListDatabaseBackups(w http.ResponseWriter, r 
 	handler.ServeHTTP(w, r)
 }
 
+// DeactivateDatabaseProtection operation middleware
+func (siw *ServerInterfaceWrapper) DeactivateDatabaseProtection(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "database" -------------
+	var database string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeactivateDatabaseProtection(w, r, account, database)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminAccountsAccountDatabasesDatabaseLogs operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request) {
 
@@ -1475,6 +1837,46 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountDatabasesDatabaseLogs(
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetAdminAccountsAccountDatabasesDatabaseLogs(w, r, account, database, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ReactivateDatabaseProtection operation middleware
+func (siw *ServerInterfaceWrapper) ReactivateDatabaseProtection(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "database" -------------
+	var database string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ReactivateDatabaseProtection(w, r, account, database)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1995,6 +2397,401 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountUsersUser(w http.Res
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchAdminAccountsAccountUsersUser(w, r, account, user)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBillingCatalog operation middleware
+func (siw *ServerInterfaceWrapper) GetBillingCatalog(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBillingCatalog(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListBillingCustomers operation middleware
+func (siw *ServerInterfaceWrapper) ListBillingCustomers(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListBillingCustomersParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListBillingCustomers(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateBillingCustomer operation middleware
+func (siw *ServerInterfaceWrapper) CreateBillingCustomer(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateBillingCustomer(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBillingCustomer operation middleware
+func (siw *ServerInterfaceWrapper) GetBillingCustomer(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBillingCustomer(w, r, billingCustomer)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListBillingCustomerEntitlements operation middleware
+func (siw *ServerInterfaceWrapper) ListBillingCustomerEntitlements(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListBillingCustomerEntitlementsParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListBillingCustomerEntitlements(w, r, billingCustomer, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBillingCustomerEstimate operation middleware
+func (siw *ServerInterfaceWrapper) GetBillingCustomerEstimate(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetBillingCustomerEstimateParams
+
+	// ------------- Optional query parameter "period_start" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "period_start", r.URL.Query(), &params.PeriodStart)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "period_start", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "period_end" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "period_end", r.URL.Query(), &params.PeriodEnd)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "period_end", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBillingCustomerEstimate(w, r, billingCustomer, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListBillingCustomerInvoices operation middleware
+func (siw *ServerInterfaceWrapper) ListBillingCustomerInvoices(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListBillingCustomerInvoicesParams
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListBillingCustomerInvoices(w, r, billingCustomer, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBillingCustomerInvoice operation middleware
+func (siw *ServerInterfaceWrapper) GetBillingCustomerInvoice(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "invoice" -------------
+	var invoice string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "invoice", chi.URLParam(r, "invoice"), &invoice, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "invoice", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBillingCustomerInvoice(w, r, billingCustomer, invoice)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateBillingPortalSession operation middleware
+func (siw *ServerInterfaceWrapper) CreateBillingPortalSession(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateBillingPortalSession(w, r, billingCustomer)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PutBillingCustomerProfile operation middleware
+func (siw *ServerInterfaceWrapper) PutBillingCustomerProfile(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PutBillingCustomerProfile(w, r, billingCustomer)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetBillingCustomerSummary operation middleware
+func (siw *ServerInterfaceWrapper) GetBillingCustomerSummary(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "billing_customer" -------------
+	var billingCustomer string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "billing_customer", chi.URLParam(r, "billing_customer"), &billingCustomer, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "billing_customer", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBillingCustomerSummary(w, r, billingCustomer)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2557,6 +3354,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}/trace", wrapper.GetBackupTrace)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/billing/entitlements", wrapper.ListAccountBillingEntitlements)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/billing/estimate", wrapper.GetAccountBillingEstimate)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/billing/summary", wrapper.GetAccountBillingSummary)
+	})
+	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/accounts/{account}/configs/{config}", wrapper.DeleteAdminAccountsAccountConfigsConfig)
 	})
 	r.Group(func(r chi.Router) {
@@ -2581,7 +3387,13 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/backups", wrapper.ListDatabaseBackups)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/databases/{database}/deactivate", wrapper.DeactivateDatabaseProtection)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/databases/{database}/logs", wrapper.GetAdminAccountsAccountDatabasesDatabaseLogs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/databases/{database}/reactivate", wrapper.ReactivateDatabaseProtection)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/engines", wrapper.GetAdminAccountsAccountEngines)
@@ -2618,6 +3430,39 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/admin/accounts/{account}/users/{user}", wrapper.PatchAdminAccountsAccountUsersUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/catalog", wrapper.GetBillingCatalog)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers", wrapper.ListBillingCustomers)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/billing/customers", wrapper.CreateBillingCustomer)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers/{billing_customer}", wrapper.GetBillingCustomer)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers/{billing_customer}/entitlements", wrapper.ListBillingCustomerEntitlements)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers/{billing_customer}/estimate", wrapper.GetBillingCustomerEstimate)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers/{billing_customer}/invoices", wrapper.ListBillingCustomerInvoices)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers/{billing_customer}/invoices/{invoice}", wrapper.GetBillingCustomerInvoice)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/billing/customers/{billing_customer}/portal-session", wrapper.CreateBillingPortalSession)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/admin/billing/customers/{billing_customer}/profile", wrapper.PutBillingCustomerProfile)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/billing/customers/{billing_customer}/summary", wrapper.GetBillingCustomerSummary)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/register", wrapper.PostAdminRegister)
@@ -2923,6 +3768,83 @@ func (response GetBackupTrace404Response) VisitGetBackupTraceResponse(w http.Res
 	return nil
 }
 
+type ListAccountBillingEntitlementsRequestObject struct {
+	Account string `json:"account"`
+	Params  ListAccountBillingEntitlementsParams
+}
+
+type ListAccountBillingEntitlementsResponseObject interface {
+	VisitListAccountBillingEntitlementsResponse(w http.ResponseWriter) error
+}
+
+type ListAccountBillingEntitlements200JSONResponse PaginatedBillingEntitlements
+
+func (response ListAccountBillingEntitlements200JSONResponse) VisitListAccountBillingEntitlementsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListAccountBillingEntitlements404Response struct {
+}
+
+func (response ListAccountBillingEntitlements404Response) VisitListAccountBillingEntitlementsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAccountBillingEstimateRequestObject struct {
+	Account string `json:"account"`
+	Params  GetAccountBillingEstimateParams
+}
+
+type GetAccountBillingEstimateResponseObject interface {
+	VisitGetAccountBillingEstimateResponse(w http.ResponseWriter) error
+}
+
+type GetAccountBillingEstimate200JSONResponse BillingEstimate
+
+func (response GetAccountBillingEstimate200JSONResponse) VisitGetAccountBillingEstimateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAccountBillingEstimate404Response struct {
+}
+
+func (response GetAccountBillingEstimate404Response) VisitGetAccountBillingEstimateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAccountBillingSummaryRequestObject struct {
+	Account string `json:"account"`
+}
+
+type GetAccountBillingSummaryResponseObject interface {
+	VisitGetAccountBillingSummaryResponse(w http.ResponseWriter) error
+}
+
+type GetAccountBillingSummary200JSONResponse BillingSummary
+
+func (response GetAccountBillingSummary200JSONResponse) VisitGetAccountBillingSummaryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAccountBillingSummary404Response struct {
+}
+
+func (response GetAccountBillingSummary404Response) VisitGetAccountBillingSummaryResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type DeleteAdminAccountsAccountConfigsConfigRequestObject struct {
 	Account string `json:"account"`
 	Config  string `json:"config"`
@@ -3025,6 +3947,17 @@ type PostAdminAccountsAccountDatabases400JSONResponse struct {
 func (response PostAdminAccountsAccountDatabases400JSONResponse) VisitPostAdminAccountsAccountDatabasesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminAccountsAccountDatabases422JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminAccountsAccountDatabases422JSONResponse) VisitPostAdminAccountsAccountDatabasesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -3145,6 +4078,44 @@ func (response ListDatabaseBackups404Response) VisitListDatabaseBackupsResponse(
 	return nil
 }
 
+type DeactivateDatabaseProtectionRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+	Body     *DeactivateDatabaseProtectionJSONRequestBody
+}
+
+type DeactivateDatabaseProtectionResponseObject interface {
+	VisitDeactivateDatabaseProtectionResponse(w http.ResponseWriter) error
+}
+
+type DeactivateDatabaseProtection200JSONResponse Database
+
+func (response DeactivateDatabaseProtection200JSONResponse) VisitDeactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateDatabaseProtection400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response DeactivateDatabaseProtection400JSONResponse) VisitDeactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateDatabaseProtection404Response struct {
+}
+
+func (response DeactivateDatabaseProtection404Response) VisitDeactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject struct {
 	Account  string `json:"account"`
 	Database string `json:"database"`
@@ -3170,6 +4141,55 @@ type GetAdminAccountsAccountDatabasesDatabaseLogs404Response struct {
 func (response GetAdminAccountsAccountDatabasesDatabaseLogs404Response) VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
+}
+
+type ReactivateDatabaseProtectionRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+	Body     *ReactivateDatabaseProtectionJSONRequestBody
+}
+
+type ReactivateDatabaseProtectionResponseObject interface {
+	VisitReactivateDatabaseProtectionResponse(w http.ResponseWriter) error
+}
+
+type ReactivateDatabaseProtection200JSONResponse Database
+
+func (response ReactivateDatabaseProtection200JSONResponse) VisitReactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ReactivateDatabaseProtection400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ReactivateDatabaseProtection400JSONResponse) VisitReactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ReactivateDatabaseProtection404Response struct {
+}
+
+func (response ReactivateDatabaseProtection404Response) VisitReactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ReactivateDatabaseProtection422JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ReactivateDatabaseProtection422JSONResponse) VisitReactivateDatabaseProtectionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type GetAdminAccountsAccountEnginesRequestObject struct {
@@ -3527,6 +4547,295 @@ type PatchAdminAccountsAccountUsersUser404Response struct {
 }
 
 func (response PatchAdminAccountsAccountUsersUser404Response) VisitPatchAdminAccountsAccountUsersUserResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetBillingCatalogRequestObject struct {
+}
+
+type GetBillingCatalogResponseObject interface {
+	VisitGetBillingCatalogResponse(w http.ResponseWriter) error
+}
+
+type GetBillingCatalog200JSONResponse BillingCatalog
+
+func (response GetBillingCatalog200JSONResponse) VisitGetBillingCatalogResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListBillingCustomersRequestObject struct {
+	Params ListBillingCustomersParams
+}
+
+type ListBillingCustomersResponseObject interface {
+	VisitListBillingCustomersResponse(w http.ResponseWriter) error
+}
+
+type ListBillingCustomers200JSONResponse PaginatedBillingCustomers
+
+func (response ListBillingCustomers200JSONResponse) VisitListBillingCustomersResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateBillingCustomerRequestObject struct {
+	Body *CreateBillingCustomerJSONRequestBody
+}
+
+type CreateBillingCustomerResponseObject interface {
+	VisitCreateBillingCustomerResponse(w http.ResponseWriter) error
+}
+
+type CreateBillingCustomer201JSONResponse BillingCustomer
+
+func (response CreateBillingCustomer201JSONResponse) VisitCreateBillingCustomerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateBillingCustomer400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response CreateBillingCustomer400JSONResponse) VisitCreateBillingCustomerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBillingCustomerRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+}
+
+type GetBillingCustomerResponseObject interface {
+	VisitGetBillingCustomerResponse(w http.ResponseWriter) error
+}
+
+type GetBillingCustomer200JSONResponse BillingCustomer
+
+func (response GetBillingCustomer200JSONResponse) VisitGetBillingCustomerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBillingCustomer404Response struct {
+}
+
+func (response GetBillingCustomer404Response) VisitGetBillingCustomerResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ListBillingCustomerEntitlementsRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+	Params          ListBillingCustomerEntitlementsParams
+}
+
+type ListBillingCustomerEntitlementsResponseObject interface {
+	VisitListBillingCustomerEntitlementsResponse(w http.ResponseWriter) error
+}
+
+type ListBillingCustomerEntitlements200JSONResponse PaginatedBillingEntitlements
+
+func (response ListBillingCustomerEntitlements200JSONResponse) VisitListBillingCustomerEntitlementsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListBillingCustomerEntitlements404Response struct {
+}
+
+func (response ListBillingCustomerEntitlements404Response) VisitListBillingCustomerEntitlementsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetBillingCustomerEstimateRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+	Params          GetBillingCustomerEstimateParams
+}
+
+type GetBillingCustomerEstimateResponseObject interface {
+	VisitGetBillingCustomerEstimateResponse(w http.ResponseWriter) error
+}
+
+type GetBillingCustomerEstimate200JSONResponse BillingEstimate
+
+func (response GetBillingCustomerEstimate200JSONResponse) VisitGetBillingCustomerEstimateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBillingCustomerEstimate404Response struct {
+}
+
+func (response GetBillingCustomerEstimate404Response) VisitGetBillingCustomerEstimateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ListBillingCustomerInvoicesRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+	Params          ListBillingCustomerInvoicesParams
+}
+
+type ListBillingCustomerInvoicesResponseObject interface {
+	VisitListBillingCustomerInvoicesResponse(w http.ResponseWriter) error
+}
+
+type ListBillingCustomerInvoices200JSONResponse PaginatedInvoices
+
+func (response ListBillingCustomerInvoices200JSONResponse) VisitListBillingCustomerInvoicesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListBillingCustomerInvoices404Response struct {
+}
+
+func (response ListBillingCustomerInvoices404Response) VisitListBillingCustomerInvoicesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetBillingCustomerInvoiceRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+	Invoice         string `json:"invoice"`
+}
+
+type GetBillingCustomerInvoiceResponseObject interface {
+	VisitGetBillingCustomerInvoiceResponse(w http.ResponseWriter) error
+}
+
+type GetBillingCustomerInvoice200JSONResponse InvoiceArtifact
+
+func (response GetBillingCustomerInvoice200JSONResponse) VisitGetBillingCustomerInvoiceResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBillingCustomerInvoice404Response struct {
+}
+
+func (response GetBillingCustomerInvoice404Response) VisitGetBillingCustomerInvoiceResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type CreateBillingPortalSessionRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+	Body            *CreateBillingPortalSessionJSONRequestBody
+}
+
+type CreateBillingPortalSessionResponseObject interface {
+	VisitCreateBillingPortalSessionResponse(w http.ResponseWriter) error
+}
+
+type CreateBillingPortalSession201JSONResponse PortalSession
+
+func (response CreateBillingPortalSession201JSONResponse) VisitCreateBillingPortalSessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateBillingPortalSession400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response CreateBillingPortalSession400JSONResponse) VisitCreateBillingPortalSessionResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateBillingPortalSession404Response struct {
+}
+
+func (response CreateBillingPortalSession404Response) VisitCreateBillingPortalSessionResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PutBillingCustomerProfileRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+	Body            *PutBillingCustomerProfileJSONRequestBody
+}
+
+type PutBillingCustomerProfileResponseObject interface {
+	VisitPutBillingCustomerProfileResponse(w http.ResponseWriter) error
+}
+
+type PutBillingCustomerProfile200JSONResponse BillingCustomer
+
+func (response PutBillingCustomerProfile200JSONResponse) VisitPutBillingCustomerProfileResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PutBillingCustomerProfile400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PutBillingCustomerProfile400JSONResponse) VisitPutBillingCustomerProfileResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PutBillingCustomerProfile404Response struct {
+}
+
+func (response PutBillingCustomerProfile404Response) VisitPutBillingCustomerProfileResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetBillingCustomerSummaryRequestObject struct {
+	BillingCustomer string `json:"billing_customer"`
+}
+
+type GetBillingCustomerSummaryResponseObject interface {
+	VisitGetBillingCustomerSummaryResponse(w http.ResponseWriter) error
+}
+
+type GetBillingCustomerSummary200JSONResponse BillingSummary
+
+func (response GetBillingCustomerSummary200JSONResponse) VisitGetBillingCustomerSummaryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetBillingCustomerSummary404Response struct {
+}
+
+func (response GetBillingCustomerSummary404Response) VisitGetBillingCustomerSummaryResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3996,6 +5305,15 @@ type StrictServerInterface interface {
 	// (GET /admin/accounts/{account}/backups/{backup}/trace)
 	GetBackupTrace(ctx context.Context, request GetBackupTraceRequestObject) (GetBackupTraceResponseObject, error)
 
+	// (GET /admin/accounts/{account}/billing/entitlements)
+	ListAccountBillingEntitlements(ctx context.Context, request ListAccountBillingEntitlementsRequestObject) (ListAccountBillingEntitlementsResponseObject, error)
+
+	// (GET /admin/accounts/{account}/billing/estimate)
+	GetAccountBillingEstimate(ctx context.Context, request GetAccountBillingEstimateRequestObject) (GetAccountBillingEstimateResponseObject, error)
+
+	// (GET /admin/accounts/{account}/billing/summary)
+	GetAccountBillingSummary(ctx context.Context, request GetAccountBillingSummaryRequestObject) (GetAccountBillingSummaryResponseObject, error)
+
 	// (DELETE /admin/accounts/{account}/configs/{config})
 	DeleteAdminAccountsAccountConfigsConfig(ctx context.Context, request DeleteAdminAccountsAccountConfigsConfigRequestObject) (DeleteAdminAccountsAccountConfigsConfigResponseObject, error)
 
@@ -4020,8 +5338,14 @@ type StrictServerInterface interface {
 	// (GET /admin/accounts/{account}/databases/{database}/backups)
 	ListDatabaseBackups(ctx context.Context, request ListDatabaseBackupsRequestObject) (ListDatabaseBackupsResponseObject, error)
 
+	// (POST /admin/accounts/{account}/databases/{database}/deactivate)
+	DeactivateDatabaseProtection(ctx context.Context, request DeactivateDatabaseProtectionRequestObject) (DeactivateDatabaseProtectionResponseObject, error)
+
 	// (GET /admin/accounts/{account}/databases/{database}/logs)
 	GetAdminAccountsAccountDatabasesDatabaseLogs(ctx context.Context, request GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject) (GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject, error)
+
+	// (POST /admin/accounts/{account}/databases/{database}/reactivate)
+	ReactivateDatabaseProtection(ctx context.Context, request ReactivateDatabaseProtectionRequestObject) (ReactivateDatabaseProtectionResponseObject, error)
 
 	// (GET /admin/accounts/{account}/engines)
 	GetAdminAccountsAccountEngines(ctx context.Context, request GetAdminAccountsAccountEnginesRequestObject) (GetAdminAccountsAccountEnginesResponseObject, error)
@@ -4058,6 +5382,39 @@ type StrictServerInterface interface {
 
 	// (PATCH /admin/accounts/{account}/users/{user})
 	PatchAdminAccountsAccountUsersUser(ctx context.Context, request PatchAdminAccountsAccountUsersUserRequestObject) (PatchAdminAccountsAccountUsersUserResponseObject, error)
+
+	// (GET /admin/billing/catalog)
+	GetBillingCatalog(ctx context.Context, request GetBillingCatalogRequestObject) (GetBillingCatalogResponseObject, error)
+
+	// (GET /admin/billing/customers)
+	ListBillingCustomers(ctx context.Context, request ListBillingCustomersRequestObject) (ListBillingCustomersResponseObject, error)
+
+	// (POST /admin/billing/customers)
+	CreateBillingCustomer(ctx context.Context, request CreateBillingCustomerRequestObject) (CreateBillingCustomerResponseObject, error)
+
+	// (GET /admin/billing/customers/{billing_customer})
+	GetBillingCustomer(ctx context.Context, request GetBillingCustomerRequestObject) (GetBillingCustomerResponseObject, error)
+
+	// (GET /admin/billing/customers/{billing_customer}/entitlements)
+	ListBillingCustomerEntitlements(ctx context.Context, request ListBillingCustomerEntitlementsRequestObject) (ListBillingCustomerEntitlementsResponseObject, error)
+
+	// (GET /admin/billing/customers/{billing_customer}/estimate)
+	GetBillingCustomerEstimate(ctx context.Context, request GetBillingCustomerEstimateRequestObject) (GetBillingCustomerEstimateResponseObject, error)
+
+	// (GET /admin/billing/customers/{billing_customer}/invoices)
+	ListBillingCustomerInvoices(ctx context.Context, request ListBillingCustomerInvoicesRequestObject) (ListBillingCustomerInvoicesResponseObject, error)
+
+	// (GET /admin/billing/customers/{billing_customer}/invoices/{invoice})
+	GetBillingCustomerInvoice(ctx context.Context, request GetBillingCustomerInvoiceRequestObject) (GetBillingCustomerInvoiceResponseObject, error)
+
+	// (POST /admin/billing/customers/{billing_customer}/portal-session)
+	CreateBillingPortalSession(ctx context.Context, request CreateBillingPortalSessionRequestObject) (CreateBillingPortalSessionResponseObject, error)
+
+	// (PUT /admin/billing/customers/{billing_customer}/profile)
+	PutBillingCustomerProfile(ctx context.Context, request PutBillingCustomerProfileRequestObject) (PutBillingCustomerProfileResponseObject, error)
+
+	// (GET /admin/billing/customers/{billing_customer}/summary)
+	GetBillingCustomerSummary(ctx context.Context, request GetBillingCustomerSummaryRequestObject) (GetBillingCustomerSummaryResponseObject, error)
 
 	// (POST /admin/register)
 	PostAdminRegister(ctx context.Context, request PostAdminRegisterRequestObject) (PostAdminRegisterResponseObject, error)
@@ -4385,6 +5742,86 @@ func (sh *strictHandler) GetBackupTrace(w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+// ListAccountBillingEntitlements operation middleware
+func (sh *strictHandler) ListAccountBillingEntitlements(w http.ResponseWriter, r *http.Request, account string, params ListAccountBillingEntitlementsParams) {
+	var request ListAccountBillingEntitlementsRequestObject
+
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListAccountBillingEntitlements(ctx, request.(ListAccountBillingEntitlementsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListAccountBillingEntitlements")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListAccountBillingEntitlementsResponseObject); ok {
+		if err := validResponse.VisitListAccountBillingEntitlementsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAccountBillingEstimate operation middleware
+func (sh *strictHandler) GetAccountBillingEstimate(w http.ResponseWriter, r *http.Request, account string, params GetAccountBillingEstimateParams) {
+	var request GetAccountBillingEstimateRequestObject
+
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAccountBillingEstimate(ctx, request.(GetAccountBillingEstimateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAccountBillingEstimate")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAccountBillingEstimateResponseObject); ok {
+		if err := validResponse.VisitGetAccountBillingEstimateResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAccountBillingSummary operation middleware
+func (sh *strictHandler) GetAccountBillingSummary(w http.ResponseWriter, r *http.Request, account string) {
+	var request GetAccountBillingSummaryRequestObject
+
+	request.Account = account
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAccountBillingSummary(ctx, request.(GetAccountBillingSummaryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAccountBillingSummary")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAccountBillingSummaryResponseObject); ok {
+		if err := validResponse.VisitGetAccountBillingSummaryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // DeleteAdminAccountsAccountConfigsConfig operation middleware
 func (sh *strictHandler) DeleteAdminAccountsAccountConfigsConfig(w http.ResponseWriter, r *http.Request, account string, config string) {
 	var request DeleteAdminAccountsAccountConfigsConfigRequestObject
@@ -4615,6 +6052,40 @@ func (sh *strictHandler) ListDatabaseBackups(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// DeactivateDatabaseProtection operation middleware
+func (sh *strictHandler) DeactivateDatabaseProtection(w http.ResponseWriter, r *http.Request, account string, database string) {
+	var request DeactivateDatabaseProtectionRequestObject
+
+	request.Account = account
+	request.Database = database
+
+	var body DeactivateDatabaseProtectionJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeactivateDatabaseProtection(ctx, request.(DeactivateDatabaseProtectionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeactivateDatabaseProtection")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeactivateDatabaseProtectionResponseObject); ok {
+		if err := validResponse.VisitDeactivateDatabaseProtectionResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetAdminAccountsAccountDatabasesDatabaseLogs operation middleware
 func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.ResponseWriter, r *http.Request, account string, database string, params GetAdminAccountsAccountDatabasesDatabaseLogsParams) {
 	var request GetAdminAccountsAccountDatabasesDatabaseLogsRequestObject
@@ -4636,6 +6107,40 @@ func (sh *strictHandler) GetAdminAccountsAccountDatabasesDatabaseLogs(w http.Res
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminAccountsAccountDatabasesDatabaseLogsResponseObject); ok {
 		if err := validResponse.VisitGetAdminAccountsAccountDatabasesDatabaseLogsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReactivateDatabaseProtection operation middleware
+func (sh *strictHandler) ReactivateDatabaseProtection(w http.ResponseWriter, r *http.Request, account string, database string) {
+	var request ReactivateDatabaseProtectionRequestObject
+
+	request.Account = account
+	request.Database = database
+
+	var body ReactivateDatabaseProtectionJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ReactivateDatabaseProtection(ctx, request.(ReactivateDatabaseProtectionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReactivateDatabaseProtection")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ReactivateDatabaseProtectionResponseObject); ok {
+		if err := validResponse.VisitReactivateDatabaseProtectionResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4995,6 +6500,313 @@ func (sh *strictHandler) PatchAdminAccountsAccountUsersUser(w http.ResponseWrite
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PatchAdminAccountsAccountUsersUserResponseObject); ok {
 		if err := validResponse.VisitPatchAdminAccountsAccountUsersUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBillingCatalog operation middleware
+func (sh *strictHandler) GetBillingCatalog(w http.ResponseWriter, r *http.Request) {
+	var request GetBillingCatalogRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBillingCatalog(ctx, request.(GetBillingCatalogRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBillingCatalog")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBillingCatalogResponseObject); ok {
+		if err := validResponse.VisitGetBillingCatalogResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListBillingCustomers operation middleware
+func (sh *strictHandler) ListBillingCustomers(w http.ResponseWriter, r *http.Request, params ListBillingCustomersParams) {
+	var request ListBillingCustomersRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListBillingCustomers(ctx, request.(ListBillingCustomersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListBillingCustomers")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListBillingCustomersResponseObject); ok {
+		if err := validResponse.VisitListBillingCustomersResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateBillingCustomer operation middleware
+func (sh *strictHandler) CreateBillingCustomer(w http.ResponseWriter, r *http.Request) {
+	var request CreateBillingCustomerRequestObject
+
+	var body CreateBillingCustomerJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateBillingCustomer(ctx, request.(CreateBillingCustomerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateBillingCustomer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateBillingCustomerResponseObject); ok {
+		if err := validResponse.VisitCreateBillingCustomerResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBillingCustomer operation middleware
+func (sh *strictHandler) GetBillingCustomer(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	var request GetBillingCustomerRequestObject
+
+	request.BillingCustomer = billingCustomer
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBillingCustomer(ctx, request.(GetBillingCustomerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBillingCustomer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBillingCustomerResponseObject); ok {
+		if err := validResponse.VisitGetBillingCustomerResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListBillingCustomerEntitlements operation middleware
+func (sh *strictHandler) ListBillingCustomerEntitlements(w http.ResponseWriter, r *http.Request, billingCustomer string, params ListBillingCustomerEntitlementsParams) {
+	var request ListBillingCustomerEntitlementsRequestObject
+
+	request.BillingCustomer = billingCustomer
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListBillingCustomerEntitlements(ctx, request.(ListBillingCustomerEntitlementsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListBillingCustomerEntitlements")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListBillingCustomerEntitlementsResponseObject); ok {
+		if err := validResponse.VisitListBillingCustomerEntitlementsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBillingCustomerEstimate operation middleware
+func (sh *strictHandler) GetBillingCustomerEstimate(w http.ResponseWriter, r *http.Request, billingCustomer string, params GetBillingCustomerEstimateParams) {
+	var request GetBillingCustomerEstimateRequestObject
+
+	request.BillingCustomer = billingCustomer
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBillingCustomerEstimate(ctx, request.(GetBillingCustomerEstimateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBillingCustomerEstimate")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBillingCustomerEstimateResponseObject); ok {
+		if err := validResponse.VisitGetBillingCustomerEstimateResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListBillingCustomerInvoices operation middleware
+func (sh *strictHandler) ListBillingCustomerInvoices(w http.ResponseWriter, r *http.Request, billingCustomer string, params ListBillingCustomerInvoicesParams) {
+	var request ListBillingCustomerInvoicesRequestObject
+
+	request.BillingCustomer = billingCustomer
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListBillingCustomerInvoices(ctx, request.(ListBillingCustomerInvoicesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListBillingCustomerInvoices")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListBillingCustomerInvoicesResponseObject); ok {
+		if err := validResponse.VisitListBillingCustomerInvoicesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBillingCustomerInvoice operation middleware
+func (sh *strictHandler) GetBillingCustomerInvoice(w http.ResponseWriter, r *http.Request, billingCustomer string, invoice string) {
+	var request GetBillingCustomerInvoiceRequestObject
+
+	request.BillingCustomer = billingCustomer
+	request.Invoice = invoice
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBillingCustomerInvoice(ctx, request.(GetBillingCustomerInvoiceRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBillingCustomerInvoice")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBillingCustomerInvoiceResponseObject); ok {
+		if err := validResponse.VisitGetBillingCustomerInvoiceResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateBillingPortalSession operation middleware
+func (sh *strictHandler) CreateBillingPortalSession(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	var request CreateBillingPortalSessionRequestObject
+
+	request.BillingCustomer = billingCustomer
+
+	var body CreateBillingPortalSessionJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateBillingPortalSession(ctx, request.(CreateBillingPortalSessionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateBillingPortalSession")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateBillingPortalSessionResponseObject); ok {
+		if err := validResponse.VisitCreateBillingPortalSessionResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PutBillingCustomerProfile operation middleware
+func (sh *strictHandler) PutBillingCustomerProfile(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	var request PutBillingCustomerProfileRequestObject
+
+	request.BillingCustomer = billingCustomer
+
+	var body PutBillingCustomerProfileJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PutBillingCustomerProfile(ctx, request.(PutBillingCustomerProfileRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PutBillingCustomerProfile")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PutBillingCustomerProfileResponseObject); ok {
+		if err := validResponse.VisitPutBillingCustomerProfileResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetBillingCustomerSummary operation middleware
+func (sh *strictHandler) GetBillingCustomerSummary(w http.ResponseWriter, r *http.Request, billingCustomer string) {
+	var request GetBillingCustomerSummaryRequestObject
+
+	request.BillingCustomer = billingCustomer
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBillingCustomerSummary(ctx, request.(GetBillingCustomerSummaryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBillingCustomerSummary")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBillingCustomerSummaryResponseObject); ok {
+		if err := validResponse.VisitGetBillingCustomerSummaryResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

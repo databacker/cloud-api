@@ -55,6 +55,17 @@ resource family or a typed protected-resource abstraction then.
 Configs belong to backup engines. Backups, logs, and traces belong to databases, with `engine_id`
 available on event payloads for correlation.
 
+Billing uses a separate payer boundary:
+
+* Accounts/workspaces own operational resources and access control.
+* A `billing_customer` is the payer/payment-profile boundary and may eventually pay for more than one account.
+* Signup/default-account creation should associate the account with a dormant billing customer so users can explore before provider payment setup.
+* The base billable product is an active protected database. Engines, backup attempts, logs, traces, failures, stale health, and backup success/failure are operational records and do not directly determine base billing.
+* Payment methods and provider/MoR commercial details are managed only through `/admin/billing/customers/{billing_customer}/portal-session`. The API never accepts raw card or bank credentials.
+* Payment-based billing readiness is established only by verified provider/MoR confirmation through webhook/callback processing or server-side provider lookup, not by browser redirect results.
+* Entitlement intervals retain the consuming account, billed customer, database identity, product/price version, lifecycle reasons, and active interval timestamps. Historical payer attribution must not be rewritten by any future account reassignment.
+* Databases remain billable until explicitly deactivated. Reactivation is explicit, paid, requires billing readiness, requires charge acknowledgement, and opens a new entitlement interval.
+
 ### Endpoints
 
 This API spec does not delineate URL endpoints, or distinguish between URL endpoints for various
@@ -133,6 +144,9 @@ and replace instance backup/log/trace routes with database routes.
 * Replace `instance_id` and `instance_name` fields in northbound payloads with `engine_id`, `engine_name`,
   `database_id`, and `database_name` as appropriate.
 * Replace `latest_per_instance` query parameters with `latest_per_database`.
+* Use `protection_lifecycle` on database rows/detail for billable lifecycle state. Continue to use backup status, logs, and traces for operational health only.
+* Use account billing routes for workspace-attributed views and billing-customer routes for payer-wide views.
+* Regenerate consuming clients from `src/api.yaml` with `make sdk`; generated Go bindings are under `go/api` and TypeScript definitions are under `ts/api.d.ts`.
 
 ## Backend Seed Contract
 

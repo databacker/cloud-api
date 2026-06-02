@@ -60,6 +60,36 @@ components:
               items:
                 $ref: '#/components/schemas/DatabaseSummary'
 
+    PaginatedBillingCustomers:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            billing_customers:
+              type: array
+              items:
+                $ref: '#/components/schemas/BillingCustomer'
+
+    PaginatedBillingEntitlements:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            entitlements:
+              type: array
+              items:
+                $ref: '#/components/schemas/BillingEntitlement'
+
+    PaginatedInvoices:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            invoices:
+              type: array
+              items:
+                $ref: '#/components/schemas/InvoiceSummary'
+
     PaginatedLogSummaries:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'
@@ -145,6 +175,10 @@ components:
         description:
           type: string
           description: description of the backup engine
+        automatic_discovery_charge_acknowledged:
+          type: boolean
+          nullable: true
+          description: Engine setup acknowledgement that newly discovered protected databases may automatically activate and incur charges only when the workspace's assigned billing customer is billing-ready. This does not override billing readiness requirements.
       required:
         - name
     Engine:
@@ -270,6 +304,15 @@ components:
           type: integer
           nullable: true
           description: TCP port for the database target, if applicable
+        stable_identity:
+          type: string
+          nullable: true
+          description: Stable engine-reported database identity used to match discovery reports across display-name or endpoint changes. Names and endpoints alone are not sufficient for enrollment, blocked rediscovery, or reactivation evidence.
+          example: mysql://cluster-a/production
+        automatic_discovery_charge_acknowledged:
+          type: boolean
+          nullable: true
+          description: When true during engine setup or accepted discovery enrollment, the account administrator has acknowledged that newly discovered protected databases may activate and incur charges only when the assigned billing customer is billing-ready.
         display_name:
           type: string
           nullable: true
@@ -313,6 +356,8 @@ components:
               type: string
               nullable: true
               description: error message from the latest failed backup, if available
+            protection_lifecycle:
+              $ref: '#/components/schemas/DatabaseProtectionLifecycle'
             created_at:
               type: string
               format: date-time
@@ -364,6 +409,8 @@ components:
           type: string
           nullable: true
           description: error message from the latest failed backup, if available
+        protection_lifecycle:
+          $ref: '#/components/schemas/DatabaseProtectionLifecycle'
         created_at:
           type: string
           format: date-time
@@ -380,6 +427,577 @@ components:
         - engine_id
         - name
         - system
+
+    DatabaseProtectionLifecycle:
+      type: object
+      description: Billable protection lifecycle for a database. This state is separate from operational health, backup success, failures, logs, and traces.
+      properties:
+        state:
+          type: string
+          enum: [active, deactivated, pending_reactivation, blocked_activation]
+          description: Current billable protection state. Active databases remain billable until explicitly deactivated.
+          example: active
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the current active protection interval opened.
+        activation_reason:
+          type: string
+          nullable: true
+          enum: [automatic_discovery, explicit_reactivation, manual_activation]
+          description: Reason the current active interval opened.
+        deactivated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when protection was explicitly deactivated.
+        deactivation_reason:
+          type: string
+          nullable: true
+          enum: [user_requested, account_closed, correction]
+          description: Reason protection was explicitly deactivated.
+        current_entitlement_id:
+          type: string
+          nullable: true
+          description: Active billing entitlement interval ID, if protection is active.
+        pending_reactivation:
+          $ref: '#/components/schemas/PendingReactivationSummary'
+      required:
+        - state
+
+    PendingReactivationSummary:
+      type: object
+      description: Summary of reports retained after explicit deactivation. Reports for a deactivated database must not silently reactivate or bill the database.
+      properties:
+        retained_report_count:
+          type: integer
+          description: Number of post-deactivation reports currently retained as reactivation evidence.
+          example: 2
+        retained_report_limit:
+          type: integer
+          description: Configured maximum retained post-deactivation reports for this database.
+        first_reported_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_reported_at:
+          type: string
+          format: date-time
+          nullable: true
+        latest_engine_id:
+          type: string
+          nullable: true
+          description: Backup engine that most recently reported this deactivated database.
+        latest_stable_identity:
+          type: string
+          nullable: true
+          description: Stable database identity from the most recent retained report.
+        latest_report_status:
+          type: string
+          enum: [retained, rejected_limit_exceeded, ignored]
+          nullable: true
+          description: Disposition of the latest post-deactivation report.
+
+    DatabaseLifecycleActionRequest:
+      type: object
+      properties:
+        charge_acknowledged:
+          type: boolean
+          description: Must be true for paid activation or reactivation actions that can open a billing entitlement and incur charges.
+        reason:
+          type: string
+          nullable: true
+          description: Optional user-supplied lifecycle reason or note.
+      required:
+        - charge_acknowledged
+
+    DatabaseDeactivationRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          nullable: true
+          description: Optional user-supplied deactivation reason or note.
+
+    BillingCustomerProfile:
+      type: object
+      description: Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials.
+      properties:
+        name:
+          type: string
+          description: Display name for the payer profile.
+          example: Acme Corp
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Billing contact email.
+        company:
+          type: string
+          nullable: true
+        tax_id_display:
+          type: string
+          nullable: true
+          description: Non-sensitive tax identifier display label, if available from Databacker-owned metadata.
+        address_line1:
+          type: string
+          nullable: true
+        address_line2:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+        postal_code:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+          description: ISO 3166 country code when known.
+      required:
+        - name
+
+    BillingCustomerBody:
+      type: object
+      description: Request to create an additional billing customer/payment profile. Signup and default account creation automatically create a dormant billing customer association, so users do not need this before exploring the product.
+      properties:
+        profile:
+          $ref: '#/components/schemas/BillingCustomerProfile'
+        account_id:
+          type: string
+          nullable: true
+          description: Optional account to associate with the new billing customer when permitted. Workspace reassignment between existing billing customers is out of scope for this contract.
+      required:
+        - profile
+
+    BillingReadiness:
+      type: object
+      description: Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
+      properties:
+        state:
+          type: string
+          enum: [dormant, pending_provider_confirmation, billing_ready, not_ready]
+          example: billing_ready
+        reason:
+          type: string
+          nullable: true
+          enum: [no_reusable_payment_method, provider_confirmed_payment_method, provider_payment_method_invalidated, credit_only_policy, provider_sync_pending]
+        ready_for_paid_activation:
+          type: boolean
+          description: True only when new paid database activation or reactivation is allowed.
+        confirmed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - state
+        - ready_for_paid_activation
+
+    PaymentMethodDisplay:
+      type: object
+      description: Provider/MoR-managed payment method display status. Raw payment credentials are never exposed or accepted by this API.
+      properties:
+        status:
+          type: string
+          enum: [none, pending, saved_reusable, invalidated]
+        provider:
+          type: string
+          nullable: true
+          description: Commerce provider or merchant-of-record identifier when selected.
+          example: provider_tbd
+        display_brand:
+          type: string
+          nullable: true
+          description: Safe display brand such as card network or payment family.
+        display_label:
+          type: string
+          nullable: true
+          description: Safe masked display label such as last four digits.
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - status
+
+    BillingCustomerAccountAssociation:
+      type: object
+      properties:
+        account_id:
+          type: string
+        account_name:
+          type: string
+          nullable: true
+        current:
+          type: boolean
+          description: Whether this billing customer is currently assigned to the account.
+        associated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - account_id
+        - current
+
+    BillingCustomer:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ID'
+        - type: object
+          properties:
+            profile:
+              $ref: '#/components/schemas/BillingCustomerProfile'
+            readiness:
+              $ref: '#/components/schemas/BillingReadiness'
+            payment_method:
+              $ref: '#/components/schemas/PaymentMethodDisplay'
+            accounts:
+              type: array
+              description: Workspaces/accounts currently visible to the caller for this payer.
+              items:
+                $ref: '#/components/schemas/BillingCustomerAccountAssociation'
+            created_at:
+              type: string
+              format: date-time
+              nullable: true
+            updated_at:
+              type: string
+              format: date-time
+              nullable: true
+
+    PortalSessionRequest:
+      type: object
+      description: Request a single commerce-provider/MoR-hosted flow for initial setup, payment-method management, provider commercial profile management, invoice self-service, or a general billing portal. The redirect result is advisory only; billing readiness and invoice synchronization require verified provider confirmation through webhook/callback processing or server-side provider lookup.
+      properties:
+        purpose:
+          type: string
+          enum: [setup, payment_method_management, commercial_profile_management, invoice_self_service, general]
+          nullable: true
+        return_url:
+          type: string
+          nullable: true
+          description: Optional frontend URL to return to after the hosted provider/MoR flow.
+
+    PortalSession:
+      type: object
+      properties:
+        url:
+          type: string
+          nullable: true
+          description: Provider/MoR-hosted redirect URL when the selected commerce provider uses redirects.
+        client_token:
+          type: string
+          nullable: true
+          description: Equivalent hosted-session token when the selected commerce provider uses an embedded client session.
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        provider:
+          type: string
+          nullable: true
+        purpose:
+          type: string
+          enum: [setup, payment_method_management, commercial_profile_management, invoice_self_service, general]
+          nullable: true
+
+    BillingCatalog:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/BillingProduct'
+        generated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - products
+
+    BillingProduct:
+      type: object
+      properties:
+        product_id:
+          type: string
+          description: Stable product identifier.
+          example: active_protected_database
+        name:
+          type: string
+        billable_unit:
+          type: string
+          enum: [active_protected_database]
+          description: The base billable product is an active protected database.
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/BillingPrice'
+      required:
+        - product_id
+        - name
+        - billable_unit
+        - prices
+
+    BillingPrice:
+      type: object
+      properties:
+        price_id:
+          type: string
+        version:
+          type: string
+        currency:
+          type: string
+          description: ISO 4217 currency code.
+        unit_amount_cents:
+          type: integer
+          description: Monthly unit price in minor currency units for one active protected database before interval proration.
+          example: 1900
+        interval:
+          type: string
+          enum: [month]
+        effective_from:
+          type: string
+          format: date-time
+          nullable: true
+        effective_until:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - price_id
+        - version
+        - currency
+        - unit_amount_cents
+        - interval
+
+    BillingEntitlement:
+      type: object
+      description: Auditable billable entitlement interval for one protected database. Historical billed-customer attribution must not be rewritten if a workspace is later assigned to another billing customer.
+      properties:
+        id:
+          type: string
+          example: ent_550e8400
+        account_id:
+          type: string
+          description: Workspace/account consuming the protected database entitlement.
+        billing_customer_id:
+          type: string
+          description: Payer attributed to this interval.
+        database_id:
+          type: string
+          description: Protected database resource identity.
+        database_stable_identity:
+          type: string
+          nullable: true
+          description: Engine-reported stable identity captured for audit.
+        product_id:
+          type: string
+        price_id:
+          type: string
+        price_version:
+          type: string
+        activation_reason:
+          type: string
+          enum: [automatic_discovery, explicit_reactivation, manual_activation]
+        deactivation_reason:
+          type: string
+          nullable: true
+          enum: [user_requested, account_closed, correction]
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        active:
+          type: boolean
+      required:
+        - id
+        - account_id
+        - billing_customer_id
+        - database_id
+        - product_id
+        - price_id
+        - price_version
+        - activation_reason
+        - started_at
+        - active
+
+    BillingChargeLine:
+      type: object
+      properties:
+        account_id:
+          type: string
+        billing_customer_id:
+          type: string
+        database_id:
+          type: string
+          nullable: true
+        product_id:
+          type: string
+        price_id:
+          type: string
+        price_version:
+          type: string
+        interval_start:
+          type: string
+          format: date-time
+        interval_end:
+          type: string
+          format: date-time
+        quantity:
+          type: number
+          description: Interval-adjusted quantity for the monthly charge period.
+        currency:
+          type: string
+        amount_cents:
+          type: integer
+      required:
+        - account_id
+        - billing_customer_id
+        - product_id
+        - price_id
+        - price_version
+        - interval_start
+        - interval_end
+        - quantity
+        - currency
+        - amount_cents
+
+    BillingSummary:
+      type: object
+      description: Billing summary for either a payer or one workspace. Amounts vary by active entitlement intervals; backup attempts, logs, traces, failures, and health do not directly determine base billing.
+      properties:
+        billing_customer_id:
+          type: string
+          nullable: true
+        account_id:
+          type: string
+          nullable: true
+        currency:
+          type: string
+        active_protected_database_count:
+          type: integer
+        current_month_amount_cents:
+          type: integer
+          example: 1900
+        open_entitlement_count:
+          type: integer
+        readiness:
+          $ref: '#/components/schemas/BillingReadiness'
+      required:
+        - currency
+        - active_protected_database_count
+        - current_month_amount_cents
+        - open_entitlement_count
+
+    BillingEstimate:
+      type: object
+      description: Estimated charges calculated from entitlement intervals for the requested period.
+      properties:
+        billing_customer_id:
+          type: string
+          nullable: true
+        account_id:
+          type: string
+          nullable: true
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        currency:
+          type: string
+        total_amount_cents:
+          type: integer
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BillingChargeLine'
+      required:
+        - period_start
+        - period_end
+        - currency
+        - total_amount_cents
+        - lines
+
+    InvoiceSummary:
+      type: object
+      description: Finalized invoice known for a billing customer.
+      properties:
+        id:
+          type: string
+          example: inv_550e8400
+        billing_customer_id:
+          type: string
+        provider_invoice_id:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [finalized, paid, open, void, uncollectible]
+        currency:
+          type: string
+        amount_due_cents:
+          type: integer
+        amount_paid_cents:
+          type: integer
+        issued_at:
+          type: string
+          format: date-time
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+      required:
+        - id
+        - billing_customer_id
+        - status
+        - currency
+        - amount_due_cents
+        - issued_at
+
+    InvoiceArtifact:
+      type: object
+      description: Single finalized invoice artifact. The artifact may be PDF, HTML, or a commerce-provider/MoR-backed redirect depending on provider capabilities.
+      properties:
+        invoice:
+          $ref: '#/components/schemas/InvoiceSummary'
+        artifact_type:
+          type: string
+          enum: [pdf, html, provider_redirect]
+          example: provider_redirect
+        content_type:
+          type: string
+          nullable: true
+        url:
+          type: string
+          nullable: true
+          description: Provider/MoR-backed artifact redirect or signed download URL.
+        html:
+          type: string
+          nullable: true
+          description: Inline HTML artifact when the provider and implementation support it.
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - invoice
+        - artifact_type
     AccountBody:
       type: object
       description: information for a new databacker account
@@ -401,6 +1019,14 @@ components:
       allOf:
         - $ref: '#/components/schemas/AccountBody'
         - $ref: '#/components/schemas/ID'
+        - type: object
+          properties:
+            billing_customer_id:
+              type: string
+              nullable: true
+              description: Current billing customer assigned to this workspace/account. Signup and default workspace creation automatically associate a dormant billing customer/payment profile.
+            billing_customer_readiness:
+              $ref: '#/components/schemas/BillingReadiness'
 
     Email:
       type: object

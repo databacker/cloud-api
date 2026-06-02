@@ -669,6 +669,228 @@ export interface paths {
         };
         trace?: never;
     };
+    "/admin/billing/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get the tenant-facing billing catalog. */
+        get: operations["GetBillingCatalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list billing customers/payment profiles accessible to the authenticated user for payer selection. Signup/default-workspace creation automatically associates the workspace with a dormant billing customer, so users do not need to create one before exploring the product. */
+        get: operations["ListBillingCustomers"];
+        put?: never;
+        /** @description create an additional billing customer/payment profile. Only authorized tenant/workspace billing administrators may create additional payer profiles. This creates non-sensitive Databacker-owned profile metadata only; payment readiness is established through provider/MoR confirmation after a hosted portal flow or server-side lookup. */
+        post: operations["CreateBillingCustomer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get billing customer/payment profile details, including non-sensitive profile metadata, billing readiness, provider payment-method display status, and visible workspace associations. */
+        get: operations["GetBillingCustomer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description update non-sensitive Databacker-owned billing customer profile information. This endpoint never accepts raw card, bank, or other payment credentials and does not create payment readiness. */
+        put: operations["PutBillingCustomerProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/portal-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description create a single commerce-provider-hosted session for initial setup, payment-method management, provider commercial profile management, invoice self-service, or a general billing portal. Databacker does not accept raw payment credentials. A browser redirect result must not mark the customer billing-ready; payment-based readiness and invoice synchronization are established only by verified provider confirmation through webhook/callback processing or a server-side provider lookup. */
+        post: operations["CreateBillingPortalSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get billing summary aggregated for the payer across visible workspaces/resources. */
+        get: operations["GetBillingCustomerSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description estimate billing charges for the payer using entitlement intervals. */
+        get: operations["GetBillingCustomerEstimate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/entitlements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list auditable entitlement intervals attributed to the payer. */
+        get: operations["ListBillingCustomerEntitlements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list finalized invoices known for the payer. */
+        get: operations["ListBillingCustomerInvoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/customers/{billing_customer}/invoices/{invoice}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get a single finalized invoice artifact for a payer. */
+        get: operations["GetBillingCustomerInvoice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/billing/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get billing summary for one workspace/account, attributing applicable charges/resources to that workspace. */
+        get: operations["GetAccountBillingSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/billing/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description estimate billing charges attributed to one workspace/account. */
+        get: operations["GetAccountBillingEstimate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/billing/entitlements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list auditable  entitlements consumed by one workspace/account. */
+        get: operations["ListAccountBillingEntitlements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/accounts/{account}/engines": {
         parameters: {
             query?: never;
@@ -713,7 +935,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description register a new backup engine in the given account */
+        /** @description register a new backup engine in the given account. */
         post: {
             parameters: {
                 query?: never;
@@ -948,7 +1170,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description create a protected database record associated with a backup engine */
+        /** @description create a protected database record associated with a backup engine. */
         post: {
             parameters: {
                 query?: never;
@@ -977,6 +1199,17 @@ export interface paths {
                 };
                 /** @description Invalid request */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description Billing customer is not billing-ready or automatic discovery charge consequence was not accepted */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1118,6 +1351,40 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description explicitly deactivate protected-database billing/protection. */
+        post: operations["DeactivateDatabaseProtection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/databases/{database}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description explicitly reactivate paid protection for a previously deactivated database. */
+        post: operations["ReactivateDatabaseProtection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/accounts/{account}/databases/{database}/backups": {
@@ -1853,10 +2120,255 @@ export interface components {
              */
             retention_tier?: "basic" | "standard" | "premium" | "custom";
         };
+        /** @description Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready. */
+        BillingReadiness: {
+            /**
+             * @example billing_ready
+             * @enum {string}
+             */
+            state: "dormant" | "pending_provider_confirmation" | "billing_ready" | "not_ready";
+            /** @enum {string|null} */
+            reason?: "no_reusable_payment_method" | "provider_confirmed_payment_method" | "provider_payment_method_invalidated" | "credit_only_policy" | "provider_sync_pending" | null;
+            /** @description True only when new paid database activation or reactivation is allowed. */
+            ready_for_paid_activation: boolean;
+            /** Format: date-time */
+            confirmed_at?: string | null;
+        };
         /** @description information for a databacker account with ID */
-        Account: components["schemas"]["AccountBody"] & components["schemas"]["ID"];
+        Account: components["schemas"]["AccountBody"] & components["schemas"]["ID"] & {
+            /** @description Current billing customer assigned to this workspace/account. Signup and default workspace creation automatically associate a dormant billing customer/payment profile. */
+            billing_customer_id?: string | null;
+            billing_customer_readiness?: components["schemas"]["BillingReadiness"];
+        };
         PaginatedAccounts: components["schemas"]["PaginationMetadata"] & {
             accounts?: components["schemas"]["Account"][];
+        };
+        BillingPrice: {
+            price_id: string;
+            version: string;
+            /** @description ISO 4217 currency code. */
+            currency: string;
+            /**
+             * @description Monthly unit price in minor currency units for one active protected database before interval proration.
+             * @example 1900
+             */
+            unit_amount_cents: number;
+            /** @enum {string} */
+            interval: "month";
+            /** Format: date-time */
+            effective_from?: string | null;
+            /** Format: date-time */
+            effective_until?: string | null;
+        };
+        BillingProduct: {
+            /**
+             * @description Stable product identifier.
+             * @example active_protected_database
+             */
+            product_id: string;
+            name: string;
+            /**
+             * @description The base billable product is an active protected database.
+             * @enum {string}
+             */
+            billable_unit: "active_protected_database";
+            prices: components["schemas"]["BillingPrice"][];
+        };
+        BillingCatalog: {
+            products: components["schemas"]["BillingProduct"][];
+            /** Format: date-time */
+            generated_at?: string | null;
+        };
+        /** @description Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials. */
+        BillingCustomerProfile: {
+            /**
+             * @description Display name for the payer profile.
+             * @example Acme Corp
+             */
+            name: string;
+            /**
+             * Format: email
+             * @description Billing contact email.
+             */
+            email?: string | null;
+            company?: string | null;
+            /** @description Non-sensitive tax identifier display label, if available from Databacker-owned metadata. */
+            tax_id_display?: string | null;
+            address_line1?: string | null;
+            address_line2?: string | null;
+            city?: string | null;
+            region?: string | null;
+            postal_code?: string | null;
+            /** @description ISO 3166 country code when known. */
+            country?: string | null;
+        };
+        /** @description Provider/MoR-managed payment method display status. Raw payment credentials are never exposed or accepted by this API. */
+        PaymentMethodDisplay: {
+            /** @enum {string} */
+            status: "none" | "pending" | "saved_reusable" | "invalidated";
+            /**
+             * @description Commerce provider or merchant-of-record identifier when selected.
+             * @example provider_tbd
+             */
+            provider?: string | null;
+            /** @description Safe display brand such as card network or payment family. */
+            display_brand?: string | null;
+            /** @description Safe masked display label such as last four digits. */
+            display_label?: string | null;
+            /** Format: date-time */
+            expires_at?: string | null;
+            /** Format: date-time */
+            verified_at?: string | null;
+        };
+        BillingCustomerAccountAssociation: {
+            account_id: string;
+            account_name?: string | null;
+            /** @description Whether this billing customer is currently assigned to the account. */
+            current: boolean;
+            /** Format: date-time */
+            associated_at?: string | null;
+        };
+        BillingCustomer: components["schemas"]["ID"] & {
+            profile?: components["schemas"]["BillingCustomerProfile"];
+            readiness?: components["schemas"]["BillingReadiness"];
+            payment_method?: components["schemas"]["PaymentMethodDisplay"];
+            /** @description Workspaces/accounts currently visible to the caller for this payer. */
+            accounts?: components["schemas"]["BillingCustomerAccountAssociation"][];
+            /** Format: date-time */
+            created_at?: string | null;
+            /** Format: date-time */
+            updated_at?: string | null;
+        };
+        PaginatedBillingCustomers: components["schemas"]["PaginationMetadata"] & {
+            billing_customers?: components["schemas"]["BillingCustomer"][];
+        };
+        /** @description Request to create an additional billing customer/payment profile. Signup and default account creation automatically create a dormant billing customer association, so users do not need this before exploring the product. */
+        BillingCustomerBody: {
+            profile: components["schemas"]["BillingCustomerProfile"];
+            /** @description Optional account to associate with the new billing customer when permitted. Workspace reassignment between existing billing customers is out of scope for this contract. */
+            account_id?: string | null;
+        };
+        /** @description Request a single commerce-provider/MoR-hosted flow for initial setup, payment-method management, provider commercial profile management, invoice self-service, or a general billing portal. The redirect result is advisory only; billing readiness and invoice synchronization require verified provider confirmation through webhook/callback processing or server-side provider lookup. */
+        PortalSessionRequest: {
+            /** @enum {string|null} */
+            purpose?: "setup" | "payment_method_management" | "commercial_profile_management" | "invoice_self_service" | "general" | null;
+            /** @description Optional frontend URL to return to after the hosted provider/MoR flow. */
+            return_url?: string | null;
+        };
+        PortalSession: {
+            /** @description Provider/MoR-hosted redirect URL when the selected commerce provider uses redirects. */
+            url?: string | null;
+            /** @description Equivalent hosted-session token when the selected commerce provider uses an embedded client session. */
+            client_token?: string | null;
+            /** Format: date-time */
+            expires_at?: string | null;
+            provider?: string | null;
+            /** @enum {string|null} */
+            purpose?: "setup" | "payment_method_management" | "commercial_profile_management" | "invoice_self_service" | "general" | null;
+        };
+        /** @description Billing summary for either a payer or one workspace. Amounts vary by active entitlement intervals; backup attempts, logs, traces, failures, and health do not directly determine base billing. */
+        BillingSummary: {
+            billing_customer_id?: string | null;
+            account_id?: string | null;
+            currency: string;
+            active_protected_database_count: number;
+            /** @example 1900 */
+            current_month_amount_cents: number;
+            open_entitlement_count: number;
+            readiness?: components["schemas"]["BillingReadiness"];
+        };
+        BillingChargeLine: {
+            account_id: string;
+            billing_customer_id: string;
+            database_id?: string | null;
+            product_id: string;
+            price_id: string;
+            price_version: string;
+            /** Format: date-time */
+            interval_start: string;
+            /** Format: date-time */
+            interval_end: string;
+            /** @description Interval-adjusted quantity for the monthly charge period. */
+            quantity: number;
+            currency: string;
+            amount_cents: number;
+        };
+        /** @description Estimated charges calculated from entitlement intervals for the requested period. */
+        BillingEstimate: {
+            billing_customer_id?: string | null;
+            account_id?: string | null;
+            /** Format: date-time */
+            period_start: string;
+            /** Format: date-time */
+            period_end: string;
+            currency: string;
+            total_amount_cents: number;
+            lines: components["schemas"]["BillingChargeLine"][];
+        };
+        /** @description Auditable billable entitlement interval for one protected database. Historical billed-customer attribution must not be rewritten if a workspace is later assigned to another billing customer. */
+        BillingEntitlement: {
+            /** @example ent_550e8400 */
+            id: string;
+            /** @description Workspace/account consuming the protected database entitlement. */
+            account_id: string;
+            /** @description Payer attributed to this interval. */
+            billing_customer_id: string;
+            /** @description Protected database resource identity. */
+            database_id: string;
+            /** @description Engine-reported stable identity captured for audit. */
+            database_stable_identity?: string | null;
+            product_id: string;
+            price_id: string;
+            price_version: string;
+            /** @enum {string} */
+            activation_reason: "automatic_discovery" | "explicit_reactivation" | "manual_activation";
+            /** @enum {string|null} */
+            deactivation_reason?: "user_requested" | "account_closed" | "correction" | null;
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            ended_at?: string | null;
+            active: boolean;
+        };
+        PaginatedBillingEntitlements: components["schemas"]["PaginationMetadata"] & {
+            entitlements?: components["schemas"]["BillingEntitlement"][];
+        };
+        /** @description Finalized invoice known for a billing customer. */
+        InvoiceSummary: {
+            /** @example inv_550e8400 */
+            id: string;
+            billing_customer_id: string;
+            provider_invoice_id?: string | null;
+            /** @enum {string} */
+            status: "finalized" | "paid" | "open" | "void" | "uncollectible";
+            currency: string;
+            amount_due_cents: number;
+            amount_paid_cents?: number;
+            /** Format: date-time */
+            issued_at: string;
+            /** Format: date-time */
+            period_start?: string;
+            /** Format: date-time */
+            period_end?: string;
+        };
+        PaginatedInvoices: components["schemas"]["PaginationMetadata"] & {
+            invoices?: components["schemas"]["InvoiceSummary"][];
+        };
+        /** @description Single finalized invoice artifact. The artifact may be PDF, HTML, or a commerce-provider/MoR-backed redirect depending on provider capabilities. */
+        InvoiceArtifact: {
+            invoice: components["schemas"]["InvoiceSummary"];
+            /**
+             * @example provider_redirect
+             * @enum {string}
+             */
+            artifact_type: "pdf" | "html" | "provider_redirect";
+            content_type?: string | null;
+            /** @description Provider/MoR-backed artifact redirect or signed download URL. */
+            url?: string | null;
+            /** @description Inline HTML artifact when the provider and implementation support it. */
+            html?: string | null;
+            /** Format: date-time */
+            expires_at?: string | null;
         };
         /** @description backup engine row summary for list views */
         EngineSummary: {
@@ -1899,6 +2411,8 @@ export interface components {
             name: string;
             /** @description description of the backup engine */
             description?: string;
+            /** @description Engine setup acknowledgement that newly discovered protected databases may automatically activate and incur charges only when the workspace's assigned billing customer is billing-ready. This does not override billing readiness requirements. */
+            automatic_discovery_charge_acknowledged?: boolean | null;
         };
         Engine: components["schemas"]["EngineBody"] & components["schemas"]["ID"] & {
             /** @description ID of the account that owns the backup engine */
@@ -1931,6 +2445,61 @@ export interface components {
              */
             updated_at?: string | null;
         };
+        /** @description Summary of reports retained after explicit deactivation. Reports for a deactivated database must not silently reactivate or bill the database. */
+        PendingReactivationSummary: {
+            /**
+             * @description Number of post-deactivation reports currently retained as reactivation evidence.
+             * @example 2
+             */
+            retained_report_count?: number;
+            /** @description Configured maximum retained post-deactivation reports for this database. */
+            retained_report_limit?: number;
+            /** Format: date-time */
+            first_reported_at?: string | null;
+            /** Format: date-time */
+            last_reported_at?: string | null;
+            /** @description Backup engine that most recently reported this deactivated database. */
+            latest_engine_id?: string | null;
+            /** @description Stable database identity from the most recent retained report. */
+            latest_stable_identity?: string | null;
+            /**
+             * @description Disposition of the latest post-deactivation report.
+             * @enum {string|null}
+             */
+            latest_report_status?: "retained" | "rejected_limit_exceeded" | "ignored" | null;
+        };
+        /** @description Billable protection lifecycle for a database. This state is separate from operational health, backup success, failures, logs, and traces. */
+        DatabaseProtectionLifecycle: {
+            /**
+             * @description Current billable protection state. Active databases remain billable until explicitly deactivated.
+             * @example active
+             * @enum {string}
+             */
+            state: "active" | "deactivated" | "pending_reactivation" | "blocked_activation";
+            /**
+             * Format: date-time
+             * @description Timestamp when the current active protection interval opened.
+             */
+            activated_at?: string | null;
+            /**
+             * @description Reason the current active interval opened.
+             * @enum {string|null}
+             */
+            activation_reason?: "automatic_discovery" | "explicit_reactivation" | "manual_activation" | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when protection was explicitly deactivated.
+             */
+            deactivated_at?: string | null;
+            /**
+             * @description Reason protection was explicitly deactivated.
+             * @enum {string|null}
+             */
+            deactivation_reason?: "user_requested" | "account_closed" | "correction" | null;
+            /** @description Active billing entitlement interval ID, if protection is active. */
+            current_entitlement_id?: string | null;
+            pending_reactivation?: components["schemas"]["PendingReactivationSummary"];
+        };
         /** @description protected database row summary for list views */
         DatabaseSummary: {
             /** @description Unique identifier of the database */
@@ -1959,6 +2528,7 @@ export interface components {
             last_failed_backup?: string | null;
             /** @description error message from the latest failed backup, if available */
             latest_error_message?: string | null;
+            protection_lifecycle?: components["schemas"]["DatabaseProtectionLifecycle"];
             /**
              * Format: date-time
              * @description Timestamp when the database target was created
@@ -1994,6 +2564,13 @@ export interface components {
             /** @description TCP port for the database target, if applicable */
             port?: number | null;
             /**
+             * @description Stable engine-reported database identity used to match discovery reports across display-name or endpoint changes. Names and endpoints alone are not sufficient for enrollment, blocked rediscovery, or reactivation evidence.
+             * @example mysql://cluster-a/production
+             */
+            stable_identity?: string | null;
+            /** @description When true during engine setup or accepted discovery enrollment, the account administrator has acknowledged that newly discovered protected databases may activate and incur charges only when the assigned billing customer is billing-ready. */
+            automatic_discovery_charge_acknowledged?: boolean | null;
+            /**
              * @deprecated
              * @description Deprecated alias for name retained only for existing stored metadata readers
              */
@@ -2018,6 +2595,7 @@ export interface components {
             last_failed_backup?: string | null;
             /** @description error message from the latest failed backup, if available */
             latest_error_message?: string | null;
+            protection_lifecycle?: components["schemas"]["DatabaseProtectionLifecycle"];
             /**
              * Format: date-time
              * @description Timestamp when the database was created
@@ -2028,6 +2606,16 @@ export interface components {
              * @description Timestamp when the database was last updated
              */
             updated_at?: string | null;
+        };
+        DatabaseDeactivationRequest: {
+            /** @description Optional user-supplied deactivation reason or note. */
+            reason?: string | null;
+        };
+        DatabaseLifecycleActionRequest: {
+            /** @description Must be true for paid activation or reactivation actions that can open a billing entitlement and incur charges. */
+            charge_acknowledged: boolean;
+            /** @description Optional user-supplied lifecycle reason or note. */
+            reason?: string | null;
         };
         /** @description Product-level backup timeline event derived from telemetry when available. */
         BackupTimelineEvent: {
@@ -2587,6 +3175,579 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    GetBillingCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description billing catalog */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingCatalog"];
+                };
+            };
+        };
+    };
+    ListBillingCustomers: {
+        parameters: {
+            query?: {
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description accessible billing customers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBillingCustomers"];
+                };
+            };
+        };
+    };
+    CreateBillingCustomer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description billing customer profile details */
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["BillingCustomerBody"];
+            };
+        };
+        responses: {
+            /** @description billing customer created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingCustomer"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    GetBillingCustomer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description billing customer details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingCustomer"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PutBillingCustomerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        /** @description replacement billing customer profile */
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["BillingCustomerProfile"];
+            };
+        };
+        responses: {
+            /** @description billing customer profile updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingCustomer"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CreateBillingPortalSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        /** @description hosted portal session request */
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PortalSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description hosted portal session created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalSession"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetBillingCustomerSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description billing customer summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSummary"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetBillingCustomerEstimate: {
+        parameters: {
+            query?: {
+                period_start?: string;
+                period_end?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description billing customer estimate */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingEstimate"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ListBillingCustomerEntitlements: {
+        parameters: {
+            query?: {
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description billing customer entitlement intervals */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBillingEntitlements"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ListBillingCustomerInvoices: {
+        parameters: {
+            query?: {
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description finalized invoices for the billing customer */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedInvoices"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetBillingCustomerInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Unique ID of the billing customer/payer profile */
+                billing_customer: string;
+                /** @description Unique ID of the finalized invoice */
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description invoice artifact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceArtifact"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetAccountBillingSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description account billing summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSummary"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetAccountBillingEstimate: {
+        parameters: {
+            query?: {
+                period_start?: string;
+                period_end?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description account billing estimate */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingEstimate"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ListAccountBillingEntitlements: {
+        parameters: {
+            query?: {
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description account billing entitlement intervals */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBillingEntitlements"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DeactivateDatabaseProtection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the database target */
+                database: string;
+            };
+            cookie?: never;
+        };
+        /** @description optional deactivation reason */
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DatabaseDeactivationRequest"];
+            };
+        };
+        responses: {
+            /** @description protected database deactivated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Database"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReactivateDatabaseProtection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the database target */
+                database: string;
+            };
+            cookie?: never;
+        };
+        /** @description paid reactivation acknowledgement */
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DatabaseLifecycleActionRequest"];
+            };
+        };
+        responses: {
+            /** @description protected database reactivated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Database"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Billing customer is not billing-ready or charge consequence was not accepted */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
             };
         };
     };

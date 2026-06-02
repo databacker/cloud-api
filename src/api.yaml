@@ -76,6 +76,20 @@ x-parameters:
       type: string
     required: true
     description: Unique ID of the backup run
+  billing_customer: &billing-customer-param
+    in: path
+    name: billing_customer
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the billing customer/payer profile
+  invoice: &invoice-param
+    in: path
+    name: invoice
+    schema:
+      type: string
+    required: true
+    description: Unique ID of the finalized invoice
 
 x-responses:
   not-found: &not-found-response
@@ -465,6 +479,276 @@ paths:
         '204':
           description: account successfully deleted
         <<: *not-found-response
+
+  /admin/billing/catalog:
+    get:
+      operationId: GetBillingCatalog
+      description: get the tenant-facing billing catalog.
+      responses:
+        '200':
+          description: billing catalog
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingCatalog'
+
+  /admin/billing/customers:
+    get:
+      operationId: ListBillingCustomers
+      description: list billing customers/payment profiles accessible to the authenticated user for payer selection. Signup/default-workspace creation automatically associates the workspace with a dormant billing customer, so users do not need to create one before exploring the product.
+      parameters:
+        - *offset-param
+        - *limit-param
+      responses:
+        '200':
+          description: accessible billing customers
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBillingCustomers'
+    post:
+      operationId: CreateBillingCustomer
+      description: create an additional billing customer/payment profile. Only authorized tenant/workspace billing administrators may create additional payer profiles. This creates non-sensitive Databacker-owned profile metadata only; payment readiness is established through provider/MoR confirmation after a hosted portal flow or server-side lookup.
+      requestBody:
+        description: billing customer profile details
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/BillingCustomerBody'
+      responses:
+        '201':
+          description: billing customer created
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingCustomer'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/billing/customers/{billing_customer}:
+    get:
+      operationId: GetBillingCustomer
+      description: get billing customer/payment profile details, including non-sensitive profile metadata, billing readiness, provider payment-method display status, and visible workspace associations.
+      parameters:
+        - *billing-customer-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: billing customer details
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingCustomer'
+
+  /admin/billing/customers/{billing_customer}/profile:
+    put:
+      operationId: PutBillingCustomerProfile
+      description: update non-sensitive Databacker-owned billing customer profile information. This endpoint never accepts raw card, bank, or other payment credentials and does not create payment readiness.
+      parameters:
+        - *billing-customer-param
+      requestBody:
+        description: replacement billing customer profile
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/BillingCustomerProfile'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: billing customer profile updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingCustomer'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/billing/customers/{billing_customer}/portal-session:
+    post:
+      operationId: CreateBillingPortalSession
+      description: create a single commerce-provider-hosted session for initial setup, payment-method management, provider commercial profile management, invoice self-service, or a general billing portal. Databacker does not accept raw payment credentials. A browser redirect result must not mark the customer billing-ready; payment-based readiness and invoice synchronization are established only by verified provider confirmation through webhook/callback processing or a server-side provider lookup.
+      parameters:
+        - *billing-customer-param
+      requestBody:
+        description: hosted portal session request
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/PortalSessionRequest'
+      responses:
+        <<: *not-found-response
+        '201':
+          description: hosted portal session created
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PortalSession'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/billing/customers/{billing_customer}/summary:
+    get:
+      operationId: GetBillingCustomerSummary
+      description: get billing summary aggregated for the payer across visible workspaces/resources.
+      parameters:
+        - *billing-customer-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: billing customer summary
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingSummary'
+
+  /admin/billing/customers/{billing_customer}/estimate:
+    get:
+      operationId: GetBillingCustomerEstimate
+      description: estimate billing charges for the payer using entitlement intervals.
+      parameters:
+        - *billing-customer-param
+        - name: period_start
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: period_end
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+      responses:
+        <<: *not-found-response
+        '200':
+          description: billing customer estimate
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingEstimate'
+
+  /admin/billing/customers/{billing_customer}/entitlements:
+    get:
+      operationId: ListBillingCustomerEntitlements
+      description: list auditable entitlement intervals attributed to the payer.
+      parameters:
+        - *billing-customer-param
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: billing customer entitlement intervals
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBillingEntitlements'
+
+  /admin/billing/customers/{billing_customer}/invoices:
+    get:
+      operationId: ListBillingCustomerInvoices
+      description: list finalized invoices known for the payer.
+      parameters:
+        - *billing-customer-param
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: finalized invoices for the billing customer
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedInvoices'
+
+  /admin/billing/customers/{billing_customer}/invoices/{invoice}:
+    get:
+      operationId: GetBillingCustomerInvoice
+      description: get a single finalized invoice artifact for a payer.
+      parameters:
+        - *billing-customer-param
+        - *invoice-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: invoice artifact
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/InvoiceArtifact'
+
+  /admin/accounts/{account}/billing/summary:
+    get:
+      operationId: GetAccountBillingSummary
+      description: get billing summary for one workspace/account, attributing applicable charges/resources to that workspace.
+      parameters:
+        - *account-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: account billing summary
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingSummary'
+
+  /admin/accounts/{account}/billing/estimate:
+    get:
+      operationId: GetAccountBillingEstimate
+      description: estimate billing charges attributed to one workspace/account.
+      parameters:
+        - *account-param
+        - name: period_start
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: period_end
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+      responses:
+        <<: *not-found-response
+        '200':
+          description: account billing estimate
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/BillingEstimate'
+
+  /admin/accounts/{account}/billing/entitlements:
+    get:
+      operationId: ListAccountBillingEntitlements
+      description: list auditable  entitlements consumed by one workspace/account.
+      parameters:
+        - *account-param
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: account billing entitlement intervals
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedBillingEntitlements'
+
   /admin/accounts/{account}/engines:
     get:
       description: list backup engines in a given account with row summary fields
@@ -481,7 +765,7 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedEngines'
     post:
-      description: register a new backup engine in the given account
+      description: register a new backup engine in the given account.
       parameters:
         - *account-param
       requestBody:
@@ -594,7 +878,7 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedDatabases'
     post:
-      description: create a protected database record associated with a backup engine
+      description: create a protected database record associated with a backup engine.
       parameters:
         - *account-param
       requestBody:
@@ -612,6 +896,12 @@ paths:
                 $ref: './schemas.yaml#/components/schemas/Database'
         '400':
           description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '422':
+          description: Billing customer is not billing-ready or automatic discovery charge consequence was not accepted
           content:
             application/json:
               schema:
@@ -665,6 +955,68 @@ paths:
         '204':
           description: protected database successfully deleted
         <<: *not-found-response
+
+  /admin/accounts/{account}/databases/{database}/deactivate:
+    post:
+      operationId: DeactivateDatabaseProtection
+      description: explicitly deactivate protected-database billing/protection.
+      parameters:
+        - *account-param
+        - *database-param
+      requestBody:
+        description: optional deactivation reason
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/DatabaseDeactivationRequest'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: protected database deactivated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/accounts/{account}/databases/{database}/reactivate:
+    post:
+      operationId: ReactivateDatabaseProtection
+      description: explicitly reactivate paid protection for a previously deactivated database.
+      parameters:
+        - *account-param
+        - *database-param
+      requestBody:
+        description: paid reactivation acknowledgement
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/DatabaseLifecycleActionRequest'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: protected database reactivated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '422':
+          description: Billing customer is not billing-ready or charge consequence was not accepted
+          content:
+            application/json:
+              schema:
+                *error-message-schema
 
   /admin/accounts/{account}/databases/{database}/backups:
     get:
