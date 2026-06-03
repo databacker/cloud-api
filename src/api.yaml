@@ -352,7 +352,7 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/ID'
         '400':
-          description: Invalid request
+          description: Invalid request or referenced billing customer not found
           content:
             application/json:
               schema:
@@ -408,7 +408,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas.yaml#/components/schemas/Account'
+              $ref: './schemas.yaml#/components/schemas/AccountBody'
       responses:
         '201':
           description: successfully created account
@@ -417,23 +417,17 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/ID'  # returns the body created
         '400':
-          description: Invalid request
+          description: Invalid request or referenced billing customer not found
           content:
             application/json:
               schema:
-                type: object 
-                properties:           
-                  message:
-                    type: string
+                *error-message-schema
         '422':
           description: Quota exceeded
           content:
             application/json:
               schema:
-                type: object 
-                properties:           
-                  message:
-                    type: string
+                *error-message-schema
   /admin/accounts/{account}:      
     get:
       description: get information about the specific account
@@ -748,6 +742,39 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedBillingEntitlements'
+
+  /admin/accounts/{account}/billing/customer:
+    put:
+      operationId: PutAccountBillingCustomer
+      description: assign or replace the billing customer for a workspace/account.
+      parameters:
+        - *account-param
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                billing_customer_id:
+                  type: string
+                  description: ID of the billing customer to assign to this account
+              required:
+                - billing_customer_id
+      responses:
+        <<: *not-found-response
+        '200':
+          description: billing customer successfully assigned
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Account'
+        '400':
+          description: Invalid request or billing customer not found
+          content:
+            application/json:
+              schema:
+                *error-message-schema
 
   /admin/accounts/{account}/engines:
     get:

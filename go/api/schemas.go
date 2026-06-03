@@ -188,11 +188,14 @@ const (
 
 // Account defines model for Account.
 type Account struct {
-	// BillingCustomerID Current billing customer assigned to this workspace/account. Signup and default workspace creation automatically associate a dormant billing customer/payment profile.
-	BillingCustomerID *string `json:"billing_customer_id" yaml:"billing_customer_id"`
+	// BillingCustomerID ID of the billing customer responsible for this account. A valid, existing billing customer must be provided.
+	BillingCustomerID string `json:"billing_customer_id" yaml:"billing_customer_id"`
 
 	// BillingCustomerReadiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
 	BillingCustomerReadiness *BillingReadiness `json:"billing_customer_readiness,omitempty" yaml:"billing_customer_readiness,omitempty"`
+
+	// CreatedAt timestamp when the account was created
+	CreatedAt *time.Time `json:"created_at" yaml:"created_at"`
 
 	// Description description of the account
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
@@ -205,6 +208,9 @@ type Account struct {
 
 	// RetentionTier Retention tier for logs/traces (non-numeric label)
 	RetentionTier *AccountRetentionTier `json:"retention_tier,omitempty" yaml:"retention_tier,omitempty"`
+
+	// UpdatedAt timestamp when the account was last updated
+	UpdatedAt *time.Time `json:"updated_at" yaml:"updated_at"`
 }
 
 // AccountRetentionTier Retention tier for logs/traces (non-numeric label)
@@ -212,6 +218,9 @@ type AccountRetentionTier string
 
 // AccountBody information for a new databacker account
 type AccountBody struct {
+	// BillingCustomerID ID of the billing customer responsible for this account. A valid, existing billing customer must be provided.
+	BillingCustomerID string `json:"billing_customer_id" yaml:"billing_customer_id"`
+
 	// Description description of the account
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 

@@ -66,6 +66,12 @@ type GetBackupParams struct {
 // GetBackupParamsInclude defines parameters for GetBackup.
 type GetBackupParamsInclude string
 
+// PutAccountBillingCustomerJSONBody defines parameters for PutAccountBillingCustomer.
+type PutAccountBillingCustomerJSONBody struct {
+	// BillingCustomerID ID of the billing customer to assign to this account
+	BillingCustomerID string `json:"billing_customer_id" yaml:"billing_customer_id"`
+}
+
 // ListAccountBillingEntitlementsParams defines parameters for ListAccountBillingEntitlements.
 type ListAccountBillingEntitlementsParams struct {
 	// Offset Number of results to skip
@@ -263,10 +269,13 @@ type GetAuthLogoutParams struct {
 }
 
 // PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
-type PostAdminAccountsJSONRequestBody = Account
+type PostAdminAccountsJSONRequestBody = AccountBody
 
 // PatchAdminAccountsAccountJSONRequestBody defines body for PatchAdminAccountsAccount for application/json ContentType.
 type PatchAdminAccountsAccountJSONRequestBody = Account
+
+// PutAccountBillingCustomerJSONRequestBody defines body for PutAccountBillingCustomer for application/json ContentType.
+type PutAccountBillingCustomerJSONRequestBody PutAccountBillingCustomerJSONBody
 
 // PostAdminAccountsAccountDatabasesJSONRequestBody defines body for PostAdminAccountsAccountDatabases for application/json ContentType.
 type PostAdminAccountsAccountDatabasesJSONRequestBody = DatabaseBody
@@ -348,6 +357,9 @@ type ServerInterface interface {
 
 	// (GET /admin/accounts/{account}/backups/{backup}/trace)
 	GetBackupTrace(w http.ResponseWriter, r *http.Request, account string, backup string)
+
+	// (PUT /admin/accounts/{account}/billing/customer)
+	PutAccountBillingCustomer(w http.ResponseWriter, r *http.Request, account string)
 
 	// (GET /admin/accounts/{account}/billing/entitlements)
 	ListAccountBillingEntitlements(w http.ResponseWriter, r *http.Request, account string, params ListAccountBillingEntitlementsParams)
@@ -552,6 +564,11 @@ func (_ Unimplemented) GetBackupEvents(w http.ResponseWriter, r *http.Request, a
 
 // (GET /admin/accounts/{account}/backups/{backup}/trace)
 func (_ Unimplemented) GetBackupTrace(w http.ResponseWriter, r *http.Request, account string, backup string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PUT /admin/accounts/{account}/billing/customer)
+func (_ Unimplemented) PutAccountBillingCustomer(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1203,6 +1220,37 @@ func (siw *ServerInterfaceWrapper) GetBackupTrace(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetBackupTrace(w, r, account, backup)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PutAccountBillingCustomer operation middleware
+func (siw *ServerInterfaceWrapper) PutAccountBillingCustomer(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PutAccountBillingCustomer(w, r, account)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3354,6 +3402,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/accounts/{account}/backups/{backup}/trace", wrapper.GetBackupTrace)
 	})
 	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/admin/accounts/{account}/billing/customer", wrapper.PutAccountBillingCustomer)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/billing/entitlements", wrapper.ListAccountBillingEntitlements)
 	})
 	r.Group(func(r chi.Router) {
@@ -3764,6 +3815,43 @@ type GetBackupTrace404Response struct {
 }
 
 func (response GetBackupTrace404Response) VisitGetBackupTraceResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PutAccountBillingCustomerRequestObject struct {
+	Account string `json:"account"`
+	Body    *PutAccountBillingCustomerJSONRequestBody
+}
+
+type PutAccountBillingCustomerResponseObject interface {
+	VisitPutAccountBillingCustomerResponse(w http.ResponseWriter) error
+}
+
+type PutAccountBillingCustomer200JSONResponse Account
+
+func (response PutAccountBillingCustomer200JSONResponse) VisitPutAccountBillingCustomerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PutAccountBillingCustomer400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PutAccountBillingCustomer400JSONResponse) VisitPutAccountBillingCustomerResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PutAccountBillingCustomer404Response struct {
+}
+
+func (response PutAccountBillingCustomer404Response) VisitPutAccountBillingCustomerResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -5305,6 +5393,9 @@ type StrictServerInterface interface {
 	// (GET /admin/accounts/{account}/backups/{backup}/trace)
 	GetBackupTrace(ctx context.Context, request GetBackupTraceRequestObject) (GetBackupTraceResponseObject, error)
 
+	// (PUT /admin/accounts/{account}/billing/customer)
+	PutAccountBillingCustomer(ctx context.Context, request PutAccountBillingCustomerRequestObject) (PutAccountBillingCustomerResponseObject, error)
+
 	// (GET /admin/accounts/{account}/billing/entitlements)
 	ListAccountBillingEntitlements(ctx context.Context, request ListAccountBillingEntitlementsRequestObject) (ListAccountBillingEntitlementsResponseObject, error)
 
@@ -5735,6 +5826,39 @@ func (sh *strictHandler) GetBackupTrace(w http.ResponseWriter, r *http.Request, 
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetBackupTraceResponseObject); ok {
 		if err := validResponse.VisitGetBackupTraceResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PutAccountBillingCustomer operation middleware
+func (sh *strictHandler) PutAccountBillingCustomer(w http.ResponseWriter, r *http.Request, account string) {
+	var request PutAccountBillingCustomerRequestObject
+
+	request.Account = account
+
+	var body PutAccountBillingCustomerJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PutAccountBillingCustomer(ctx, request.(PutAccountBillingCustomerRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PutAccountBillingCustomer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PutAccountBillingCustomerResponseObject); ok {
+		if err := validResponse.VisitPutAccountBillingCustomerResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

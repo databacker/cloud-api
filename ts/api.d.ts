@@ -382,7 +382,7 @@ export interface paths {
                         "application/json": components["schemas"]["ID"];
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request or referenced billing customer not found */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -506,7 +506,7 @@ export interface paths {
             /** @description information for new account */
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["Account"];
+                    "application/json": components["schemas"]["AccountBody"];
                 };
             };
             responses: {
@@ -519,7 +519,7 @@ export interface paths {
                         "application/json": components["schemas"]["ID"];
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request or referenced billing customer not found */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -884,6 +884,23 @@ export interface paths {
         /** @description list auditable  entitlements consumed by one workspace/account. */
         get: operations["ListAccountBillingEntitlements"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/billing/customer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description assign or replace the billing customer for a workspace/account. */
+        put: operations["PutAccountBillingCustomer"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2119,6 +2136,8 @@ export interface components {
              * @enum {string}
              */
             retention_tier?: "basic" | "standard" | "premium" | "custom";
+            /** @description ID of the billing customer responsible for this account. A valid, existing billing customer must be provided. */
+            billing_customer_id: string;
         };
         /** @description Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready. */
         BillingReadiness: {
@@ -2136,9 +2155,17 @@ export interface components {
         };
         /** @description information for a databacker account with ID */
         Account: components["schemas"]["AccountBody"] & components["schemas"]["ID"] & {
-            /** @description Current billing customer assigned to this workspace/account. Signup and default workspace creation automatically associate a dormant billing customer/payment profile. */
-            billing_customer_id?: string | null;
             billing_customer_readiness?: components["schemas"]["BillingReadiness"];
+            /**
+             * Format: date-time
+             * @description timestamp when the account was created
+             */
+            created_at?: string | null;
+            /**
+             * Format: date-time
+             * @description timestamp when the account was last updated
+             */
+            updated_at?: string | null;
         };
         PaginatedAccounts: components["schemas"]["PaginationMetadata"] & {
             accounts?: components["schemas"]["Account"][];
@@ -3633,6 +3660,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedBillingEntitlements"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PutAccountBillingCustomer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description ID of the billing customer to assign to this account */
+                    billing_customer_id: string;
+                };
+            };
+        };
+        responses: {
+            /** @description billing customer successfully assigned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description Invalid request or billing customer not found */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
                 };
             };
             /** @description not found */

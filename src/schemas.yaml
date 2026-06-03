@@ -1012,8 +1012,12 @@ components:
           type: string
           description: Retention tier for logs/traces (non-numeric label)
           enum: [basic, standard, premium, custom]
+        billing_customer_id:
+          type: string
+          description: ID of the billing customer responsible for this account. A valid, existing billing customer must be provided.
       required:
         - name
+        - billing_customer_id
     Account:
       description: information for a databacker account with ID
       allOf:
@@ -1021,12 +1025,18 @@ components:
         - $ref: '#/components/schemas/ID'
         - type: object
           properties:
-            billing_customer_id:
-              type: string
-              nullable: true
-              description: Current billing customer assigned to this workspace/account. Signup and default workspace creation automatically associate a dormant billing customer/payment profile.
             billing_customer_readiness:
               $ref: '#/components/schemas/BillingReadiness'
+            created_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: timestamp when the account was created
+            updated_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: timestamp when the account was last updated
 
     Email:
       type: object
