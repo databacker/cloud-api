@@ -1404,6 +1404,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/accounts/{account}/protection/auto-activation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description get the automatic protection activation policy for an account. Returns the current policy state including billing readiness context needed to assess whether automatic activation can be effective. */
+        get: operations["GetAccountAutoActivationPolicy"];
+        /** @description set the automatic protection activation policy for an account. Enabling requires the account's billing customer to be billing-ready and charge_acknowledged to be true. Disabling is always permitted and does not close existing active protection entitlements. When disabled, newly discovered protected targets reported by backup engines are stored as pending discovered targets instead of being automatically activated and billed. */
+        put: operations["PutAccountAutoActivationPolicy"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/protection/pending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description list discovered database targets pending activation for an account. These are targets reported by backup engines that were not automatically activated because the account's auto-activation policy was disabled at the time of discovery. Each target requires explicit activation with charge acknowledgement before it becomes a billed protected database. */
+        get: operations["ListPendingDiscoveredTargets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/protection/pending/{database}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description explicitly activate a pending discovered database target as a billed protected database. Requires the account's billing customer to be billing-ready and charge_acknowledged to be true in the request body. On success the target is removed from the pending list and a new protected database record is created with an active billing entitlement. */
+        post: operations["ActivatePendingDiscoveredTarget"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/accounts/{account}/databases/{database}/backups": {
         parameters: {
             query?: never;
@@ -2644,6 +2696,77 @@ export interface components {
             /** @description Optional user-supplied lifecycle reason or note. */
             reason?: string | null;
         };
+        /** @description Account-level automatic protection activation policy. Controls whether newly discovered database targets are automatically activated and billed. */
+        AutoActivationPolicy: {
+            /** @description ID of the account this policy applies to. */
+            account_id: string;
+            /** @description When true, newly discovered protected database targets are automatically activated and billed when the account's billing customer is billing-ready. */
+            automatic_activation_enabled: boolean;
+            /**
+             * Format: date-time
+             * @description Timestamp when the charge acknowledgement for automatic activation was last recorded.
+             */
+            charge_acknowledged_at?: string | null;
+            /** @description User ID of the account member who last acknowledged the automatic activation charge consequence. */
+            charge_acknowledged_by?: string | null;
+            billing_readiness?: components["schemas"]["BillingReadiness"];
+            /**
+             * Format: date-time
+             * @description Timestamp when this policy was last modified.
+             */
+            updated_at?: string | null;
+        };
+        /** @description Request to set the account-level automatic protection activation policy. */
+        AutoActivationPolicyRequest: {
+            /** @description Enable or disable automatic activation of newly discovered protected database targets. */
+            enabled: boolean;
+            /** @description Must be true when enabling automatic activation. Acknowledges that automatically discovered database targets may activate and incur charges when the account's billing customer is billing-ready. Ignored when disabling. */
+            charge_acknowledged?: boolean | null;
+        };
+        /** @description A database target discovered by a backup engine that has not been automatically activated due to the account's auto-activation policy being disabled. Requires explicit activation to become a billed protected database. */
+        PendingDiscoveredTarget: {
+            /** @description Unique identifier for this pending discovered target. */
+            id: string;
+            /** @description ID of the account this pending target belongs to. */
+            account_id: string;
+            /** @description ID of the backup engine that reported this target. */
+            engine_id: string;
+            /** @description Display name of the backup engine that reported this target. */
+            engine_name?: string | null;
+            /** @description Display name reported by the engine for this database target. */
+            name: string;
+            /**
+             * @description Database engine type reported by the engine.
+             * @example mysql
+             */
+            system: string;
+            /** @description Network transport used to reach the target. */
+            transport: string;
+            /** @description Hostname, IP address, or socket path for the target. */
+            address: string;
+            /** @description TCP port for the target, if applicable. */
+            port?: number | null;
+            /**
+             * @description Engine-reported stable database identity used to correlate reports across display-name or endpoint changes.
+             * @example mysql://cluster-a/production
+             */
+            stable_identity?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when this target was first reported by an engine.
+             */
+            first_discovered_at: string;
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent engine discovery report for this target.
+             */
+            last_reported_at: string;
+            /** @description Number of engine discovery reports received for this target. */
+            report_count: number;
+        };
+        PaginatedPendingDiscoveredTargets: components["schemas"]["PaginationMetadata"] & {
+            targets?: components["schemas"]["PendingDiscoveredTarget"][];
+        };
         /** @description Product-level backup timeline event derived from telemetry when available. */
         BackupTimelineEvent: {
             /** @description Optional stable event identifier */
@@ -3814,6 +3937,187 @@ export interface operations {
                 content?: never;
             };
             /** @description Billing customer is not billing-ready or charge consequence was not accepted */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    GetAccountAutoActivationPolicy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description current auto-activation policy for the account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoActivationPolicy"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PutAccountAutoActivationPolicy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutoActivationPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description auto-activation policy updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoActivationPolicy"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Billing customer is not billing-ready or charge acknowledgement is required when enabling */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    ListPendingDiscoveredTargets: {
+        parameters: {
+            query?: {
+                /** @description filter to pending targets reported by a specific backup engine ID */
+                engine?: string;
+                /** @description Number of results to skip */
+                offset?: number;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description pending discovered targets for the account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPendingDiscoveredTargets"];
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ActivatePendingDiscoveredTarget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Unique ID of the database target */
+                database: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DatabaseLifecycleActionRequest"];
+            };
+        };
+        responses: {
+            /** @description pending target activated as a protected database */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Database"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Billing customer is not billing-ready or charge acknowledgement required */
             422: {
                 headers: {
                     [name: string]: unknown;

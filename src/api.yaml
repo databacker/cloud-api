@@ -1045,6 +1045,109 @@ paths:
               schema:
                 *error-message-schema
 
+  /admin/accounts/{account}/protection/auto-activation:
+    get:
+      operationId: GetAccountAutoActivationPolicy
+      description: get the automatic protection activation policy for an account. Returns the current policy state including billing readiness context needed to assess whether automatic activation can be effective.
+      parameters:
+        - *account-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: current auto-activation policy for the account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/AutoActivationPolicy'
+    put:
+      operationId: PutAccountAutoActivationPolicy
+      description: set the automatic protection activation policy for an account. Enabling requires the account's billing customer to be billing-ready and charge_acknowledged to be true. Disabling is always permitted and does not close existing active protection entitlements. When disabled, newly discovered protected targets reported by backup engines are stored as pending discovered targets instead of being automatically activated and billed.
+      parameters:
+        - *account-param
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/AutoActivationPolicyRequest'
+      responses:
+        <<: *not-found-response
+        '200':
+          description: auto-activation policy updated
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/AutoActivationPolicy'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '422':
+          description: Billing customer is not billing-ready or charge acknowledgement is required when enabling
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/accounts/{account}/protection/pending:
+    get:
+      operationId: ListPendingDiscoveredTargets
+      description: list discovered database targets pending activation for an account. These are targets reported by backup engines that were not automatically activated because the account's auto-activation policy was disabled at the time of discovery. Each target requires explicit activation with charge acknowledgement before it becomes a billed protected database.
+      parameters:
+        - *account-param
+        - in: query
+          name: engine
+          schema:
+            type: string
+          required: false
+          description: filter to pending targets reported by a specific backup engine ID
+        - *offset-param
+        - *limit-param
+      responses:
+        <<: *not-found-response
+        '200':
+          description: pending discovered targets for the account
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedPendingDiscoveredTargets'
+
+  /admin/accounts/{account}/protection/pending/{database}/activate:
+    post:
+      operationId: ActivatePendingDiscoveredTarget
+      description: explicitly activate a pending discovered database target as a billed protected database. Requires the account's billing customer to be billing-ready and charge_acknowledged to be true in the request body. On success the target is removed from the pending list and a new protected database record is created with an active billing entitlement.
+      parameters:
+        - *account-param
+        - *database-param
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/DatabaseLifecycleActionRequest'
+      responses:
+        <<: *not-found-response
+        '201':
+          description: pending target activated as a protected database
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Database'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '422':
+          description: Billing customer is not billing-ready or charge acknowledgement required
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
   /admin/accounts/{account}/databases/{database}/backups:
     get:
       operationId: ListDatabaseBackups

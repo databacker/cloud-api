@@ -246,6 +246,36 @@ type AccountMember struct {
 // AccountMemberRole role of the user in the account
 type AccountMemberRole string
 
+// AutoActivationPolicy Account-level automatic protection activation policy. Controls whether newly discovered database targets are automatically activated and billed.
+type AutoActivationPolicy struct {
+	// AccountID ID of the account this policy applies to.
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// AutomaticActivationEnabled When true, newly discovered protected database targets are automatically activated and billed when the account's billing customer is billing-ready.
+	AutomaticActivationEnabled bool `json:"automatic_activation_enabled" yaml:"automatic_activation_enabled"`
+
+	// BillingReadiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
+	BillingReadiness *BillingReadiness `json:"billing_readiness,omitempty" yaml:"billing_readiness,omitempty"`
+
+	// ChargeAcknowledgedAt Timestamp when the charge acknowledgement for automatic activation was last recorded.
+	ChargeAcknowledgedAt *time.Time `json:"charge_acknowledged_at" yaml:"charge_acknowledged_at"`
+
+	// ChargeAcknowledgedBy User ID of the account member who last acknowledged the automatic activation charge consequence.
+	ChargeAcknowledgedBy *string `json:"charge_acknowledged_by" yaml:"charge_acknowledged_by"`
+
+	// UpdatedAt Timestamp when this policy was last modified.
+	UpdatedAt *time.Time `json:"updated_at" yaml:"updated_at"`
+}
+
+// AutoActivationPolicyRequest Request to set the account-level automatic protection activation policy.
+type AutoActivationPolicyRequest struct {
+	// ChargeAcknowledged Must be true when enabling automatic activation. Acknowledges that automatically discovered database targets may activate and incur charges when the account's billing customer is billing-ready. Ignored when disabling.
+	ChargeAcknowledged *bool `json:"charge_acknowledged" yaml:"charge_acknowledged"`
+
+	// Enabled Enable or disable automatic activation of newly discovered protected database targets.
+	Enabled bool `json:"enabled" yaml:"enabled"`
+}
+
 // BackupEvent Backup run metadata. Product timeline events are only included when requested with include=events.
 type BackupEvent struct {
 	// AccountID ID of the account the backup belongs to
@@ -1086,6 +1116,16 @@ type PaginatedLogs struct {
 	Total   *int   `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
+// PaginatedPendingDiscoveredTargets defines model for PaginatedPendingDiscoveredTargets.
+type PaginatedPendingDiscoveredTargets struct {
+	HasNext *bool                      `json:"has_next,omitempty" yaml:"has_next,omitempty"`
+	HasPrev *bool                      `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
+	Limit   *int                       `json:"limit,omitempty" yaml:"limit,omitempty"`
+	Offset  *int                       `json:"offset,omitempty" yaml:"offset,omitempty"`
+	Targets *[]PendingDiscoveredTarget `json:"targets,omitempty" yaml:"targets,omitempty"`
+	Total   *int                       `json:"total,omitempty" yaml:"total,omitempty"`
+}
+
 // PaginatedSelfAccounts defines model for PaginatedSelfAccounts.
 type PaginatedSelfAccounts struct {
 	Accounts *[]SelfAccountEntry `json:"accounts,omitempty" yaml:"accounts,omitempty"`
@@ -1138,6 +1178,48 @@ type PaymentMethodDisplay struct {
 
 // PaymentMethodDisplayStatus defines model for PaymentMethodDisplay.Status.
 type PaymentMethodDisplayStatus string
+
+// PendingDiscoveredTarget A database target discovered by a backup engine that has not been automatically activated due to the account's auto-activation policy being disabled. Requires explicit activation to become a billed protected database.
+type PendingDiscoveredTarget struct {
+	// AccountID ID of the account this pending target belongs to.
+	AccountID string `json:"account_id" yaml:"account_id"`
+
+	// Address Hostname, IP address, or socket path for the target.
+	Address string `json:"address" yaml:"address"`
+
+	// EngineID ID of the backup engine that reported this target.
+	EngineID string `json:"engine_id" yaml:"engine_id"`
+
+	// EngineName Display name of the backup engine that reported this target.
+	EngineName *string `json:"engine_name" yaml:"engine_name"`
+
+	// FirstDiscoveredAt Timestamp when this target was first reported by an engine.
+	FirstDiscoveredAt time.Time `json:"first_discovered_at" yaml:"first_discovered_at"`
+
+	// ID Unique identifier for this pending discovered target.
+	ID string `json:"id" yaml:"id"`
+
+	// LastReportedAt Timestamp of the most recent engine discovery report for this target.
+	LastReportedAt time.Time `json:"last_reported_at" yaml:"last_reported_at"`
+
+	// Name Display name reported by the engine for this database target.
+	Name string `json:"name" yaml:"name"`
+
+	// Port TCP port for the target, if applicable.
+	Port *int `json:"port" yaml:"port"`
+
+	// ReportCount Number of engine discovery reports received for this target.
+	ReportCount int `json:"report_count" yaml:"report_count"`
+
+	// StableIdentity Engine-reported stable database identity used to correlate reports across display-name or endpoint changes.
+	StableIdentity *string `json:"stable_identity" yaml:"stable_identity"`
+
+	// System Database engine type reported by the engine.
+	System string `json:"system" yaml:"system"`
+
+	// Transport Network transport used to reach the target.
+	Transport string `json:"transport" yaml:"transport"`
+}
 
 // PendingReactivationSummary Summary of reports retained after explicit deactivation. Reports for a deactivated database must not silently reactivate or bill the database.
 type PendingReactivationSummary struct {

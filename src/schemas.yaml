@@ -520,6 +520,122 @@ components:
           nullable: true
           description: Optional user-supplied deactivation reason or note.
 
+    AutoActivationPolicyRequest:
+      type: object
+      description: Request to set the account-level automatic protection activation policy.
+      properties:
+        enabled:
+          type: boolean
+          description: Enable or disable automatic activation of newly discovered protected database targets.
+        charge_acknowledged:
+          type: boolean
+          nullable: true
+          description: Must be true when enabling automatic activation. Acknowledges that automatically discovered database targets may activate and incur charges when the account's billing customer is billing-ready. Ignored when disabling.
+      required:
+        - enabled
+
+    AutoActivationPolicy:
+      type: object
+      description: Account-level automatic protection activation policy. Controls whether newly discovered database targets are automatically activated and billed.
+      properties:
+        account_id:
+          type: string
+          description: ID of the account this policy applies to.
+        automatic_activation_enabled:
+          type: boolean
+          description: When true, newly discovered protected database targets are automatically activated and billed when the account's billing customer is billing-ready.
+        charge_acknowledged_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the charge acknowledgement for automatic activation was last recorded.
+        charge_acknowledged_by:
+          type: string
+          nullable: true
+          description: User ID of the account member who last acknowledged the automatic activation charge consequence.
+        billing_readiness:
+          $ref: '#/components/schemas/BillingReadiness'
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when this policy was last modified.
+      required:
+        - account_id
+        - automatic_activation_enabled
+
+    PendingDiscoveredTarget:
+      type: object
+      description: A database target discovered by a backup engine that has not been automatically activated due to the account's auto-activation policy being disabled. Requires explicit activation to become a billed protected database.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this pending discovered target.
+        account_id:
+          type: string
+          description: ID of the account this pending target belongs to.
+        engine_id:
+          type: string
+          description: ID of the backup engine that reported this target.
+        engine_name:
+          type: string
+          nullable: true
+          description: Display name of the backup engine that reported this target.
+        name:
+          type: string
+          description: Display name reported by the engine for this database target.
+        system:
+          type: string
+          description: Database engine type reported by the engine.
+          example: mysql
+        transport:
+          type: string
+          description: Network transport used to reach the target.
+        address:
+          type: string
+          description: Hostname, IP address, or socket path for the target.
+        port:
+          type: integer
+          nullable: true
+          description: TCP port for the target, if applicable.
+        stable_identity:
+          type: string
+          nullable: true
+          description: Engine-reported stable database identity used to correlate reports across display-name or endpoint changes.
+          example: mysql://cluster-a/production
+        first_discovered_at:
+          type: string
+          format: date-time
+          description: Timestamp when this target was first reported by an engine.
+        last_reported_at:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent engine discovery report for this target.
+        report_count:
+          type: integer
+          description: Number of engine discovery reports received for this target.
+      required:
+        - id
+        - account_id
+        - engine_id
+        - name
+        - system
+        - transport
+        - address
+        - first_discovered_at
+        - last_reported_at
+        - report_count
+
+    PaginatedPendingDiscoveredTargets:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMetadata'
+        - type: object
+          properties:
+            targets:
+              type: array
+              items:
+                $ref: '#/components/schemas/PendingDiscoveredTarget'
+
     BillingCustomerProfile:
       type: object
       description: Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials.

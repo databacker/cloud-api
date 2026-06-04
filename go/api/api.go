@@ -161,6 +161,18 @@ type GetAdminAccountsAccountLogsLogParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
+// ListPendingDiscoveredTargetsParams defines parameters for ListPendingDiscoveredTargets.
+type ListPendingDiscoveredTargetsParams struct {
+	// Engine filter to pending targets reported by a specific backup engine ID
+	Engine *string `form:"engine,omitempty" json:"engine,omitempty" yaml:"engine,omitempty"`
+
+	// Offset Number of results to skip
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
+
+	// Limit Maximum number of results to return
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
 // GetAdminAccountsAccountUsersParams defines parameters for GetAdminAccountsAccountUsers.
 type GetAdminAccountsAccountUsersParams struct {
 	// Offset Number of results to skip
@@ -298,6 +310,12 @@ type PatchAdminAccountsAccountEnginesEngineJSONRequestBody = EngineBody
 // PostAdminAccountsAccountEnginesEngineConfigsJSONRequestBody defines body for PostAdminAccountsAccountEnginesEngineConfigs for application/json ContentType.
 type PostAdminAccountsAccountEnginesEngineConfigsJSONRequestBody = externalRef0.Config
 
+// PutAccountAutoActivationPolicyJSONRequestBody defines body for PutAccountAutoActivationPolicy for application/json ContentType.
+type PutAccountAutoActivationPolicyJSONRequestBody = AutoActivationPolicyRequest
+
+// ActivatePendingDiscoveredTargetJSONRequestBody defines body for ActivatePendingDiscoveredTarget for application/json ContentType.
+type ActivatePendingDiscoveredTargetJSONRequestBody = DatabaseLifecycleActionRequest
+
 // PostAdminAccountsAccountUsersJSONRequestBody defines body for PostAdminAccountsAccountUsers for application/json ContentType.
 type PostAdminAccountsAccountUsersJSONRequestBody PostAdminAccountsAccountUsersJSONBody
 
@@ -426,6 +444,18 @@ type ServerInterface interface {
 
 	// (GET /admin/accounts/{account}/logs/{log})
 	GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string, params GetAdminAccountsAccountLogsLogParams)
+
+	// (GET /admin/accounts/{account}/protection/auto-activation)
+	GetAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request, account string)
+
+	// (PUT /admin/accounts/{account}/protection/auto-activation)
+	PutAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request, account string)
+
+	// (GET /admin/accounts/{account}/protection/pending)
+	ListPendingDiscoveredTargets(w http.ResponseWriter, r *http.Request, account string, params ListPendingDiscoveredTargetsParams)
+
+	// (POST /admin/accounts/{account}/protection/pending/{database}/activate)
+	ActivatePendingDiscoveredTarget(w http.ResponseWriter, r *http.Request, account string, database string)
 
 	// (GET /admin/accounts/{account}/users)
 	GetAdminAccountsAccountUsers(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountUsersParams)
@@ -679,6 +709,26 @@ func (_ Unimplemented) PostAdminAccountsAccountEnginesEngineConfigs(w http.Respo
 
 // (GET /admin/accounts/{account}/logs/{log})
 func (_ Unimplemented) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r *http.Request, account string, log string, params GetAdminAccountsAccountLogsLogParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/protection/auto-activation)
+func (_ Unimplemented) GetAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request, account string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PUT /admin/accounts/{account}/protection/auto-activation)
+func (_ Unimplemented) PutAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request, account string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /admin/accounts/{account}/protection/pending)
+func (_ Unimplemented) ListPendingDiscoveredTargets(w http.ResponseWriter, r *http.Request, account string, params ListPendingDiscoveredTargetsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/accounts/{account}/protection/pending/{database}/activate)
+func (_ Unimplemented) ActivatePendingDiscoveredTarget(w http.ResponseWriter, r *http.Request, account string, database string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -2293,6 +2343,166 @@ func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountLogsLog(w http.Respons
 	handler.ServeHTTP(w, r)
 }
 
+// GetAccountAutoActivationPolicy operation middleware
+func (siw *ServerInterfaceWrapper) GetAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAccountAutoActivationPolicy(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PutAccountAutoActivationPolicy operation middleware
+func (siw *ServerInterfaceWrapper) PutAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PutAccountAutoActivationPolicy(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListPendingDiscoveredTargets operation middleware
+func (siw *ServerInterfaceWrapper) ListPendingDiscoveredTargets(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListPendingDiscoveredTargetsParams
+
+	// ------------- Optional query parameter "engine" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "engine", r.URL.Query(), &params.Engine)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "engine", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPendingDiscoveredTargets(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ActivatePendingDiscoveredTarget operation middleware
+func (siw *ServerInterfaceWrapper) ActivatePendingDiscoveredTarget(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "database" -------------
+	var database string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "database", chi.URLParam(r, "database"), &database, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "database", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ActivatePendingDiscoveredTarget(w, r, account, database)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminAccountsAccountUsers operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountUsers(w http.ResponseWriter, r *http.Request) {
 
@@ -3471,6 +3681,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/accounts/{account}/logs/{log}", wrapper.GetAdminAccountsAccountLogsLog)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/protection/auto-activation", wrapper.GetAccountAutoActivationPolicy)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/admin/accounts/{account}/protection/auto-activation", wrapper.PutAccountAutoActivationPolicy)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/protection/pending", wrapper.ListPendingDiscoveredTargets)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/protection/pending/{database}/activate", wrapper.ActivatePendingDiscoveredTarget)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/users", wrapper.GetAdminAccountsAccountUsers)
 	})
 	r.Group(func(r chi.Router) {
@@ -4526,6 +4748,154 @@ func (response GetAdminAccountsAccountLogsLog404Response) VisitGetAdminAccountsA
 	return nil
 }
 
+type GetAccountAutoActivationPolicyRequestObject struct {
+	Account string `json:"account"`
+}
+
+type GetAccountAutoActivationPolicyResponseObject interface {
+	VisitGetAccountAutoActivationPolicyResponse(w http.ResponseWriter) error
+}
+
+type GetAccountAutoActivationPolicy200JSONResponse AutoActivationPolicy
+
+func (response GetAccountAutoActivationPolicy200JSONResponse) VisitGetAccountAutoActivationPolicyResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAccountAutoActivationPolicy404Response struct {
+}
+
+func (response GetAccountAutoActivationPolicy404Response) VisitGetAccountAutoActivationPolicyResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PutAccountAutoActivationPolicyRequestObject struct {
+	Account string `json:"account"`
+	Body    *PutAccountAutoActivationPolicyJSONRequestBody
+}
+
+type PutAccountAutoActivationPolicyResponseObject interface {
+	VisitPutAccountAutoActivationPolicyResponse(w http.ResponseWriter) error
+}
+
+type PutAccountAutoActivationPolicy200JSONResponse AutoActivationPolicy
+
+func (response PutAccountAutoActivationPolicy200JSONResponse) VisitPutAccountAutoActivationPolicyResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PutAccountAutoActivationPolicy400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PutAccountAutoActivationPolicy400JSONResponse) VisitPutAccountAutoActivationPolicyResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PutAccountAutoActivationPolicy404Response struct {
+}
+
+func (response PutAccountAutoActivationPolicy404Response) VisitPutAccountAutoActivationPolicyResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type PutAccountAutoActivationPolicy422JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PutAccountAutoActivationPolicy422JSONResponse) VisitPutAccountAutoActivationPolicyResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListPendingDiscoveredTargetsRequestObject struct {
+	Account string `json:"account"`
+	Params  ListPendingDiscoveredTargetsParams
+}
+
+type ListPendingDiscoveredTargetsResponseObject interface {
+	VisitListPendingDiscoveredTargetsResponse(w http.ResponseWriter) error
+}
+
+type ListPendingDiscoveredTargets200JSONResponse PaginatedPendingDiscoveredTargets
+
+func (response ListPendingDiscoveredTargets200JSONResponse) VisitListPendingDiscoveredTargetsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListPendingDiscoveredTargets404Response struct {
+}
+
+func (response ListPendingDiscoveredTargets404Response) VisitListPendingDiscoveredTargetsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ActivatePendingDiscoveredTargetRequestObject struct {
+	Account  string `json:"account"`
+	Database string `json:"database"`
+	Body     *ActivatePendingDiscoveredTargetJSONRequestBody
+}
+
+type ActivatePendingDiscoveredTargetResponseObject interface {
+	VisitActivatePendingDiscoveredTargetResponse(w http.ResponseWriter) error
+}
+
+type ActivatePendingDiscoveredTarget201JSONResponse Database
+
+func (response ActivatePendingDiscoveredTarget201JSONResponse) VisitActivatePendingDiscoveredTargetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivatePendingDiscoveredTarget400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ActivatePendingDiscoveredTarget400JSONResponse) VisitActivatePendingDiscoveredTargetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivatePendingDiscoveredTarget404Response struct {
+}
+
+func (response ActivatePendingDiscoveredTarget404Response) VisitActivatePendingDiscoveredTargetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ActivatePendingDiscoveredTarget422JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ActivatePendingDiscoveredTarget422JSONResponse) VisitActivatePendingDiscoveredTargetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetAdminAccountsAccountUsersRequestObject struct {
 	Account string `json:"account"`
 	Params  GetAdminAccountsAccountUsersParams
@@ -5461,6 +5831,18 @@ type StrictServerInterface interface {
 
 	// (GET /admin/accounts/{account}/logs/{log})
 	GetAdminAccountsAccountLogsLog(ctx context.Context, request GetAdminAccountsAccountLogsLogRequestObject) (GetAdminAccountsAccountLogsLogResponseObject, error)
+
+	// (GET /admin/accounts/{account}/protection/auto-activation)
+	GetAccountAutoActivationPolicy(ctx context.Context, request GetAccountAutoActivationPolicyRequestObject) (GetAccountAutoActivationPolicyResponseObject, error)
+
+	// (PUT /admin/accounts/{account}/protection/auto-activation)
+	PutAccountAutoActivationPolicy(ctx context.Context, request PutAccountAutoActivationPolicyRequestObject) (PutAccountAutoActivationPolicyResponseObject, error)
+
+	// (GET /admin/accounts/{account}/protection/pending)
+	ListPendingDiscoveredTargets(ctx context.Context, request ListPendingDiscoveredTargetsRequestObject) (ListPendingDiscoveredTargetsResponseObject, error)
+
+	// (POST /admin/accounts/{account}/protection/pending/{database}/activate)
+	ActivatePendingDiscoveredTarget(ctx context.Context, request ActivatePendingDiscoveredTargetRequestObject) (ActivatePendingDiscoveredTargetResponseObject, error)
 
 	// (GET /admin/accounts/{account}/users)
 	GetAdminAccountsAccountUsers(ctx context.Context, request GetAdminAccountsAccountUsersRequestObject) (GetAdminAccountsAccountUsersResponseObject, error)
@@ -6503,6 +6885,126 @@ func (sh *strictHandler) GetAdminAccountsAccountLogsLog(w http.ResponseWriter, r
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminAccountsAccountLogsLogResponseObject); ok {
 		if err := validResponse.VisitGetAdminAccountsAccountLogsLogResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAccountAutoActivationPolicy operation middleware
+func (sh *strictHandler) GetAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request, account string) {
+	var request GetAccountAutoActivationPolicyRequestObject
+
+	request.Account = account
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAccountAutoActivationPolicy(ctx, request.(GetAccountAutoActivationPolicyRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAccountAutoActivationPolicy")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAccountAutoActivationPolicyResponseObject); ok {
+		if err := validResponse.VisitGetAccountAutoActivationPolicyResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PutAccountAutoActivationPolicy operation middleware
+func (sh *strictHandler) PutAccountAutoActivationPolicy(w http.ResponseWriter, r *http.Request, account string) {
+	var request PutAccountAutoActivationPolicyRequestObject
+
+	request.Account = account
+
+	var body PutAccountAutoActivationPolicyJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PutAccountAutoActivationPolicy(ctx, request.(PutAccountAutoActivationPolicyRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PutAccountAutoActivationPolicy")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PutAccountAutoActivationPolicyResponseObject); ok {
+		if err := validResponse.VisitPutAccountAutoActivationPolicyResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListPendingDiscoveredTargets operation middleware
+func (sh *strictHandler) ListPendingDiscoveredTargets(w http.ResponseWriter, r *http.Request, account string, params ListPendingDiscoveredTargetsParams) {
+	var request ListPendingDiscoveredTargetsRequestObject
+
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListPendingDiscoveredTargets(ctx, request.(ListPendingDiscoveredTargetsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListPendingDiscoveredTargets")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListPendingDiscoveredTargetsResponseObject); ok {
+		if err := validResponse.VisitListPendingDiscoveredTargetsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ActivatePendingDiscoveredTarget operation middleware
+func (sh *strictHandler) ActivatePendingDiscoveredTarget(w http.ResponseWriter, r *http.Request, account string, database string) {
+	var request ActivatePendingDiscoveredTargetRequestObject
+
+	request.Account = account
+	request.Database = database
+
+	var body ActivatePendingDiscoveredTargetJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ActivatePendingDiscoveredTarget(ctx, request.(ActivatePendingDiscoveredTargetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ActivatePendingDiscoveredTarget")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ActivatePendingDiscoveredTargetResponseObject); ok {
+		if err := validResponse.VisitActivatePendingDiscoveredTargetResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
