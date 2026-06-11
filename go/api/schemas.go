@@ -1136,16 +1136,6 @@ type PaginatedSelfAccounts struct {
 	Total    *int                `json:"total,omitempty" yaml:"total,omitempty"`
 }
 
-// PaginatedUsers defines model for PaginatedUsers.
-type PaginatedUsers struct {
-	HasNext *bool   `json:"has_next,omitempty" yaml:"has_next,omitempty"`
-	HasPrev *bool   `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
-	Limit   *int    `json:"limit,omitempty" yaml:"limit,omitempty"`
-	Offset  *int    `json:"offset,omitempty" yaml:"offset,omitempty"`
-	Total   *int    `json:"total,omitempty" yaml:"total,omitempty"`
-	Users   *[]User `json:"users,omitempty" yaml:"users,omitempty"`
-}
-
 // PaginationMetadata defines model for PaginationMetadata.
 type PaginationMetadata struct {
 	HasNext *bool `json:"has_next,omitempty" yaml:"has_next,omitempty"`

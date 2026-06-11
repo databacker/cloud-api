@@ -244,18 +244,6 @@ type GetAdminSelfEmailVerifyParams struct {
 	Token string `form:"token" json:"token" yaml:"token"`
 }
 
-// GetAdminUsersParams defines parameters for GetAdminUsers.
-type GetAdminUsersParams struct {
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-
-	// Search Search term to filter users by name or email
-	Search *string `form:"search,omitempty" json:"search,omitempty" yaml:"search,omitempty"`
-}
-
 // GetAuthCallbackParams defines parameters for GetAuthCallback.
 type GetAuthCallbackParams struct {
 	// Code Authorization code returned by the identity provider; omitted on some error callbacks.
@@ -279,9 +267,6 @@ type GetAuthLogoutParams struct {
 	// Redirect Post-logout frontend redirect target; must match a permitted frontend origin.
 	Redirect *string `form:"redirect,omitempty" json:"redirect,omitempty" yaml:"redirect,omitempty"`
 }
-
-// PostAdminAccountsJSONRequestBody defines body for PostAdminAccounts for application/json ContentType.
-type PostAdminAccountsJSONRequestBody = AccountBody
 
 // PatchAdminAccountsAccountJSONRequestBody defines body for PatchAdminAccountsAccount for application/json ContentType.
 type PatchAdminAccountsAccountJSONRequestBody = Account
@@ -343,17 +328,11 @@ type PostAdminSelfAccountsJSONRequestBody = AccountBody
 // PatchAdminSelfEmailJSONRequestBody defines body for PatchAdminSelfEmail for application/json ContentType.
 type PatchAdminSelfEmailJSONRequestBody = Email
 
-// PostAdminUsersJSONRequestBody defines body for PostAdminUsers for application/json ContentType.
-type PostAdminUsersJSONRequestBody = UserWithEmail
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /admin/accounts)
 	GetAdminAccounts(w http.ResponseWriter, r *http.Request, params GetAdminAccountsParams)
-
-	// (POST /admin/accounts)
-	PostAdminAccounts(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /admin/accounts/{account})
 	DeleteAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string)
@@ -525,18 +504,6 @@ type ServerInterface interface {
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(w http.ResponseWriter, r *http.Request)
-
-	// (GET /admin/system/stats)
-	GetAdminSystemStats(w http.ResponseWriter, r *http.Request)
-
-	// (GET /admin/users)
-	GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams)
-
-	// (POST /admin/users)
-	PostAdminUsers(w http.ResponseWriter, r *http.Request)
-
-	// (DELETE /admin/users/{user})
-	DeleteAdminUsersUser(w http.ResponseWriter, r *http.Request, user string)
 	// Complete browser OAuth login
 	// (GET /auth/callback)
 	GetAuthCallback(w http.ResponseWriter, r *http.Request, params GetAuthCallbackParams)
@@ -554,11 +521,6 @@ type Unimplemented struct{}
 
 // (GET /admin/accounts)
 func (_ Unimplemented) GetAdminAccounts(w http.ResponseWriter, r *http.Request, params GetAdminAccountsParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /admin/accounts)
-func (_ Unimplemented) PostAdminAccounts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -849,26 +811,6 @@ func (_ Unimplemented) GetAdminSystemHealthz(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (GET /admin/system/stats)
-func (_ Unimplemented) GetAdminSystemStats(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /admin/users)
-func (_ Unimplemented) GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /admin/users)
-func (_ Unimplemented) PostAdminUsers(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (DELETE /admin/users/{user})
-func (_ Unimplemented) DeleteAdminUsersUser(w http.ResponseWriter, r *http.Request, user string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
 // Complete browser OAuth login
 // (GET /auth/callback)
 func (_ Unimplemented) GetAuthCallback(w http.ResponseWriter, r *http.Request, params GetAuthCallbackParams) {
@@ -928,26 +870,6 @@ func (siw *ServerInterfaceWrapper) GetAdminAccounts(w http.ResponseWriter, r *ht
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetAdminAccounts(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// PostAdminAccounts operation middleware
-func (siw *ServerInterfaceWrapper) PostAdminAccounts(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminAccounts(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3254,126 +3176,6 @@ func (siw *ServerInterfaceWrapper) GetAdminSystemHealthz(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
-// GetAdminSystemStats operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminSystemStats(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminSystemStats(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetAdminUsers operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminUsers(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminUsersParams
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "search" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "search", r.URL.Query(), &params.Search)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "search", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminUsers(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// PostAdminUsers operation middleware
-func (siw *ServerInterfaceWrapper) PostAdminUsers(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminUsers(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteAdminUsersUser operation middleware
-func (siw *ServerInterfaceWrapper) DeleteAdminUsersUser(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "user" -------------
-	var user string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "user", chi.URLParam(r, "user"), &user, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteAdminUsersUser(w, r, user)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
 // GetAuthCallback operation middleware
 func (siw *ServerInterfaceWrapper) GetAuthCallback(w http.ResponseWriter, r *http.Request) {
 
@@ -3588,9 +3390,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/accounts", wrapper.GetAdminAccounts)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/admin/accounts", wrapper.PostAdminAccounts)
-	})
-	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/accounts/{account}", wrapper.DeleteAdminAccountsAccount)
 	})
 	r.Group(func(r chi.Router) {
@@ -3762,18 +3561,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/admin/system/healthz", wrapper.GetAdminSystemHealthz)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/system/stats", wrapper.GetAdminSystemStats)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/users", wrapper.GetAdminUsers)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/admin/users", wrapper.PostAdminUsers)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/admin/users/{user}", wrapper.DeleteAdminUsersUser)
-	})
-	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/auth/callback", wrapper.GetAuthCallback)
 	})
 	r.Group(func(r chi.Router) {
@@ -3809,45 +3596,6 @@ type GetAdminAccounts404Response struct {
 func (response GetAdminAccounts404Response) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
-}
-
-type PostAdminAccountsRequestObject struct {
-	Body *PostAdminAccountsJSONRequestBody
-}
-
-type PostAdminAccountsResponseObject interface {
-	VisitPostAdminAccountsResponse(w http.ResponseWriter) error
-}
-
-type PostAdminAccounts201JSONResponse ID
-
-func (response PostAdminAccounts201JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PostAdminAccounts400JSONResponse struct {
-	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
-}
-
-func (response PostAdminAccounts400JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PostAdminAccounts422JSONResponse struct {
-	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
-}
-
-func (response PostAdminAccounts422JSONResponse) VisitPostAdminAccountsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(422)
-
-	return json.NewEncoder(w).Encode(response)
 }
 
 type DeleteAdminAccountsAccountRequestObject struct {
@@ -5536,97 +5284,6 @@ func (response GetAdminSystemHealthz200JSONResponse) VisitGetAdminSystemHealthzR
 	return json.NewEncoder(w).Encode(response)
 }
 
-type GetAdminSystemStatsRequestObject struct {
-}
-
-type GetAdminSystemStatsResponseObject interface {
-	VisitGetAdminSystemStatsResponse(w http.ResponseWriter) error
-}
-
-type GetAdminSystemStats200JSONResponse struct {
-	StorageUsedBytes *int `json:"storage_used_bytes,omitempty" yaml:"storage_used_bytes,omitempty"`
-	TotalAccounts    *int `json:"total_accounts,omitempty" yaml:"total_accounts,omitempty"`
-	TotalDatabases   *int `json:"total_databases,omitempty" yaml:"total_databases,omitempty"`
-	TotalEngines     *int `json:"total_engines,omitempty" yaml:"total_engines,omitempty"`
-	TotalUsers       *int `json:"total_users,omitempty" yaml:"total_users,omitempty"`
-}
-
-func (response GetAdminSystemStats200JSONResponse) VisitGetAdminSystemStatsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminUsersRequestObject struct {
-	Params GetAdminUsersParams
-}
-
-type GetAdminUsersResponseObject interface {
-	VisitGetAdminUsersResponse(w http.ResponseWriter) error
-}
-
-type GetAdminUsers200JSONResponse PaginatedUsers
-
-func (response GetAdminUsers200JSONResponse) VisitGetAdminUsersResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PostAdminUsersRequestObject struct {
-	Body *PostAdminUsersJSONRequestBody
-}
-
-type PostAdminUsersResponseObject interface {
-	VisitPostAdminUsersResponse(w http.ResponseWriter) error
-}
-
-type PostAdminUsers201JSONResponse User
-
-func (response PostAdminUsers201JSONResponse) VisitPostAdminUsersResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PostAdminUsers400JSONResponse struct {
-	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
-}
-
-func (response PostAdminUsers400JSONResponse) VisitPostAdminUsersResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteAdminUsersUserRequestObject struct {
-	User string `json:"user"`
-}
-
-type DeleteAdminUsersUserResponseObject interface {
-	VisitDeleteAdminUsersUserResponse(w http.ResponseWriter) error
-}
-
-type DeleteAdminUsersUser204Response struct {
-}
-
-func (response DeleteAdminUsersUser204Response) VisitDeleteAdminUsersUserResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteAdminUsersUser404Response struct {
-}
-
-func (response DeleteAdminUsersUser404Response) VisitDeleteAdminUsersUserResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
 type GetAuthCallbackRequestObject struct {
 	Params GetAuthCallbackParams
 }
@@ -5738,9 +5395,6 @@ type StrictServerInterface interface {
 
 	// (GET /admin/accounts)
 	GetAdminAccounts(ctx context.Context, request GetAdminAccountsRequestObject) (GetAdminAccountsResponseObject, error)
-
-	// (POST /admin/accounts)
-	PostAdminAccounts(ctx context.Context, request PostAdminAccountsRequestObject) (PostAdminAccountsResponseObject, error)
 
 	// (DELETE /admin/accounts/{account})
 	DeleteAdminAccountsAccount(ctx context.Context, request DeleteAdminAccountsAccountRequestObject) (DeleteAdminAccountsAccountResponseObject, error)
@@ -5912,18 +5566,6 @@ type StrictServerInterface interface {
 
 	// (GET /admin/system/healthz)
 	GetAdminSystemHealthz(ctx context.Context, request GetAdminSystemHealthzRequestObject) (GetAdminSystemHealthzResponseObject, error)
-
-	// (GET /admin/system/stats)
-	GetAdminSystemStats(ctx context.Context, request GetAdminSystemStatsRequestObject) (GetAdminSystemStatsResponseObject, error)
-
-	// (GET /admin/users)
-	GetAdminUsers(ctx context.Context, request GetAdminUsersRequestObject) (GetAdminUsersResponseObject, error)
-
-	// (POST /admin/users)
-	PostAdminUsers(ctx context.Context, request PostAdminUsersRequestObject) (PostAdminUsersResponseObject, error)
-
-	// (DELETE /admin/users/{user})
-	DeleteAdminUsersUser(ctx context.Context, request DeleteAdminUsersUserRequestObject) (DeleteAdminUsersUserResponseObject, error)
 	// Complete browser OAuth login
 	// (GET /auth/callback)
 	GetAuthCallback(ctx context.Context, request GetAuthCallbackRequestObject) (GetAuthCallbackResponseObject, error)
@@ -5983,37 +5625,6 @@ func (sh *strictHandler) GetAdminAccounts(w http.ResponseWriter, r *http.Request
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminAccountsResponseObject); ok {
 		if err := validResponse.VisitGetAdminAccountsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// PostAdminAccounts operation middleware
-func (sh *strictHandler) PostAdminAccounts(w http.ResponseWriter, r *http.Request) {
-	var request PostAdminAccountsRequestObject
-
-	var body PostAdminAccountsJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostAdminAccounts(ctx, request.(PostAdminAccountsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostAdminAccounts")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostAdminAccountsResponseObject); ok {
-		if err := validResponse.VisitPostAdminAccountsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -7657,113 +7268,6 @@ func (sh *strictHandler) GetAdminSystemHealthz(w http.ResponseWriter, r *http.Re
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetAdminSystemHealthzResponseObject); ok {
 		if err := validResponse.VisitGetAdminSystemHealthzResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminSystemStats operation middleware
-func (sh *strictHandler) GetAdminSystemStats(w http.ResponseWriter, r *http.Request) {
-	var request GetAdminSystemStatsRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminSystemStats(ctx, request.(GetAdminSystemStatsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminSystemStats")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminSystemStatsResponseObject); ok {
-		if err := validResponse.VisitGetAdminSystemStatsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetAdminUsers operation middleware
-func (sh *strictHandler) GetAdminUsers(w http.ResponseWriter, r *http.Request, params GetAdminUsersParams) {
-	var request GetAdminUsersRequestObject
-
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminUsers(ctx, request.(GetAdminUsersRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminUsers")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminUsersResponseObject); ok {
-		if err := validResponse.VisitGetAdminUsersResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// PostAdminUsers operation middleware
-func (sh *strictHandler) PostAdminUsers(w http.ResponseWriter, r *http.Request) {
-	var request PostAdminUsersRequestObject
-
-	var body PostAdminUsersJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.PostAdminUsers(ctx, request.(PostAdminUsersRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PostAdminUsers")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(PostAdminUsersResponseObject); ok {
-		if err := validResponse.VisitPostAdminUsersResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteAdminUsersUser operation middleware
-func (sh *strictHandler) DeleteAdminUsersUser(w http.ResponseWriter, r *http.Request, user string) {
-	var request DeleteAdminUsersUserRequestObject
-
-	request.User = user
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteAdminUsersUser(ctx, request.(DeleteAdminUsersUserRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteAdminUsersUser")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteAdminUsersUserResponseObject); ok {
-		if err := validResponse.VisitDeleteAdminUsersUserResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

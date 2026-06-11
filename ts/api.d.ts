@@ -412,48 +412,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/system/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description global system statistics (admin only) */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description system statistics */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            total_accounts?: number;
-                            total_engines?: number;
-                            total_databases?: number;
-                            total_users?: number;
-                            storage_used_bytes?: number;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/accounts": {
         parameters: {
             query?: never;
@@ -495,54 +453,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description create a new account, normally limited to system administrators */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description information for new account */
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AccountBody"];
-                };
-            };
-            responses: {
-                /** @description successfully created account */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ID"];
-                    };
-                };
-                /** @description Invalid request or referenced billing customer not found */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            message?: string;
-                        };
-                    };
-                };
-                /** @description Quota exceeded */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            message?: string;
-                        };
-                    };
-                };
-            };
-        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1821,129 +1732,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description list all users in the system (admin only) */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                    /** @description Search term to filter users by name or email */
-                    search?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description list of all users */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedUsers"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /** @description create a new user (admin only) */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description information for new user */
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UserWithEmail"];
-                };
-            };
-            responses: {
-                /** @description successfully created user */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["User"];
-                    };
-                };
-                /** @description Invalid request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            message?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/users/{user}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** @description delete a user (admin only) */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Unique ID of the user */
-                    user: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description user successfully deleted */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/accounts/{account}/users": {
         parameters: {
             query?: never;
@@ -3159,9 +2947,6 @@ export interface components {
             kind: "local" | "remote" | "encrypted";
             metadata: components["schemas"]["Metadata"];
             spec: Record<string, never>;
-        };
-        PaginatedUsers: components["schemas"]["PaginationMetadata"] & {
-            users?: components["schemas"]["User"][];
         };
         AccountMember: {
             /** @description unique ID of the user */
