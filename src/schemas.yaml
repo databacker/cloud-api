@@ -121,16 +121,6 @@ components:
               items:
                 $ref: '#/components/schemas/BackupEvent'
 
-    PaginatedUsers:
-      allOf:
-        - $ref: '#/components/schemas/PaginationMetadata'
-        - type: object
-          properties:
-            users:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-
     PaginatedAccountMembers:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'

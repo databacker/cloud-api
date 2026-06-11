@@ -364,29 +364,7 @@ paths:
               schema:
                 *error-message-schema
 
-  /admin/system/stats:
-    get:
-      description: global system statistics (admin only)
-      responses:
-        '200':
-          description: system statistics
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  total_accounts:
-                    type: integer
-                  total_engines:
-                    type: integer
-                  total_databases:
-                    type: integer
-                  total_users:
-                    type: integer
-                  storage_used_bytes:
-                    type: integer
-
-  /admin/accounts:      
+  /admin/accounts:
     get:
       description: list all of the accounts for which the authenticated user has access
       parameters:
@@ -401,33 +379,7 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedAccounts'
-    post:
-      description: create a new account, normally limited to system administrators
-      requestBody:
-        description: information for new account
-        content:
-          application/json:
-            schema:
-              $ref: './schemas.yaml#/components/schemas/AccountBody'
-      responses:
-        '201':
-          description: successfully created account
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/ID'  # returns the body created
-        '400':
-          description: Invalid request or referenced billing customer not found
-          content:
-            application/json:
-              schema:
-                *error-message-schema
-        '422':
-          description: Quota exceeded
-          content:
-            application/json:
-              schema:
-                *error-message-schema
+
   /admin/accounts/{account}:      
     get:
       description: get information about the specific account
@@ -1393,57 +1345,6 @@ paths:
       responses:
         '204':
           description: config successfully deleted
-        <<: *not-found-response
-
-  /admin/users:
-    get:
-      description: list all users in the system (admin only)
-      parameters:
-        - *offset-param
-        - *limit-param
-        - in: query
-          name: search
-          schema:
-            type: string
-          required: false
-          description: Search term to filter users by name or email
-      responses:
-        '200':
-          description: list of all users
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedUsers'
-    post:
-      description: create a new user (admin only)
-      requestBody:
-        description: information for new user
-        content:
-          application/json:
-            schema:
-              $ref: './schemas.yaml#/components/schemas/UserWithEmail'
-      responses:
-        '201':
-          description: successfully created user
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/User'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                *error-message-schema
-
-  /admin/users/{user}:
-    delete:
-      description: delete a user (admin only)
-      parameters:
-        - *user-param
-      responses:
-        '204':
-          description: user successfully deleted
         <<: *not-found-response
 
   /admin/accounts/{account}/users:
