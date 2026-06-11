@@ -25,15 +25,6 @@ const (
 	Events GetBackupParamsInclude = "events"
 )
 
-// GetAdminAccountsParams defines parameters for GetAdminAccounts.
-type GetAdminAccountsParams struct {
-	// Offset Number of results to skip
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty" yaml:"offset,omitempty"`
-
-	// Limit Maximum number of results to return
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
-}
-
 // ListAccountBackupsParams defines parameters for ListAccountBackups.
 type ListAccountBackupsParams struct {
 	// Engine filter to backups produced by a specific backup engine ID
@@ -331,9 +322,6 @@ type PatchAdminSelfEmailJSONRequestBody = Email
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (GET /admin/accounts)
-	GetAdminAccounts(w http.ResponseWriter, r *http.Request, params GetAdminAccountsParams)
-
 	// (DELETE /admin/accounts/{account})
 	DeleteAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string)
 
@@ -518,11 +506,6 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
-
-// (GET /admin/accounts)
-func (_ Unimplemented) GetAdminAccounts(w http.ResponseWriter, r *http.Request, params GetAdminAccountsParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
 
 // (DELETE /admin/accounts/{account})
 func (_ Unimplemented) DeleteAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string) {
@@ -837,47 +820,6 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
-
-// GetAdminAccounts operation middleware
-func (siw *ServerInterfaceWrapper) GetAdminAccounts(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, JWTScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAdminAccountsParams
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAdminAccounts(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
 
 // DeleteAdminAccountsAccount operation middleware
 func (siw *ServerInterfaceWrapper) DeleteAdminAccountsAccount(w http.ResponseWriter, r *http.Request) {
@@ -3387,9 +3329,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/admin/accounts", wrapper.GetAdminAccounts)
-	})
-	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/admin/accounts/{account}", wrapper.DeleteAdminAccountsAccount)
 	})
 	r.Group(func(r chi.Router) {
@@ -3571,31 +3510,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 
 	return r
-}
-
-type GetAdminAccountsRequestObject struct {
-	Params GetAdminAccountsParams
-}
-
-type GetAdminAccountsResponseObject interface {
-	VisitGetAdminAccountsResponse(w http.ResponseWriter) error
-}
-
-type GetAdminAccounts200JSONResponse PaginatedAccounts
-
-func (response GetAdminAccounts200JSONResponse) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetAdminAccounts404Response struct {
-}
-
-func (response GetAdminAccounts404Response) VisitGetAdminAccountsResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
 }
 
 type DeleteAdminAccountsAccountRequestObject struct {
@@ -5393,9 +5307,6 @@ func (response GetAuthLogout400Response) VisitGetAuthLogoutResponse(w http.Respo
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
-	// (GET /admin/accounts)
-	GetAdminAccounts(ctx context.Context, request GetAdminAccountsRequestObject) (GetAdminAccountsResponseObject, error)
-
 	// (DELETE /admin/accounts/{account})
 	DeleteAdminAccountsAccount(ctx context.Context, request DeleteAdminAccountsAccountRequestObject) (DeleteAdminAccountsAccountResponseObject, error)
 
@@ -5604,32 +5515,6 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
-}
-
-// GetAdminAccounts operation middleware
-func (sh *strictHandler) GetAdminAccounts(w http.ResponseWriter, r *http.Request, params GetAdminAccountsParams) {
-	var request GetAdminAccountsRequestObject
-
-	request.Params = params
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetAdminAccounts(ctx, request.(GetAdminAccountsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetAdminAccounts")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetAdminAccountsResponseObject); ok {
-		if err := validResponse.VisitGetAdminAccountsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
 }
 
 // DeleteAdminAccountsAccount operation middleware

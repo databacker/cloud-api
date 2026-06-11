@@ -364,22 +364,6 @@ paths:
               schema:
                 *error-message-schema
 
-  /admin/accounts:
-    get:
-      description: list all of the accounts for which the authenticated user has access
-      parameters:
-      - *offset-param
-      - *limit-param
-      responses:
-        '404':
-          description: no accounts available
-        '200':
-          description: list of accounts for my user
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/PaginatedAccounts'
-
   /admin/accounts/{account}:      
     get:
       description: get information about the specific account

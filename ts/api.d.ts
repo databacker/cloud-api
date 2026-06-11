@@ -412,54 +412,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/accounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description list all of the accounts for which the authenticated user has access */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to skip */
-                    offset?: number;
-                    /** @description Maximum number of results to return */
-                    limit?: number;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description list of accounts for my user */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedAccounts"];
-                    };
-                };
-                /** @description no accounts available */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/accounts/{account}": {
         parameters: {
             query?: never;
@@ -2006,9 +1958,6 @@ export interface components {
              * @description timestamp when the account was last updated
              */
             updated_at?: string | null;
-        };
-        PaginatedAccounts: components["schemas"]["PaginationMetadata"] & {
-            accounts?: components["schemas"]["Account"][];
         };
         BillingPrice: {
             price_id: string;

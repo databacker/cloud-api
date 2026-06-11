@@ -1025,16 +1025,6 @@ type PaginatedAccountMembers struct {
 	Users   *[]AccountMember `json:"users,omitempty" yaml:"users,omitempty"`
 }
 
-// PaginatedAccounts defines model for PaginatedAccounts.
-type PaginatedAccounts struct {
-	Accounts *[]Account `json:"accounts,omitempty" yaml:"accounts,omitempty"`
-	HasNext  *bool      `json:"has_next,omitempty" yaml:"has_next,omitempty"`
-	HasPrev  *bool      `json:"has_prev,omitempty" yaml:"has_prev,omitempty"`
-	Limit    *int       `json:"limit,omitempty" yaml:"limit,omitempty"`
-	Offset   *int       `json:"offset,omitempty" yaml:"offset,omitempty"`
-	Total    *int       `json:"total,omitempty" yaml:"total,omitempty"`
-}
-
 // PaginatedBackupEvents defines model for PaginatedBackupEvents.
 type PaginatedBackupEvents struct {
 	// Events Paginated backup run summaries. List endpoints must not embed product timeline events.

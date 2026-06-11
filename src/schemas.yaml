@@ -30,16 +30,6 @@ components:
               items:
                 $ref: '#/components/schemas/SelfAccountEntry'
 
-    PaginatedAccounts:
-      allOf:
-        - $ref: '#/components/schemas/PaginationMetadata'
-        - type: object
-          properties:
-            accounts:
-              type: array
-              items:
-                $ref: '#/components/schemas/Account'
-
     PaginatedEngines:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'
