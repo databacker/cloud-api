@@ -1285,17 +1285,17 @@ components:
 
     AccountMember:
       type: object
-      properties:
-        user:
-          type: string
-          description: unique ID of the user
-        role:
-          type: string
-          description: role of the user in the account
-          enum: [owner, admin, member, viewer]
-      required:
-        - user
-        - role
+      description: user profile fields plus the user's role in the account
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            role:
+              type: string
+              description: role of the user in the account
+              enum: [owner, admin, member, viewer]
+          required:
+            - role
 
     BackupEvent:
       type: object

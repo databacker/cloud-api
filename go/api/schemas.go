@@ -236,11 +236,17 @@ type AccountBodyRetentionTier string
 
 // AccountMember defines model for AccountMember.
 type AccountMember struct {
+	// Email email address of the user
+	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+
+	// ID unique ID of the object, as a UUID
+	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
+
+	// Name full name of the user
+	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+
 	// Role role of the user in the account
 	Role AccountMemberRole `json:"role" yaml:"role"`
-
-	// User unique ID of the user
-	User string `json:"user" yaml:"user"`
 }
 
 // AccountMemberRole role of the user in the account

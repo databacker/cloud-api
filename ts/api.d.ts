@@ -2897,9 +2897,8 @@ export interface components {
             metadata: components["schemas"]["Metadata"];
             spec: Record<string, never>;
         };
-        AccountMember: {
-            /** @description unique ID of the user */
-            user: string;
+        /** @description user profile fields plus the user's role in the account */
+        AccountMember: components["schemas"]["User"] & {
             /**
              * @description role of the user in the account
              * @enum {string}
