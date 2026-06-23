@@ -30,6 +30,18 @@ components:
               items:
                 $ref: '#/components/schemas/SelfAccountEntry'
 
+    SelfBootstrapResult:
+      type: object
+      description: Initial onboarding resources for a verified user.
+      properties:
+        account:
+          $ref: '#/components/schemas/Account'
+        billing_customer:
+          $ref: '#/components/schemas/BillingCustomer'
+      required:
+        - account
+        - billing_customer
+
     PaginatedEngines:
       allOf:
         - $ref: '#/components/schemas/PaginationMetadata'

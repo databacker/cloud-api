@@ -324,6 +324,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/self/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bootstrap initial onboarding resources
+         * @description Atomically create or return the calling verified user's initial onboarding resources. The operation is idempotent; repeated calls return the same completed bootstrap result without creating duplicate billing customers or accounts. If an earlier attempt partially completed, the implementation must safely reuse and finish the partial state. Requires an authenticated existing user with verified email. Ensures one initial dormant billing customer/payment profile, one default workspace/account owned by the user, and assignment of that workspace to the billing customer.
+         */
+        post: operations["BootstrapAdminSelf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/self/accounts": {
         parameters: {
             query?: never;
@@ -1895,28 +1915,6 @@ export interface components {
             id?: string;
         };
         User: components["schemas"]["UserWithEmail"] & components["schemas"]["ID"];
-        PaginationMetadata: {
-            total?: number;
-            limit?: number;
-            offset?: number;
-            has_next?: boolean;
-            has_prev?: boolean;
-        };
-        /** @description an account the calling user belongs to, with their role */
-        SelfAccountEntry: {
-            /**
-             * @description unique ID of the account
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /** @description name of the account */
-            name?: string;
-            /** @description role of the calling user in this account */
-            role?: string;
-        };
-        PaginatedSelfAccounts: components["schemas"]["PaginationMetadata"] & {
-            accounts?: components["schemas"]["SelfAccountEntry"][];
-        };
         /** @description information for a new databacker account */
         AccountBody: {
             /** @description name of the account */
@@ -1958,42 +1956,6 @@ export interface components {
              * @description timestamp when the account was last updated
              */
             updated_at?: string | null;
-        };
-        BillingPrice: {
-            price_id: string;
-            version: string;
-            /** @description ISO 4217 currency code. */
-            currency: string;
-            /**
-             * @description Monthly unit price in minor currency units for one active protected database before interval proration.
-             * @example 1900
-             */
-            unit_amount_cents: number;
-            /** @enum {string} */
-            interval: "month";
-            /** Format: date-time */
-            effective_from?: string | null;
-            /** Format: date-time */
-            effective_until?: string | null;
-        };
-        BillingProduct: {
-            /**
-             * @description Stable product identifier.
-             * @example active_protected_database
-             */
-            product_id: string;
-            name: string;
-            /**
-             * @description The base billable product is an active protected database.
-             * @enum {string}
-             */
-            billable_unit: "active_protected_database";
-            prices: components["schemas"]["BillingPrice"][];
-        };
-        BillingCatalog: {
-            products: components["schemas"]["BillingProduct"][];
-            /** Format: date-time */
-            generated_at?: string | null;
         };
         /** @description Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials. */
         BillingCustomerProfile: {
@@ -2054,6 +2016,69 @@ export interface components {
             created_at?: string | null;
             /** Format: date-time */
             updated_at?: string | null;
+        };
+        /** @description Initial onboarding resources for a verified user. */
+        SelfBootstrapResult: {
+            account: components["schemas"]["Account"];
+            billing_customer: components["schemas"]["BillingCustomer"];
+        };
+        PaginationMetadata: {
+            total?: number;
+            limit?: number;
+            offset?: number;
+            has_next?: boolean;
+            has_prev?: boolean;
+        };
+        /** @description an account the calling user belongs to, with their role */
+        SelfAccountEntry: {
+            /**
+             * @description unique ID of the account
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            id?: string;
+            /** @description name of the account */
+            name?: string;
+            /** @description role of the calling user in this account */
+            role?: string;
+        };
+        PaginatedSelfAccounts: components["schemas"]["PaginationMetadata"] & {
+            accounts?: components["schemas"]["SelfAccountEntry"][];
+        };
+        BillingPrice: {
+            price_id: string;
+            version: string;
+            /** @description ISO 4217 currency code. */
+            currency: string;
+            /**
+             * @description Monthly unit price in minor currency units for one active protected database before interval proration.
+             * @example 1900
+             */
+            unit_amount_cents: number;
+            /** @enum {string} */
+            interval: "month";
+            /** Format: date-time */
+            effective_from?: string | null;
+            /** Format: date-time */
+            effective_until?: string | null;
+        };
+        BillingProduct: {
+            /**
+             * @description Stable product identifier.
+             * @example active_protected_database
+             */
+            product_id: string;
+            name: string;
+            /**
+             * @description The base billable product is an active protected database.
+             * @enum {string}
+             */
+            billable_unit: "active_protected_database";
+            prices: components["schemas"]["BillingPrice"][];
+        };
+        BillingCatalog: {
+            products: components["schemas"]["BillingProduct"][];
+            /** Format: date-time */
+            generated_at?: string | null;
         };
         PaginatedBillingCustomers: components["schemas"]["PaginationMetadata"] & {
             billing_customers?: components["schemas"]["BillingCustomer"][];
@@ -3054,6 +3079,51 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BootstrapAdminSelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Initial onboarding resources were created or already existed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SelfBootstrapResult"];
+                };
+            };
+            /** @description Authentication required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Email verification required. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

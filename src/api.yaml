@@ -323,6 +323,28 @@ paths:
         '401':
           description: Unauthorized
 
+  /admin/self/bootstrap:
+    post:
+      operationId: BootstrapAdminSelf
+      summary: Bootstrap initial onboarding resources
+      description: Atomically create or return the calling verified user's initial onboarding resources. The operation is idempotent; repeated calls return the same completed bootstrap result without creating duplicate billing customers or accounts. If an earlier attempt partially completed, the implementation must safely reuse and finish the partial state. Requires an authenticated existing user with verified email. Ensures one initial dormant billing customer/payment profile, one default workspace/account owned by the user, and assignment of that workspace to the billing customer.
+      responses:
+        '200':
+          description: Initial onboarding resources were created or already existed.
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/SelfBootstrapResult'
+        '401':
+          description: Authentication required.
+        '403':
+          description: Email verification required.
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        <<: *not-found-response
+
   /admin/self/accounts:
     get:
       description: list the accounts the calling user belongs to, along with their role in each

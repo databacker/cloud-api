@@ -1269,6 +1269,13 @@ type SelfAccountEntry struct {
 	Role *string `json:"role,omitempty" yaml:"role,omitempty"`
 }
 
+// SelfBootstrapResult Initial onboarding resources for a verified user.
+type SelfBootstrapResult struct {
+	// Account information for a databacker account with ID
+	Account         Account         `json:"account" yaml:"account"`
+	BillingCustomer BillingCustomer `json:"billing_customer" yaml:"billing_customer"`
+}
+
 // Span defines model for Span.
 type Span struct {
 	Attributes    *map[string]interface{} `json:"attributes,omitempty" yaml:"attributes,omitempty"`

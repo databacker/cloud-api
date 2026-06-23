@@ -483,6 +483,9 @@ type ServerInterface interface {
 
 	// (POST /admin/self/accounts)
 	PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request)
+	// Bootstrap initial onboarding resources
+	// (POST /admin/self/bootstrap)
+	BootstrapAdminSelf(w http.ResponseWriter, r *http.Request)
 	// Change user email address
 	// (PATCH /admin/self/email)
 	PatchAdminSelfEmail(w http.ResponseWriter, r *http.Request)
@@ -774,6 +777,12 @@ func (_ Unimplemented) GetAdminSelfAccounts(w http.ResponseWriter, r *http.Reque
 
 // (POST /admin/self/accounts)
 func (_ Unimplemented) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Bootstrap initial onboarding resources
+// (POST /admin/self/bootstrap)
+func (_ Unimplemented) BootstrapAdminSelf(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -3044,6 +3053,26 @@ func (siw *ServerInterfaceWrapper) PostAdminSelfAccounts(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
+// BootstrapAdminSelf operation middleware
+func (siw *ServerInterfaceWrapper) BootstrapAdminSelf(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.BootstrapAdminSelf(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // PatchAdminSelfEmail operation middleware
 func (siw *ServerInterfaceWrapper) PatchAdminSelfEmail(w http.ResponseWriter, r *http.Request) {
 
@@ -3489,6 +3518,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/self/accounts", wrapper.PostAdminSelfAccounts)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/self/bootstrap", wrapper.BootstrapAdminSelf)
 	})
 	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/admin/self/email", wrapper.PatchAdminSelfEmail)
@@ -5115,6 +5147,49 @@ func (response PostAdminSelfAccounts422JSONResponse) VisitPostAdminSelfAccountsR
 	return json.NewEncoder(w).Encode(response)
 }
 
+type BootstrapAdminSelfRequestObject struct {
+}
+
+type BootstrapAdminSelfResponseObject interface {
+	VisitBootstrapAdminSelfResponse(w http.ResponseWriter) error
+}
+
+type BootstrapAdminSelf200JSONResponse SelfBootstrapResult
+
+func (response BootstrapAdminSelf200JSONResponse) VisitBootstrapAdminSelfResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type BootstrapAdminSelf401Response struct {
+}
+
+func (response BootstrapAdminSelf401Response) VisitBootstrapAdminSelfResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type BootstrapAdminSelf403JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response BootstrapAdminSelf403JSONResponse) VisitBootstrapAdminSelfResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type BootstrapAdminSelf404Response struct {
+}
+
+func (response BootstrapAdminSelf404Response) VisitBootstrapAdminSelfResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type PatchAdminSelfEmailRequestObject struct {
 	Body *PatchAdminSelfEmailJSONRequestBody
 }
@@ -5468,6 +5543,9 @@ type StrictServerInterface interface {
 
 	// (POST /admin/self/accounts)
 	PostAdminSelfAccounts(ctx context.Context, request PostAdminSelfAccountsRequestObject) (PostAdminSelfAccountsResponseObject, error)
+	// Bootstrap initial onboarding resources
+	// (POST /admin/self/bootstrap)
+	BootstrapAdminSelf(ctx context.Context, request BootstrapAdminSelfRequestObject) (BootstrapAdminSelfResponseObject, error)
 	// Change user email address
 	// (PATCH /admin/self/email)
 	PatchAdminSelfEmail(ctx context.Context, request PatchAdminSelfEmailRequestObject) (PatchAdminSelfEmailResponseObject, error)
@@ -7072,6 +7150,30 @@ func (sh *strictHandler) PostAdminSelfAccounts(w http.ResponseWriter, r *http.Re
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PostAdminSelfAccountsResponseObject); ok {
 		if err := validResponse.VisitPostAdminSelfAccountsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// BootstrapAdminSelf operation middleware
+func (sh *strictHandler) BootstrapAdminSelf(w http.ResponseWriter, r *http.Request) {
+	var request BootstrapAdminSelfRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.BootstrapAdminSelf(ctx, request.(BootstrapAdminSelfRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "BootstrapAdminSelf")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(BootstrapAdminSelfResponseObject); ok {
+		if err := validResponse.VisitBootstrapAdminSelfResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
