@@ -503,7 +503,7 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        /** @description update account details (admin only) */
+        /** @description update general account details (admin only). Lifecycle metadata is read-only here; use the archive and restore actions to change archival state. */
         patch: {
             parameters: {
                 query?: never;
@@ -550,6 +550,40 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/admin/accounts/{account}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Archive the account and update its lifecycle metadata. This action requires the calling user to have the owner role for the account. It is idempotent, so archiving an already archived account succeeds. Archival is a lifecycle state and does not physically delete the account or its data. */
+        post: operations["ArchiveAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Restore the account to active status and update its lifecycle metadata. This action requires the calling user to have the owner role for the account. It is idempotent, so restoring an already active account succeeds. Restoration changes lifecycle state and does not recreate physically deleted data. */
+        post: operations["RestoreAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/admin/billing/catalog": {
@@ -1943,7 +1977,7 @@ export interface components {
             /** Format: date-time */
             confirmed_at?: string | null;
         };
-        /** @description information for a databacker account with ID */
+        /** @description information for a databacker account with ID, including read-only lifecycle metadata */
         Account: components["schemas"]["AccountBody"] & components["schemas"]["ID"] & {
             billing_customer_readiness?: components["schemas"]["BillingReadiness"];
             /**
@@ -1956,6 +1990,15 @@ export interface components {
              * @description timestamp when the account was last updated
              */
             updated_at?: string | null;
+            /** @description whether the account is archived; archival is a lifecycle state and does not mean physical deletion */
+            readonly archived: boolean;
+            /**
+             * Format: date-time
+             * @description timestamp when the account was archived, or null while the account is active
+             */
+            readonly archived_at?: string | null;
+            /** @description user ID that archived the account, or null while the account is active */
+            readonly archived_by?: string | null;
         };
         /** @description Non-sensitive Databacker-owned payer metadata. Updating this profile does not create payment readiness and never submits raw card, bank, or other payment credentials. */
         BillingCustomerProfile: {
@@ -2040,6 +2083,8 @@ export interface components {
             name?: string;
             /** @description role of the calling user in this account */
             role?: string;
+            /** @description whether the account is archived; archival is a lifecycle state and does not mean physical deletion */
+            readonly archived: boolean;
         };
         PaginatedSelfAccounts: components["schemas"]["PaginationMetadata"] & {
             accounts?: components["schemas"]["SelfAccountEntry"][];
@@ -3128,6 +3173,162 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    ArchiveAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description account archived, or already archived, with updated lifecycle metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Account owner role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Account not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Account cannot be archived because of a business-state conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+        };
+    };
+    RestoreAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description account restored, or already active, with updated lifecycle metadata */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Account owner role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Account not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Account cannot be restored because of a business-state conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
             };
         };
     };

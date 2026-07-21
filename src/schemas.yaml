@@ -1127,7 +1127,7 @@ components:
         - name
         - billing_customer_id
     Account:
-      description: information for a databacker account with ID
+      description: information for a databacker account with ID, including read-only lifecycle metadata
       allOf:
         - $ref: '#/components/schemas/AccountBody'
         - $ref: '#/components/schemas/ID'
@@ -1145,6 +1145,23 @@ components:
               format: date-time
               nullable: true
               description: timestamp when the account was last updated
+            archived:
+              type: boolean
+              readOnly: true
+              description: whether the account is archived; archival is a lifecycle state and does not mean physical deletion
+            archived_at:
+              type: string
+              format: date-time
+              nullable: true
+              readOnly: true
+              description: timestamp when the account was archived, or null while the account is active
+            archived_by:
+              type: string
+              nullable: true
+              readOnly: true
+              description: user ID that archived the account, or null while the account is active
+          required:
+            - archived
 
     Email:
       type: object
@@ -1554,6 +1571,12 @@ components:
         role:
           type: string
           description: role of the calling user in this account
+        archived:
+          type: boolean
+          readOnly: true
+          description: whether the account is archived; archival is a lifecycle state and does not mean physical deletion
+      required:
+        - archived
     PatchAdminSelfRequest:
       type: object
       properties:

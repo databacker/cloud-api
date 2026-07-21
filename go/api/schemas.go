@@ -188,6 +188,15 @@ const (
 
 // Account defines model for Account.
 type Account struct {
+	// Archived whether the account is archived; archival is a lifecycle state and does not mean physical deletion
+	Archived *bool `json:"archived,omitempty" yaml:"archived,omitempty"`
+
+	// ArchivedAt timestamp when the account was archived, or null while the account is active
+	ArchivedAt *time.Time `json:"archived_at" yaml:"archived_at"`
+
+	// ArchivedBy user ID that archived the account, or null while the account is active
+	ArchivedBy *string `json:"archived_by" yaml:"archived_by"`
+
 	// BillingCustomerID ID of the billing customer responsible for this account. A valid, existing billing customer must be provided.
 	BillingCustomerID string `json:"billing_customer_id" yaml:"billing_customer_id"`
 
@@ -1259,6 +1268,9 @@ type PortalSessionRequestPurpose string
 
 // SelfAccountEntry an account the calling user belongs to, with their role
 type SelfAccountEntry struct {
+	// Archived whether the account is archived; archival is a lifecycle state and does not mean physical deletion
+	Archived *bool `json:"archived,omitempty" yaml:"archived,omitempty"`
+
 	// ID unique ID of the account
 	ID *string `json:"id,omitempty" yaml:"id,omitempty"`
 
@@ -1271,7 +1283,7 @@ type SelfAccountEntry struct {
 
 // SelfBootstrapResult Initial onboarding resources for a verified user.
 type SelfBootstrapResult struct {
-	// Account information for a databacker account with ID
+	// Account information for a databacker account with ID, including read-only lifecycle metadata
 	Account         Account         `json:"account" yaml:"account"`
 	BillingCustomer BillingCustomer `json:"billing_customer" yaml:"billing_customer"`
 }

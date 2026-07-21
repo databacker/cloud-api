@@ -400,7 +400,7 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/Account'
     patch:
-      description: update account details (admin only)
+      description: update general account details (admin only). Lifecycle metadata is read-only here; use the archive and restore actions to change archival state.
       parameters:
         - *account-param
       requestBody:
@@ -431,6 +431,94 @@ paths:
         '204':
           description: account successfully deleted
         <<: *not-found-response
+
+  /admin/accounts/{account}/archive:
+    post:
+      operationId: ArchiveAccount
+      description: Archive the account and update its lifecycle metadata. This action requires the calling user to have the owner role for the account. It is idempotent, so archiving an already archived account succeeds. Archival is a lifecycle state and does not physically delete the account or its data.
+      parameters:
+        - *account-param
+      responses:
+        '200':
+          description: account archived, or already archived, with updated lifecycle metadata
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Account'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '403':
+          description: Account owner role required
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '409':
+          description: Account cannot be archived because of a business-state conflict
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+
+  /admin/accounts/{account}/restore:
+    post:
+      operationId: RestoreAccount
+      description: Restore the account to active status and update its lifecycle metadata. This action requires the calling user to have the owner role for the account. It is idempotent, so restoring an already active account succeeds. Restoration changes lifecycle state and does not recreate physically deleted data.
+      parameters:
+        - *account-param
+      responses:
+        '200':
+          description: account restored, or already active, with updated lifecycle metadata
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Account'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '403':
+          description: Account owner role required
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '409':
+          description: Account cannot be restored because of a business-state conflict
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                *error-message-schema
 
   /admin/billing/catalog:
     get:

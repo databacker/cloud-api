@@ -331,6 +331,9 @@ type ServerInterface interface {
 	// (PATCH /admin/accounts/{account})
 	PatchAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string)
 
+	// (POST /admin/accounts/{account}/archive)
+	ArchiveAccount(w http.ResponseWriter, r *http.Request, account string)
+
 	// (GET /admin/accounts/{account}/backups)
 	ListAccountBackups(w http.ResponseWriter, r *http.Request, account string, params ListAccountBackupsParams)
 
@@ -423,6 +426,9 @@ type ServerInterface interface {
 
 	// (POST /admin/accounts/{account}/protection/pending/{database}/activate)
 	ActivatePendingDiscoveredTarget(w http.ResponseWriter, r *http.Request, account string, database string)
+
+	// (POST /admin/accounts/{account}/restore)
+	RestoreAccount(w http.ResponseWriter, r *http.Request, account string)
 
 	// (GET /admin/accounts/{account}/users)
 	GetAdminAccountsAccountUsers(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountUsersParams)
@@ -522,6 +528,11 @@ func (_ Unimplemented) GetAdminAccountsAccount(w http.ResponseWriter, r *http.Re
 
 // (PATCH /admin/accounts/{account})
 func (_ Unimplemented) PatchAdminAccountsAccount(w http.ResponseWriter, r *http.Request, account string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/accounts/{account}/archive)
+func (_ Unimplemented) ArchiveAccount(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -677,6 +688,11 @@ func (_ Unimplemented) ListPendingDiscoveredTargets(w http.ResponseWriter, r *ht
 
 // (POST /admin/accounts/{account}/protection/pending/{database}/activate)
 func (_ Unimplemented) ActivatePendingDiscoveredTarget(w http.ResponseWriter, r *http.Request, account string, database string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /admin/accounts/{account}/restore)
+func (_ Unimplemented) RestoreAccount(w http.ResponseWriter, r *http.Request, account string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -914,6 +930,37 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccount(w http.ResponseWrit
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchAdminAccountsAccount(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ArchiveAccount operation middleware
+func (siw *ServerInterfaceWrapper) ArchiveAccount(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ArchiveAccount(w, r, account)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2376,6 +2423,37 @@ func (siw *ServerInterfaceWrapper) ActivatePendingDiscoveredTarget(w http.Respon
 	handler.ServeHTTP(w, r)
 }
 
+// RestoreAccount operation middleware
+func (siw *ServerInterfaceWrapper) RestoreAccount(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RestoreAccount(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetAdminAccountsAccountUsers operation middleware
 func (siw *ServerInterfaceWrapper) GetAdminAccountsAccountUsers(w http.ResponseWriter, r *http.Request) {
 
@@ -3367,6 +3445,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Patch(options.BaseURL+"/admin/accounts/{account}", wrapper.PatchAdminAccountsAccount)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/archive", wrapper.ArchiveAccount)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/backups", wrapper.ListAccountBackups)
 	})
 	r.Group(func(r chi.Router) {
@@ -3458,6 +3539,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/accounts/{account}/protection/pending/{database}/activate", wrapper.ActivatePendingDiscoveredTarget)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/accounts/{account}/restore", wrapper.RestoreAccount)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/users", wrapper.GetAdminAccountsAccountUsers)
@@ -3628,6 +3712,78 @@ type PatchAdminAccountsAccount404Response struct {
 func (response PatchAdminAccountsAccount404Response) VisitPatchAdminAccountsAccountResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
+}
+
+type ArchiveAccountRequestObject struct {
+	Account string `json:"account"`
+}
+
+type ArchiveAccountResponseObject interface {
+	VisitArchiveAccountResponse(w http.ResponseWriter) error
+}
+
+type ArchiveAccount200JSONResponse Account
+
+func (response ArchiveAccount200JSONResponse) VisitArchiveAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ArchiveAccount401JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ArchiveAccount401JSONResponse) VisitArchiveAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ArchiveAccount403JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ArchiveAccount403JSONResponse) VisitArchiveAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ArchiveAccount404JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ArchiveAccount404JSONResponse) VisitArchiveAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ArchiveAccount409JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ArchiveAccount409JSONResponse) VisitArchiveAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ArchiveAccount500JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ArchiveAccount500JSONResponse) VisitArchiveAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type ListAccountBackupsRequestObject struct {
@@ -4590,6 +4746,78 @@ func (response ActivatePendingDiscoveredTarget422JSONResponse) VisitActivatePend
 	return json.NewEncoder(w).Encode(response)
 }
 
+type RestoreAccountRequestObject struct {
+	Account string `json:"account"`
+}
+
+type RestoreAccountResponseObject interface {
+	VisitRestoreAccountResponse(w http.ResponseWriter) error
+}
+
+type RestoreAccount200JSONResponse Account
+
+func (response RestoreAccount200JSONResponse) VisitRestoreAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RestoreAccount401JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response RestoreAccount401JSONResponse) VisitRestoreAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RestoreAccount403JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response RestoreAccount403JSONResponse) VisitRestoreAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RestoreAccount404JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response RestoreAccount404JSONResponse) VisitRestoreAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RestoreAccount409JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response RestoreAccount409JSONResponse) VisitRestoreAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RestoreAccount500JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response RestoreAccount500JSONResponse) VisitRestoreAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetAdminAccountsAccountUsersRequestObject struct {
 	Account string `json:"account"`
 	Params  GetAdminAccountsAccountUsersParams
@@ -5391,6 +5619,9 @@ type StrictServerInterface interface {
 	// (PATCH /admin/accounts/{account})
 	PatchAdminAccountsAccount(ctx context.Context, request PatchAdminAccountsAccountRequestObject) (PatchAdminAccountsAccountResponseObject, error)
 
+	// (POST /admin/accounts/{account}/archive)
+	ArchiveAccount(ctx context.Context, request ArchiveAccountRequestObject) (ArchiveAccountResponseObject, error)
+
 	// (GET /admin/accounts/{account}/backups)
 	ListAccountBackups(ctx context.Context, request ListAccountBackupsRequestObject) (ListAccountBackupsResponseObject, error)
 
@@ -5483,6 +5714,9 @@ type StrictServerInterface interface {
 
 	// (POST /admin/accounts/{account}/protection/pending/{database}/activate)
 	ActivatePendingDiscoveredTarget(ctx context.Context, request ActivatePendingDiscoveredTargetRequestObject) (ActivatePendingDiscoveredTargetResponseObject, error)
+
+	// (POST /admin/accounts/{account}/restore)
+	RestoreAccount(ctx context.Context, request RestoreAccountRequestObject) (RestoreAccountResponseObject, error)
 
 	// (GET /admin/accounts/{account}/users)
 	GetAdminAccountsAccountUsers(ctx context.Context, request GetAdminAccountsAccountUsersRequestObject) (GetAdminAccountsAccountUsersResponseObject, error)
@@ -5673,6 +5907,32 @@ func (sh *strictHandler) PatchAdminAccountsAccount(w http.ResponseWriter, r *htt
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PatchAdminAccountsAccountResponseObject); ok {
 		if err := validResponse.VisitPatchAdminAccountsAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ArchiveAccount operation middleware
+func (sh *strictHandler) ArchiveAccount(w http.ResponseWriter, r *http.Request, account string) {
+	var request ArchiveAccountRequestObject
+
+	request.Account = account
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ArchiveAccount(ctx, request.(ArchiveAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ArchiveAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ArchiveAccountResponseObject); ok {
+		if err := validResponse.VisitArchiveAccountResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -6579,6 +6839,32 @@ func (sh *strictHandler) ActivatePendingDiscoveredTarget(w http.ResponseWriter, 
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ActivatePendingDiscoveredTargetResponseObject); ok {
 		if err := validResponse.VisitActivatePendingDiscoveredTargetResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RestoreAccount operation middleware
+func (sh *strictHandler) RestoreAccount(w http.ResponseWriter, r *http.Request, account string) {
+	var request RestoreAccountRequestObject
+
+	request.Account = account
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RestoreAccount(ctx, request.(RestoreAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RestoreAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RestoreAccountResponseObject); ok {
+		if err := validResponse.VisitRestoreAccountResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
