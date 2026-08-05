@@ -6,6 +6,174 @@ info:
 paths: {} # technically not needed under openapi3, but does not hurt, and aids backwards-compatibility
 components:
   schemas:
+    AuditActorType:
+      type: string
+      enum: [user, service, provider, automation, migration]
+
+    AuditAuthenticationType:
+      type: string
+      enum: [cookie, bearer, service_token, provider_signature, job]
+
+    AuditDomain:
+      type: string
+      enum: [cloud, billing, idp, authentication, system]
+
+    AuditOutcome:
+      type: string
+      enum: [attempted, denied, queued, running, succeeded, failed, cancelled, already_complete]
+
+    AuditRiskLevel:
+      type: integer
+      enum: [1, 2, 3, 4]
+
+    AuditSource:
+      type: string
+      enum: [web, api, job, webhook, migration, operator_tool]
+
+    AuditChangeClassification:
+      type: string
+      enum: [ordinary, sensitive_redacted, secret_omitted]
+
+    AuditActor:
+      type: object
+      additionalProperties: false
+      description: Safe historical actor snapshot. It distinguishes customer users, system operators, services, providers, automation, migrations, and jobs without exposing credentials or secrets.
+      required: [type, id, display, system_roles, authentication_type]
+      properties:
+        type:
+          $ref: '#/components/schemas/AuditActorType'
+        id:
+          type: string
+          description: Immutable non-secret actor identifier.
+        display:
+          type: string
+          description: Safe historical display label; never used for authorization.
+        system_roles:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: Effective system roles snapshotted at action time.
+        account_role:
+          type: string
+          nullable: true
+          description: Effective role for the scoped account at action time, when applicable.
+        authentication_type:
+          $ref: '#/components/schemas/AuditAuthenticationType'
+
+    AuditChange:
+      type: object
+      additionalProperties: false
+      required: [field, classification]
+      properties:
+        field:
+          type: string
+          description: Stable field path.
+        before:
+          description: Redacted JSON value before the change; omitted for secret or unavailable values.
+          nullable: true
+        after:
+          description: Redacted JSON value after the change; omitted for secret or unavailable values.
+          nullable: true
+        classification:
+          $ref: '#/components/schemas/AuditChangeClassification'
+
+    AccountAuditEvent:
+      type: object
+      additionalProperties: false
+      description: Immutable, append-only, redacted account-authorized view of a Cloud audit event. All timestamps are RFC 3339 UTC.
+      required: [id, action_id, occurred_at, recorded_at, actor, action, domain, resource_type, resource_id, account_ids, outcome, risk_level, changes, source, schema_version]
+      properties:
+        id:
+          type: string
+          description: Globally unique immutable event ID.
+        action_id:
+          type: string
+          description: Correlation ID shared by one logical operation; safe to show to users.
+        occurred_at:
+          type: string
+          format: date-time
+          description: Server timestamp in UTC, serialized as RFC 3339.
+        recorded_at:
+          type: string
+          format: date-time
+          description: Durable-write timestamp in UTC, serialized as RFC 3339.
+        actor:
+          $ref: '#/components/schemas/AuditActor'
+        action:
+          type: string
+          pattern: '^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
+          description: Stable lower-case dotted action name.
+        domain:
+          $ref: '#/components/schemas/AuditDomain'
+        resource_type:
+          type: string
+        resource_id:
+          type: string
+          description: Immutable target ID.
+        account_ids:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            type: string
+          description: Immutable snapshot of every affected customer account; determines account-stream inclusion, never current authorization.
+        outcome:
+          $ref: '#/components/schemas/AuditOutcome'
+        risk_level:
+          $ref: '#/components/schemas/AuditRiskLevel'
+        reason:
+          type: string
+          nullable: true
+          description: Redacted operator- or customer-supplied reason when policy requires one.
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditChange'
+        error_category:
+          type: string
+          nullable: true
+          description: Stable safe category; never raw secret-bearing error data.
+        request_id:
+          type: string
+          nullable: true
+        provider_reference:
+          type: string
+          nullable: true
+          description: Safe external event or object reference when applicable.
+        source:
+          $ref: '#/components/schemas/AuditSource'
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Allowlisted, versioned, non-secret structured context.
+        schema_version:
+          type: string
+          description: Audit event schema version; readers must tolerate future additive fields.
+
+    CursorPagination:
+      type: object
+      additionalProperties: false
+      required: [next_cursor, has_more]
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+          description: Opaque continuation cursor, or null at the end; clients must not inspect or construct it.
+        has_more:
+          type: boolean
+
+    PaginatedAccountAuditEvents:
+      allOf:
+        - $ref: '#/components/schemas/CursorPagination'
+        - type: object
+          required: [events]
+          properties:
+            events:
+              type: array
+              items:
+                $ref: '#/components/schemas/AccountAuditEvent'
+
     PaginationMetadata:
       type: object
       properties:

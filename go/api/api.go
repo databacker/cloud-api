@@ -25,6 +25,31 @@ const (
 	Events GetBackupParamsInclude = "events"
 )
 
+// ListAccountAuditEventsParams defines parameters for ListAccountAuditEvents.
+type ListAccountAuditEventsParams struct {
+	// OccurredAfter Return events occurring strictly after this RFC 3339 UTC timestamp.
+	OccurredAfter *time.Time `form:"occurred_after,omitempty" json:"occurred_after,omitempty" yaml:"occurred_after,omitempty"`
+
+	// OccurredBefore Return events occurring strictly before this RFC 3339 UTC timestamp.
+	OccurredBefore *time.Time      `form:"occurred_before,omitempty" json:"occurred_before,omitempty" yaml:"occurred_before,omitempty"`
+	ActorID        *string         `form:"actor_id,omitempty" json:"actor_id,omitempty" yaml:"actor_id,omitempty"`
+	ActorType      *AuditActorType `form:"actor_type,omitempty" json:"actor_type,omitempty" yaml:"actor_type,omitempty"`
+
+	// Action Stable lower-case dotted action name.
+	Action       *string       `form:"action,omitempty" json:"action,omitempty" yaml:"action,omitempty"`
+	Domain       *AuditDomain  `form:"domain,omitempty" json:"domain,omitempty" yaml:"domain,omitempty"`
+	ResourceType *string       `form:"resource_type,omitempty" json:"resource_type,omitempty" yaml:"resource_type,omitempty"`
+	ResourceID   *string       `form:"resource_id,omitempty" json:"resource_id,omitempty" yaml:"resource_id,omitempty"`
+	Outcome      *AuditOutcome `form:"outcome,omitempty" json:"outcome,omitempty" yaml:"outcome,omitempty"`
+	ActionID     *string       `form:"action_id,omitempty" json:"action_id,omitempty" yaml:"action_id,omitempty"`
+
+	// Limit Maximum events to return; defaults to 50 and is bounded to 1 through 200.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+
+	// Cursor Opaque continuation cursor returned by the previous page.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty" yaml:"cursor,omitempty"`
+}
+
 // ListAccountBackupsParams defines parameters for ListAccountBackups.
 type ListAccountBackupsParams struct {
 	// Engine filter to backups produced by a specific backup engine ID
@@ -333,6 +358,12 @@ type ServerInterface interface {
 
 	// (POST /admin/accounts/{account}/archive)
 	ArchiveAccount(w http.ResponseWriter, r *http.Request, account string)
+	// List account change-audit history
+	// (GET /admin/accounts/{account}/audit/events)
+	ListAccountAuditEvents(w http.ResponseWriter, r *http.Request, account string, params ListAccountAuditEventsParams)
+	// Get one account change-audit event
+	// (GET /admin/accounts/{account}/audit/events/{event})
+	GetAccountAuditEvent(w http.ResponseWriter, r *http.Request, account string, event string)
 
 	// (GET /admin/accounts/{account}/backups)
 	ListAccountBackups(w http.ResponseWriter, r *http.Request, account string, params ListAccountBackupsParams)
@@ -533,6 +564,18 @@ func (_ Unimplemented) PatchAdminAccountsAccount(w http.ResponseWriter, r *http.
 
 // (POST /admin/accounts/{account}/archive)
 func (_ Unimplemented) ArchiveAccount(w http.ResponseWriter, r *http.Request, account string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List account change-audit history
+// (GET /admin/accounts/{account}/audit/events)
+func (_ Unimplemented) ListAccountAuditEvents(w http.ResponseWriter, r *http.Request, account string, params ListAccountAuditEventsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get one account change-audit event
+// (GET /admin/accounts/{account}/audit/events/{event})
+func (_ Unimplemented) GetAccountAuditEvent(w http.ResponseWriter, r *http.Request, account string, event string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -961,6 +1004,176 @@ func (siw *ServerInterfaceWrapper) ArchiveAccount(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ArchiveAccount(w, r, account)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListAccountAuditEvents operation middleware
+func (siw *ServerInterfaceWrapper) ListAccountAuditEvents(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListAccountAuditEventsParams
+
+	// ------------- Optional query parameter "occurred_after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "occurred_after", r.URL.Query(), &params.OccurredAfter)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "occurred_after", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "occurred_before" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "occurred_before", r.URL.Query(), &params.OccurredBefore)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "occurred_before", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "actor_id" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "actor_id", r.URL.Query(), &params.ActorID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "actor_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "actor_type" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "actor_type", r.URL.Query(), &params.ActorType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "actor_type", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "action" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "action", r.URL.Query(), &params.Action)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "action", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "domain" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "domain", r.URL.Query(), &params.Domain)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "domain", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "resource_type" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "resource_type", r.URL.Query(), &params.ResourceType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "resource_type", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "resource_id" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "resource_id", r.URL.Query(), &params.ResourceID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "resource_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "outcome" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "outcome", r.URL.Query(), &params.Outcome)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "outcome", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "action_id" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "action_id", r.URL.Query(), &params.ActionID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "action_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "cursor" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "cursor", r.URL.Query(), &params.Cursor)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "cursor", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAccountAuditEvents(w, r, account, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetAccountAuditEvent operation middleware
+func (siw *ServerInterfaceWrapper) GetAccountAuditEvent(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "account" -------------
+	var account string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "account", chi.URLParam(r, "account"), &account, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "account", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "event" -------------
+	var event string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "event", chi.URLParam(r, "event"), &event, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "event", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, JWTScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAccountAuditEvent(w, r, account, event)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3448,6 +3661,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/admin/accounts/{account}/archive", wrapper.ArchiveAccount)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/audit/events", wrapper.ListAccountAuditEvents)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/accounts/{account}/audit/events/{event}", wrapper.GetAccountAuditEvent)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/admin/accounts/{account}/backups", wrapper.ListAccountBackups)
 	})
 	r.Group(func(r chi.Router) {
@@ -3784,6 +4003,101 @@ func (response ArchiveAccount500JSONResponse) VisitArchiveAccountResponse(w http
 	w.WriteHeader(500)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type ListAccountAuditEventsRequestObject struct {
+	Account string `json:"account"`
+	Params  ListAccountAuditEventsParams
+}
+
+type ListAccountAuditEventsResponseObject interface {
+	VisitListAccountAuditEventsResponse(w http.ResponseWriter) error
+}
+
+type ListAccountAuditEvents200JSONResponse PaginatedAccountAuditEvents
+
+func (response ListAccountAuditEvents200JSONResponse) VisitListAccountAuditEventsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListAccountAuditEvents400JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response ListAccountAuditEvents400JSONResponse) VisitListAccountAuditEventsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListAccountAuditEvents401Response struct {
+}
+
+func (response ListAccountAuditEvents401Response) VisitListAccountAuditEventsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ListAccountAuditEvents403Response struct {
+}
+
+func (response ListAccountAuditEvents403Response) VisitListAccountAuditEventsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(403)
+	return nil
+}
+
+type ListAccountAuditEvents404Response struct {
+}
+
+func (response ListAccountAuditEvents404Response) VisitListAccountAuditEventsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetAccountAuditEventRequestObject struct {
+	Account string `json:"account"`
+	Event   string `json:"event"`
+}
+
+type GetAccountAuditEventResponseObject interface {
+	VisitGetAccountAuditEventResponse(w http.ResponseWriter) error
+}
+
+type GetAccountAuditEvent200JSONResponse AccountAuditEvent
+
+func (response GetAccountAuditEvent200JSONResponse) VisitGetAccountAuditEventResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetAccountAuditEvent401Response struct {
+}
+
+func (response GetAccountAuditEvent401Response) VisitGetAccountAuditEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetAccountAuditEvent403Response struct {
+}
+
+func (response GetAccountAuditEvent403Response) VisitGetAccountAuditEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(403)
+	return nil
+}
+
+type GetAccountAuditEvent404Response struct {
+}
+
+func (response GetAccountAuditEvent404Response) VisitGetAccountAuditEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type ListAccountBackupsRequestObject struct {
@@ -5621,6 +5935,12 @@ type StrictServerInterface interface {
 
 	// (POST /admin/accounts/{account}/archive)
 	ArchiveAccount(ctx context.Context, request ArchiveAccountRequestObject) (ArchiveAccountResponseObject, error)
+	// List account change-audit history
+	// (GET /admin/accounts/{account}/audit/events)
+	ListAccountAuditEvents(ctx context.Context, request ListAccountAuditEventsRequestObject) (ListAccountAuditEventsResponseObject, error)
+	// Get one account change-audit event
+	// (GET /admin/accounts/{account}/audit/events/{event})
+	GetAccountAuditEvent(ctx context.Context, request GetAccountAuditEventRequestObject) (GetAccountAuditEventResponseObject, error)
 
 	// (GET /admin/accounts/{account}/backups)
 	ListAccountBackups(ctx context.Context, request ListAccountBackupsRequestObject) (ListAccountBackupsResponseObject, error)
@@ -5933,6 +6253,60 @@ func (sh *strictHandler) ArchiveAccount(w http.ResponseWriter, r *http.Request, 
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ArchiveAccountResponseObject); ok {
 		if err := validResponse.VisitArchiveAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListAccountAuditEvents operation middleware
+func (sh *strictHandler) ListAccountAuditEvents(w http.ResponseWriter, r *http.Request, account string, params ListAccountAuditEventsParams) {
+	var request ListAccountAuditEventsRequestObject
+
+	request.Account = account
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListAccountAuditEvents(ctx, request.(ListAccountAuditEventsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListAccountAuditEvents")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListAccountAuditEventsResponseObject); ok {
+		if err := validResponse.VisitListAccountAuditEventsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetAccountAuditEvent operation middleware
+func (sh *strictHandler) GetAccountAuditEvent(w http.ResponseWriter, r *http.Request, account string, event string) {
+	var request GetAccountAuditEventRequestObject
+
+	request.Account = account
+	request.Event = event
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetAccountAuditEvent(ctx, request.(GetAccountAuditEventRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetAccountAuditEvent")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetAccountAuditEventResponseObject); ok {
+		if err := validResponse.VisitGetAccountAuditEventResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

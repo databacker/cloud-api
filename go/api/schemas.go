@@ -33,6 +33,70 @@ const (
 	Viewer AccountMemberRole = "viewer"
 )
 
+// Defines values for AuditActorType.
+const (
+	AuditActorTypeAutomation AuditActorType = "automation"
+	AuditActorTypeMigration  AuditActorType = "migration"
+	AuditActorTypeProvider   AuditActorType = "provider"
+	AuditActorTypeService    AuditActorType = "service"
+	AuditActorTypeUser       AuditActorType = "user"
+)
+
+// Defines values for AuditAuthenticationType.
+const (
+	Bearer            AuditAuthenticationType = "bearer"
+	Cookie            AuditAuthenticationType = "cookie"
+	Job               AuditAuthenticationType = "job"
+	ProviderSignature AuditAuthenticationType = "provider_signature"
+	ServiceToken      AuditAuthenticationType = "service_token"
+)
+
+// Defines values for AuditChangeClassification.
+const (
+	Ordinary          AuditChangeClassification = "ordinary"
+	SecretOmitted     AuditChangeClassification = "secret_omitted"
+	SensitiveRedacted AuditChangeClassification = "sensitive_redacted"
+)
+
+// Defines values for AuditDomain.
+const (
+	AuditDomainAuthentication AuditDomain = "authentication"
+	AuditDomainBilling        AuditDomain = "billing"
+	AuditDomainCloud          AuditDomain = "cloud"
+	AuditDomainIdp            AuditDomain = "idp"
+	AuditDomainSystem         AuditDomain = "system"
+)
+
+// Defines values for AuditOutcome.
+const (
+	AlreadyComplete AuditOutcome = "already_complete"
+	Attempted       AuditOutcome = "attempted"
+	Cancelled       AuditOutcome = "cancelled"
+	Denied          AuditOutcome = "denied"
+	Failed          AuditOutcome = "failed"
+	Queued          AuditOutcome = "queued"
+	Running         AuditOutcome = "running"
+	Succeeded       AuditOutcome = "succeeded"
+)
+
+// Defines values for AuditRiskLevel.
+const (
+	N1 AuditRiskLevel = 1
+	N2 AuditRiskLevel = 2
+	N3 AuditRiskLevel = 3
+	N4 AuditRiskLevel = 4
+)
+
+// Defines values for AuditSource.
+const (
+	AuditSourceAPI          AuditSource = "api"
+	AuditSourceJob          AuditSource = "job"
+	AuditSourceMigration    AuditSource = "migration"
+	AuditSourceOperatorTool AuditSource = "operator_tool"
+	AuditSourceWeb          AuditSource = "web"
+	AuditSourceWebhook      AuditSource = "webhook"
+)
+
 // Defines values for BillingEntitlementActivationReason.
 const (
 	BillingEntitlementActivationReasonAutomaticDiscovery   BillingEntitlementActivationReason = "automatic_discovery"
@@ -155,10 +219,10 @@ const (
 
 // Defines values for PaymentMethodDisplayStatus.
 const (
-	Invalidated   PaymentMethodDisplayStatus = "invalidated"
-	None          PaymentMethodDisplayStatus = "none"
-	Pending       PaymentMethodDisplayStatus = "pending"
-	SavedReusable PaymentMethodDisplayStatus = "saved_reusable"
+	PaymentMethodDisplayStatusInvalidated   PaymentMethodDisplayStatus = "invalidated"
+	PaymentMethodDisplayStatusNone          PaymentMethodDisplayStatus = "none"
+	PaymentMethodDisplayStatusPending       PaymentMethodDisplayStatus = "pending"
+	PaymentMethodDisplayStatusSavedReusable PaymentMethodDisplayStatus = "saved_reusable"
 )
 
 // Defines values for PendingReactivationSummaryLatestReportStatus.
@@ -225,6 +289,55 @@ type Account struct {
 // AccountRetentionTier Retention tier for logs/traces (non-numeric label)
 type AccountRetentionTier string
 
+// AccountAuditEvent Immutable, append-only, redacted account-authorized view of a Cloud audit event. All timestamps are RFC 3339 UTC.
+type AccountAuditEvent struct {
+	// AccountIds Immutable snapshot of every affected customer account; determines account-stream inclusion, never current authorization.
+	AccountIds []string `json:"account_ids" yaml:"account_ids"`
+
+	// Action Stable lower-case dotted action name.
+	Action string `json:"action" yaml:"action"`
+
+	// ActionID Correlation ID shared by one logical operation; safe to show to users.
+	ActionID string `json:"action_id" yaml:"action_id"`
+
+	// Actor Safe historical actor snapshot. It distinguishes customer users, system operators, services, providers, automation, migrations, and jobs without exposing credentials or secrets.
+	Actor   AuditActor    `json:"actor" yaml:"actor"`
+	Changes []AuditChange `json:"changes" yaml:"changes"`
+	Domain  AuditDomain   `json:"domain" yaml:"domain"`
+
+	// ErrorCategory Stable safe category; never raw secret-bearing error data.
+	ErrorCategory *string `json:"error_category" yaml:"error_category"`
+
+	// ID Globally unique immutable event ID.
+	ID string `json:"id" yaml:"id"`
+
+	// Metadata Allowlisted, versioned, non-secret structured context.
+	Metadata *map[string]interface{} `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+
+	// OccurredAt Server timestamp in UTC, serialized as RFC 3339.
+	OccurredAt time.Time    `json:"occurred_at" yaml:"occurred_at"`
+	Outcome    AuditOutcome `json:"outcome" yaml:"outcome"`
+
+	// ProviderReference Safe external event or object reference when applicable.
+	ProviderReference *string `json:"provider_reference" yaml:"provider_reference"`
+
+	// Reason Redacted operator- or customer-supplied reason when policy requires one.
+	Reason *string `json:"reason" yaml:"reason"`
+
+	// RecordedAt Durable-write timestamp in UTC, serialized as RFC 3339.
+	RecordedAt time.Time `json:"recorded_at" yaml:"recorded_at"`
+	RequestID  *string   `json:"request_id" yaml:"request_id"`
+
+	// ResourceID Immutable target ID.
+	ResourceID   string         `json:"resource_id" yaml:"resource_id"`
+	ResourceType string         `json:"resource_type" yaml:"resource_type"`
+	RiskLevel    AuditRiskLevel `json:"risk_level" yaml:"risk_level"`
+
+	// SchemaVersion Audit event schema version; readers must tolerate future additive fields.
+	SchemaVersion string      `json:"schema_version" yaml:"schema_version"`
+	Source        AuditSource `json:"source" yaml:"source"`
+}
+
 // AccountBody information for a new databacker account
 type AccountBody struct {
 	// BillingCustomerID ID of the billing customer responsible for this account. A valid, existing billing customer must be provided.
@@ -260,6 +373,57 @@ type AccountMember struct {
 
 // AccountMemberRole role of the user in the account
 type AccountMemberRole string
+
+// AuditActor Safe historical actor snapshot. It distinguishes customer users, system operators, services, providers, automation, migrations, and jobs without exposing credentials or secrets.
+type AuditActor struct {
+	// AccountRole Effective role for the scoped account at action time, when applicable.
+	AccountRole        *string                 `json:"account_role" yaml:"account_role"`
+	AuthenticationType AuditAuthenticationType `json:"authentication_type" yaml:"authentication_type"`
+
+	// Display Safe historical display label; never used for authorization.
+	Display string `json:"display" yaml:"display"`
+
+	// ID Immutable non-secret actor identifier.
+	ID string `json:"id" yaml:"id"`
+
+	// SystemRoles Effective system roles snapshotted at action time.
+	SystemRoles []string       `json:"system_roles" yaml:"system_roles"`
+	Type        AuditActorType `json:"type" yaml:"type"`
+}
+
+// AuditActorType defines model for AuditActorType.
+type AuditActorType string
+
+// AuditAuthenticationType defines model for AuditAuthenticationType.
+type AuditAuthenticationType string
+
+// AuditChange defines model for AuditChange.
+type AuditChange struct {
+	// After Redacted JSON value after the change; omitted for secret or unavailable values.
+	After interface{} `json:"after" yaml:"after"`
+
+	// Before Redacted JSON value before the change; omitted for secret or unavailable values.
+	Before         interface{}               `json:"before" yaml:"before"`
+	Classification AuditChangeClassification `json:"classification" yaml:"classification"`
+
+	// Field Stable field path.
+	Field string `json:"field" yaml:"field"`
+}
+
+// AuditChangeClassification defines model for AuditChangeClassification.
+type AuditChangeClassification string
+
+// AuditDomain defines model for AuditDomain.
+type AuditDomain string
+
+// AuditOutcome defines model for AuditOutcome.
+type AuditOutcome string
+
+// AuditRiskLevel defines model for AuditRiskLevel.
+type AuditRiskLevel int
+
+// AuditSource defines model for AuditSource.
+type AuditSource string
 
 // AutoActivationPolicy Account-level automatic protection activation policy. Controls whether newly discovered database targets are automatically activated and billed.
 type AutoActivationPolicy struct {
@@ -608,6 +772,14 @@ type BillingSummary struct {
 
 	// Readiness Billing readiness status. Payment-based readiness is established only after a verified commerce-provider/MoR event or server-side provider lookup confirms a saved reusable payment method. Browser redirects alone must not mark a customer billing-ready.
 	Readiness *BillingReadiness `json:"readiness,omitempty" yaml:"readiness,omitempty"`
+}
+
+// CursorPagination defines model for CursorPagination.
+type CursorPagination struct {
+	HasMore bool `json:"has_more" yaml:"has_more"`
+
+	// NextCursor Opaque continuation cursor, or null at the end; clients must not inspect or construct it.
+	NextCursor *string `json:"next_cursor" yaml:"next_cursor"`
 }
 
 // Database defines model for Database.
@@ -1028,6 +1200,15 @@ type Metadata struct {
 
 	// Name name of the config
 	Name *string `json:"name,omitempty" yaml:"name,omitempty"`
+}
+
+// PaginatedAccountAuditEvents defines model for PaginatedAccountAuditEvents.
+type PaginatedAccountAuditEvents struct {
+	Events  []AccountAuditEvent `json:"events" yaml:"events"`
+	HasMore bool                `json:"has_more" yaml:"has_more"`
+
+	// NextCursor Opaque continuation cursor, or null at the end; clients must not inspect or construct it.
+	NextCursor *string `json:"next_cursor" yaml:"next_cursor"`
 }
 
 // PaginatedAccountMembers defines model for PaginatedAccountMembers.

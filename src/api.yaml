@@ -34,6 +34,14 @@ x-parameters:
       type: string
     required: true
     description: Account ID
+  audit_event: &audit-event-param
+    in: path
+    name: event
+    schema:
+      type: string
+      minLength: 1
+    required: true
+    description: Globally unique immutable audit event ID
   engine: &engine-param
     in: path
     name: engine
@@ -519,6 +527,168 @@ paths:
             application/json:
               schema:
                 *error-message-schema
+
+  /admin/accounts/{account}/audit/events:
+    get:
+      operationId: ListAccountAuditEvents
+      summary: List account change-audit history
+      description: |
+        Returns the authorized account view of Cloud's shared, immutable audit system of record;
+        this is not a separate account audit store. Access is derived from current account
+        authorization and initially requires the caller's current role to be owner. Stream
+        inclusion is independently determined from the event's immutable, snapshotted
+        `account_ids`, so customer, system-operator, automation, provider, and background-job
+        changes affecting the account remain visible even if relationships later change.
+
+        Results are ordered by `occurred_at` newest first, with a stable server-defined tie-breaker.
+        Timestamps are RFC 3339 UTC values. Cursors are opaque and must be passed back unchanged.
+        Events and their redacted values cannot be modified or deleted through this API.
+      parameters:
+        - *account-param
+        - name: occurred_after
+          in: query
+          required: false
+          description: Return events occurring strictly after this RFC 3339 UTC timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: occurred_before
+          in: query
+          required: false
+          description: Return events occurring strictly before this RFC 3339 UTC timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: actor_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: actor_type
+          in: query
+          required: false
+          schema:
+            $ref: './schemas.yaml#/components/schemas/AuditActorType'
+        - name: action
+          in: query
+          required: false
+          description: Stable lower-case dotted action name.
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          schema:
+            $ref: './schemas.yaml#/components/schemas/AuditDomain'
+        - name: resource_type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: resource_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: outcome
+          in: query
+          required: false
+          schema:
+            $ref: './schemas.yaml#/components/schemas/AuditOutcome'
+        - name: action_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Maximum events to return; defaults to 50 and is bounded to 1 through 200.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+        - name: cursor
+          in: query
+          required: false
+          description: Opaque continuation cursor returned by the previous page.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Authorized account audit events, newest first.
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/PaginatedAccountAuditEvents'
+              example:
+                events:
+                  - id: evt_operator_01
+                    action_id: act_account_archive_01
+                    occurred_at: '2026-08-05T10:00:00Z'
+                    recorded_at: '2026-08-05T10:00:00Z'
+                    actor:
+                      type: user
+                      id: operator_17
+                      display: Databacker Support
+                      system_roles: [cloud_admin]
+                      authentication_type: bearer
+                    action: cloud.account.archived
+                    domain: cloud
+                    resource_type: account
+                    resource_id: account_123
+                    account_ids: [account_123]
+                    outcome: succeeded
+                    risk_level: 2
+                    changes:
+                      - field: archived
+                        before: false
+                        after: true
+                        classification: ordinary
+                    source: operator_tool
+                    schema_version: '1'
+                next_cursor: null
+                has_more: false
+        '400':
+          description: Invalid filter, time range, limit, or cursor.
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '401':
+          description: Authentication required.
+        '403':
+          description: Current account owner role required; no separate audit-view permission exists yet.
+        '404':
+          description: Account not found.
+
+  /admin/accounts/{account}/audit/events/{event}:
+    get:
+      operationId: GetAccountAuditEvent
+      summary: Get one account change-audit event
+      description: |
+        Returns one immutable, redacted event from Cloud's shared audit system of record. Current
+        account authorization (initially the owner role) controls access, while the event is in
+        the account view only when its immutable `account_ids` snapshot contains the requested
+        account. A missing event, an event outside that snapshot, and an event belonging only to
+        an unrelated account all return the same 404 response and reveal no event information.
+      parameters:
+        - *account-param
+        - *audit-event-param
+      responses:
+        '200':
+          description: Authorized account audit event.
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/AccountAuditEvent'
+        '401':
+          description: Authentication required.
+        '403':
+          description: Current account owner role required; no separate audit-view permission exists yet.
+        '404':
+          description: Event not found in the requested authorized account view; also used for an unrelated account to prevent disclosure.
 
   /admin/billing/catalog:
     get:

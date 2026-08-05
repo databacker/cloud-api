@@ -586,6 +586,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/accounts/{account}/audit/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List account change-audit history
+         * @description Returns the authorized account view of Cloud's shared, immutable audit system of record;
+         *     this is not a separate account audit store. Access is derived from current account
+         *     authorization and initially requires the caller's current role to be owner. Stream
+         *     inclusion is independently determined from the event's immutable, snapshotted
+         *     `account_ids`, so customer, system-operator, automation, provider, and background-job
+         *     changes affecting the account remain visible even if relationships later change.
+         *
+         *     Results are ordered by `occurred_at` newest first, with a stable server-defined tie-breaker.
+         *     Timestamps are RFC 3339 UTC values. Cursors are opaque and must be passed back unchanged.
+         *     Events and their redacted values cannot be modified or deleted through this API.
+         */
+        get: operations["ListAccountAuditEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/accounts/{account}/audit/events/{event}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get one account change-audit event
+         * @description Returns one immutable, redacted event from Cloud's shared audit system of record. Current
+         *     account authorization (initially the owner role) controls access, while the event is in
+         *     the account view only when its immutable `account_ids` snapshot contains the requested
+         *     account. A missing event, an event outside that snapshot, and an event belonging only to
+         *     an unrelated account all return the same 404 response and reveal no event information.
+         */
+        get: operations["GetAccountAuditEvent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/billing/catalog": {
         parameters: {
             query?: never;
@@ -2089,6 +2142,93 @@ export interface components {
         PaginatedSelfAccounts: components["schemas"]["PaginationMetadata"] & {
             accounts?: components["schemas"]["SelfAccountEntry"][];
         };
+        /** @enum {string} */
+        AuditActorType: "user" | "service" | "provider" | "automation" | "migration";
+        /** @enum {string} */
+        AuditDomain: "cloud" | "billing" | "idp" | "authentication" | "system";
+        /** @enum {string} */
+        AuditOutcome: "attempted" | "denied" | "queued" | "running" | "succeeded" | "failed" | "cancelled" | "already_complete";
+        CursorPagination: {
+            /** @description Opaque continuation cursor, or null at the end; clients must not inspect or construct it. */
+            next_cursor: string | null;
+            has_more: boolean;
+        };
+        /** @enum {string} */
+        AuditAuthenticationType: "cookie" | "bearer" | "service_token" | "provider_signature" | "job";
+        /** @description Safe historical actor snapshot. It distinguishes customer users, system operators, services, providers, automation, migrations, and jobs without exposing credentials or secrets. */
+        AuditActor: {
+            type: components["schemas"]["AuditActorType"];
+            /** @description Immutable non-secret actor identifier. */
+            id: string;
+            /** @description Safe historical display label; never used for authorization. */
+            display: string;
+            /** @description Effective system roles snapshotted at action time. */
+            system_roles: string[];
+            /** @description Effective role for the scoped account at action time, when applicable. */
+            account_role?: string | null;
+            authentication_type: components["schemas"]["AuditAuthenticationType"];
+        };
+        /** @enum {integer} */
+        AuditRiskLevel: 1 | 2 | 3 | 4;
+        /** @enum {string} */
+        AuditChangeClassification: "ordinary" | "sensitive_redacted" | "secret_omitted";
+        AuditChange: {
+            /** @description Stable field path. */
+            field: string;
+            /** @description Redacted JSON value before the change; omitted for secret or unavailable values. */
+            before?: unknown;
+            /** @description Redacted JSON value after the change; omitted for secret or unavailable values. */
+            after?: unknown;
+            classification: components["schemas"]["AuditChangeClassification"];
+        };
+        /** @enum {string} */
+        AuditSource: "web" | "api" | "job" | "webhook" | "migration" | "operator_tool";
+        /** @description Immutable, append-only, redacted account-authorized view of a Cloud audit event. All timestamps are RFC 3339 UTC. */
+        AccountAuditEvent: {
+            /** @description Globally unique immutable event ID. */
+            id: string;
+            /** @description Correlation ID shared by one logical operation; safe to show to users. */
+            action_id: string;
+            /**
+             * Format: date-time
+             * @description Server timestamp in UTC, serialized as RFC 3339.
+             */
+            occurred_at: string;
+            /**
+             * Format: date-time
+             * @description Durable-write timestamp in UTC, serialized as RFC 3339.
+             */
+            recorded_at: string;
+            actor: components["schemas"]["AuditActor"];
+            /** @description Stable lower-case dotted action name. */
+            action: string;
+            domain: components["schemas"]["AuditDomain"];
+            resource_type: string;
+            /** @description Immutable target ID. */
+            resource_id: string;
+            /** @description Immutable snapshot of every affected customer account; determines account-stream inclusion, never current authorization. */
+            account_ids: string[];
+            outcome: components["schemas"]["AuditOutcome"];
+            risk_level: components["schemas"]["AuditRiskLevel"];
+            /** @description Redacted operator- or customer-supplied reason when policy requires one. */
+            reason?: string | null;
+            changes: components["schemas"]["AuditChange"][];
+            /** @description Stable safe category; never raw secret-bearing error data. */
+            error_category?: string | null;
+            request_id?: string | null;
+            /** @description Safe external event or object reference when applicable. */
+            provider_reference?: string | null;
+            source: components["schemas"]["AuditSource"];
+            /** @description Allowlisted, versioned, non-secret structured context. */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** @description Audit event schema version; readers must tolerate future additive fields. */
+            schema_version: string;
+        };
+        PaginatedAccountAuditEvents: components["schemas"]["CursorPagination"] & {
+            events: components["schemas"]["AccountAuditEvent"][];
+        };
         BillingPrice: {
             price_id: string;
             version: string;
@@ -3329,6 +3469,167 @@ export interface operations {
                         message?: string;
                     };
                 };
+            };
+        };
+    };
+    ListAccountAuditEvents: {
+        parameters: {
+            query?: {
+                /** @description Return events occurring strictly after this RFC 3339 UTC timestamp. */
+                occurred_after?: string;
+                /** @description Return events occurring strictly before this RFC 3339 UTC timestamp. */
+                occurred_before?: string;
+                actor_id?: string;
+                actor_type?: components["schemas"]["AuditActorType"];
+                /** @description Stable lower-case dotted action name. */
+                action?: string;
+                domain?: components["schemas"]["AuditDomain"];
+                resource_type?: string;
+                resource_id?: string;
+                outcome?: components["schemas"]["AuditOutcome"];
+                action_id?: string;
+                /** @description Maximum events to return; defaults to 50 and is bounded to 1 through 200. */
+                limit?: number;
+                /** @description Opaque continuation cursor returned by the previous page. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized account audit events, newest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "events": [
+                     *         {
+                     *           "id": "evt_operator_01",
+                     *           "action_id": "act_account_archive_01",
+                     *           "occurred_at": "2026-08-05T10:00:00Z",
+                     *           "recorded_at": "2026-08-05T10:00:00Z",
+                     *           "actor": {
+                     *             "type": "user",
+                     *             "id": "operator_17",
+                     *             "display": "Databacker Support",
+                     *             "system_roles": [
+                     *               "cloud_admin"
+                     *             ],
+                     *             "authentication_type": "bearer"
+                     *           },
+                     *           "action": "cloud.account.archived",
+                     *           "domain": "cloud",
+                     *           "resource_type": "account",
+                     *           "resource_id": "account_123",
+                     *           "account_ids": [
+                     *             "account_123"
+                     *           ],
+                     *           "outcome": "succeeded",
+                     *           "risk_level": 2,
+                     *           "changes": [
+                     *             {
+                     *               "field": "archived",
+                     *               "before": false,
+                     *               "after": true,
+                     *               "classification": "ordinary"
+                     *             }
+                     *           ],
+                     *           "source": "operator_tool",
+                     *           "schema_version": "1"
+                     *         }
+                     *       ],
+                     *       "next_cursor": null,
+                     *       "has_more": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PaginatedAccountAuditEvents"];
+                };
+            };
+            /** @description Invalid filter, time range, limit, or cursor. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Authentication required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current account owner role required; no separate audit-view permission exists yet. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Account not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetAccountAuditEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Account ID */
+                account: string;
+                /** @description Globally unique immutable audit event ID */
+                event: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized account audit event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountAuditEvent"];
+                };
+            };
+            /** @description Authentication required. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current account owner role required; no separate audit-view permission exists yet. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Event not found in the requested authorized account view; also used for an unrelated account to prevent disclosure. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
