@@ -322,13 +322,82 @@ components:
           type: string
           description: SHA256 digest of the config, optional
 
-    EngineBody:
+    EngineAuthenticationPublicKey:
       type: object
-      description: information for a backup engine registration
+      description: Public key used to verify engine HTTP message signatures.
+      required:
+        - algorithm
+        - generation
+        - publicKey
       properties:
+        algorithm:
+          type: string
+          enum: [ed25519]
+        generation:
+          type: integer
+          format: uint64
+          minimum: 1
         publicKey:
           type: string
-          description: ECDSA public key to associate with the backup engine, PEM-encoded
+          pattern: '^[A-Za-z0-9+/]{43}=$'
+          description: Raw 32-byte Ed25519 public key in strict standard padded base64.
+        keyId:
+          type: string
+          readOnly: true
+          pattern: '^auth:[0-9a-f]{64}$'
+          description: |
+            Deterministic fingerprint of this public key and generation. Cloud
+            computes this value according to the Databacker authentication
+            profile; it is not allocated by Cloud or supplied by the client.
+
+    EngineConfigurationEncryptionPublicKey:
+      type: object
+      description: Public key used to encrypt configurations for the engine.
+      required:
+        - algorithm
+        - generation
+        - publicKey
+      properties:
+        algorithm:
+          type: string
+          enum: [x25519]
+        generation:
+          type: integer
+          format: uint64
+          minimum: 1
+        publicKey:
+          type: string
+          pattern: '^[A-Za-z0-9+/]{43}=$'
+          description: Raw 32-byte X25519 public key in strict standard padded base64.
+        keyId:
+          type: string
+          readOnly: true
+          pattern: '^config:[0-9a-f]{64}$'
+          description: |
+            Deterministic fingerprint of this public key and generation. Cloud
+            computes this value according to the Databacker authentication
+            profile; it is not allocated by Cloud or supplied by the client.
+
+    EnginePublicKeys:
+      type: object
+      required:
+        - authentication
+        - configurationEncryption
+      properties:
+        authentication:
+          $ref: '#/components/schemas/EngineAuthenticationPublicKey'
+        configurationEncryption:
+          $ref: '#/components/schemas/EngineConfigurationEncryptionPublicKey'
+
+    EngineBody:
+      type: object
+      description: |
+        Information for creating or updating a backup engine. Clients send the
+        complete object. On update, blank scalar values are ignored. Public-key
+        changes require a fresh proof made by the submitted authentication key.
+      properties:
+        publicKeys:
+          $ref: '#/components/schemas/EnginePublicKeys'
         name:
           type: string
           description: name of the backup engine
@@ -341,6 +410,7 @@ components:
           description: Engine setup acknowledgement that newly discovered protected databases may automatically activate and incur charges only when the workspace's assigned billing customer is billing-ready. This does not override billing readiness requirements.
       required:
         - name
+        - publicKeys
     Engine:
       type: object
       allOf:
@@ -354,7 +424,7 @@ components:
             registration_state:
               type: string
               description: registration state for the backup engine
-              enum: [pending, registered, disabled, revoked]
+              enum: [registered, disabled, revoked]
             last_seen:
               type: string
               format: date-time
@@ -397,7 +467,7 @@ components:
           description: description of the backup engine
         registration_state:
           type: string
-          enum: [pending, registered, disabled, revoked]
+          enum: [registered, disabled, revoked]
         database_count:
           type: integer
           description: number of databases protected by this backup engine

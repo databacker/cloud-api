@@ -922,11 +922,29 @@ export interface paths {
             };
         };
         put?: never;
-        /** @description register a new backup engine in the given account. */
+        /**
+         * @description Register a new backup engine in the given account. Existing user
+         *     authentication authorizes the operation. The additional RFC 9421
+         *     signature proves immediate possession of the submitted Ed25519 private
+         *     key; it does not replace user authentication and creates no pending
+         *     registration or follow-up completion step.
+         */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /**
+                     * @description RFC 9421 signature parameters for immediate proof of possession of the
+                     *     submitted engine authentication key. See auth.md.
+                     */
+                    "Signature-Input": string;
+                    /** @description RFC 9421 Ed25519 registration proof. See auth.md. */
+                    Signature: string;
+                    /** @description RFC 9530 SHA-256 digest of the exact request body. */
+                    "Content-Digest": string;
+                    /** @description Stable UUID reused when retrying this registration request. */
+                    "Idempotency-Key": string;
+                };
                 path: {
                     /** @description Account ID */
                     account: string;
@@ -934,7 +952,7 @@ export interface paths {
                 cookie?: never;
             };
             /** @description backup engine registration details */
-            requestBody?: {
+            requestBody: {
                 content: {
                     "application/json": components["schemas"]["EngineBody"];
                 };
@@ -949,8 +967,19 @@ export interface paths {
                         "application/json": components["schemas"]["Engine"];
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, key material, digest, or registration proof */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description The submitted authentication key is already registered */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1054,11 +1083,26 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        /** @description update a specific backup engine */
+        /**
+         * @description Update a specific backup engine using the complete EngineBody. Blank
+         *     scalar values are ignored. Existing user authentication is sufficient
+         *     when the submitted public keys are unchanged. Changing key material
+         *     requires a fresh proof by the submitted authentication key; key-rotation
+         *     lifecycle semantics may be expanded in a later API version.
+         */
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Required when PATCH changes either submitted public key. See auth.md. */
+                    "Signature-Input"?: string;
+                    /** @description Required when PATCH changes either submitted public key. See auth.md. */
+                    Signature?: string;
+                    /** @description Required when PATCH changes either submitted public key. See auth.md. */
+                    "Content-Digest"?: string;
+                    /** @description Required when PATCH changes either submitted public key. See auth.md. */
+                    "Idempotency-Key"?: string;
+                };
                 path: {
                     /** @description Account ID */
                     account: string;
@@ -1068,7 +1112,7 @@ export interface paths {
                 cookie?: never;
             };
             /** @description backup engine updates */
-            requestBody?: {
+            requestBody: {
                 content: {
                     "application/json": components["schemas"]["EngineBody"];
                 };
@@ -1100,6 +1144,17 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description The submitted authentication key is already registered */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message?: string;
+                        };
+                    };
                 };
             };
         };
@@ -2407,7 +2462,7 @@ export interface components {
             /** @description description of the backup engine */
             description?: string | null;
             /** @enum {string} */
-            registration_state: "pending" | "registered" | "disabled" | "revoked";
+            registration_state: "registered" | "disabled" | "revoked";
             /** @description number of databases protected by this backup engine */
             database_count: number;
             /** @description database ID when this engine is currently associated with one database */
@@ -2429,10 +2484,47 @@ export interface components {
         PaginatedEngines: components["schemas"]["PaginationMetadata"] & {
             engines?: components["schemas"]["EngineSummary"][];
         };
-        /** @description information for a backup engine registration */
+        /** @description Public key used to verify engine HTTP message signatures. */
+        EngineAuthenticationPublicKey: {
+            /** @enum {string} */
+            algorithm: "ed25519";
+            /** Format: uint64 */
+            generation: number;
+            /** @description Raw 32-byte Ed25519 public key in strict standard padded base64. */
+            publicKey: string;
+            /**
+             * @description Deterministic fingerprint of this public key and generation. Cloud
+             *     computes this value according to the Databacker authentication
+             *     profile; it is not allocated by Cloud or supplied by the client.
+             */
+            readonly keyId?: string;
+        };
+        /** @description Public key used to encrypt configurations for the engine. */
+        EngineConfigurationEncryptionPublicKey: {
+            /** @enum {string} */
+            algorithm: "x25519";
+            /** Format: uint64 */
+            generation: number;
+            /** @description Raw 32-byte X25519 public key in strict standard padded base64. */
+            publicKey: string;
+            /**
+             * @description Deterministic fingerprint of this public key and generation. Cloud
+             *     computes this value according to the Databacker authentication
+             *     profile; it is not allocated by Cloud or supplied by the client.
+             */
+            readonly keyId?: string;
+        };
+        EnginePublicKeys: {
+            authentication: components["schemas"]["EngineAuthenticationPublicKey"];
+            configurationEncryption: components["schemas"]["EngineConfigurationEncryptionPublicKey"];
+        };
+        /**
+         * @description Information for creating or updating a backup engine. Clients send the
+         *     complete object. On update, blank scalar values are ignored. Public-key
+         *     changes require a fresh proof made by the submitted authentication key.
+         */
         EngineBody: {
-            /** @description ECDSA public key to associate with the backup engine, PEM-encoded */
-            publicKey?: string;
+            publicKeys: components["schemas"]["EnginePublicKeys"];
             /** @description name of the backup engine */
             name: string;
             /** @description description of the backup engine */
@@ -2447,7 +2539,7 @@ export interface components {
              * @description registration state for the backup engine
              * @enum {string}
              */
-            registration_state?: "pending" | "registered" | "disabled" | "revoked";
+            registration_state?: "registered" | "disabled" | "revoked";
             /**
              * Format: date-time
              * @description timestamp of the latest heartbeat or authenticated request

@@ -178,9 +178,18 @@ const (
 // Defines values for EngineRegistrationState.
 const (
 	EngineRegistrationStateDisabled   EngineRegistrationState = "disabled"
-	EngineRegistrationStatePending    EngineRegistrationState = "pending"
 	EngineRegistrationStateRegistered EngineRegistrationState = "registered"
 	EngineRegistrationStateRevoked    EngineRegistrationState = "revoked"
+)
+
+// Defines values for EngineAuthenticationPublicKeyAlgorithm.
+const (
+	Ed25519 EngineAuthenticationPublicKeyAlgorithm = "ed25519"
+)
+
+// Defines values for EngineConfigurationEncryptionPublicKeyAlgorithm.
+const (
+	X25519 EngineConfigurationEncryptionPublicKeyAlgorithm = "x25519"
 )
 
 // Defines values for EngineSummaryConfigState.
@@ -196,7 +205,6 @@ const (
 // Defines values for EngineSummaryRegistrationState.
 const (
 	EngineSummaryRegistrationStateDisabled   EngineSummaryRegistrationState = "disabled"
-	EngineSummaryRegistrationStatePending    EngineSummaryRegistrationState = "pending"
 	EngineSummaryRegistrationStateRegistered EngineSummaryRegistrationState = "registered"
 	EngineSummaryRegistrationStateRevoked    EngineSummaryRegistrationState = "revoked"
 )
@@ -1004,10 +1012,8 @@ type Engine struct {
 	LastSeen *time.Time `json:"last_seen" yaml:"last_seen"`
 
 	// Name name of the backup engine
-	Name string `json:"name" yaml:"name"`
-
-	// PublicKey ECDSA public key to associate with the backup engine, PEM-encoded
-	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
+	Name       string           `json:"name" yaml:"name"`
+	PublicKeys EnginePublicKeys `json:"publicKeys" yaml:"publicKeys"`
 
 	// RegistrationState registration state for the backup engine
 	RegistrationState *EngineRegistrationState `json:"registration_state,omitempty" yaml:"registration_state,omitempty"`
@@ -1025,7 +1031,26 @@ type EngineConfigState string
 // EngineRegistrationState registration state for the backup engine
 type EngineRegistrationState string
 
-// EngineBody information for a backup engine registration
+// EngineAuthenticationPublicKey Public key used to verify engine HTTP message signatures.
+type EngineAuthenticationPublicKey struct {
+	Algorithm  EngineAuthenticationPublicKeyAlgorithm `json:"algorithm" yaml:"algorithm"`
+	Generation uint64                                 `json:"generation" yaml:"generation"`
+
+	// KeyID Deterministic fingerprint of this public key and generation. Cloud
+	// computes this value according to the Databacker authentication
+	// profile; it is not allocated by Cloud or supplied by the client.
+	KeyID *string `json:"keyId,omitempty" yaml:"keyId,omitempty"`
+
+	// PublicKey Raw 32-byte Ed25519 public key in strict standard padded base64.
+	PublicKey string `json:"publicKey" yaml:"publicKey"`
+}
+
+// EngineAuthenticationPublicKeyAlgorithm defines model for EngineAuthenticationPublicKey.Algorithm.
+type EngineAuthenticationPublicKeyAlgorithm string
+
+// EngineBody Information for creating or updating a backup engine. Clients send the
+// complete object. On update, blank scalar values are ignored. Public-key
+// changes require a fresh proof made by the submitted authentication key.
 type EngineBody struct {
 	// AutomaticDiscoveryChargeAcknowledged Engine setup acknowledgement that newly discovered protected databases may automatically activate and incur charges only when the workspace's assigned billing customer is billing-ready. This does not override billing readiness requirements.
 	AutomaticDiscoveryChargeAcknowledged *bool `json:"automatic_discovery_charge_acknowledged" yaml:"automatic_discovery_charge_acknowledged"`
@@ -1034,10 +1059,34 @@ type EngineBody struct {
 	Description *string `json:"description,omitempty" yaml:"description,omitempty"`
 
 	// Name name of the backup engine
-	Name string `json:"name" yaml:"name"`
+	Name       string           `json:"name" yaml:"name"`
+	PublicKeys EnginePublicKeys `json:"publicKeys" yaml:"publicKeys"`
+}
 
-	// PublicKey ECDSA public key to associate with the backup engine, PEM-encoded
-	PublicKey *string `json:"publicKey,omitempty" yaml:"publicKey,omitempty"`
+// EngineConfigurationEncryptionPublicKey Public key used to encrypt configurations for the engine.
+type EngineConfigurationEncryptionPublicKey struct {
+	Algorithm  EngineConfigurationEncryptionPublicKeyAlgorithm `json:"algorithm" yaml:"algorithm"`
+	Generation uint64                                          `json:"generation" yaml:"generation"`
+
+	// KeyID Deterministic fingerprint of this public key and generation. Cloud
+	// computes this value according to the Databacker authentication
+	// profile; it is not allocated by Cloud or supplied by the client.
+	KeyID *string `json:"keyId,omitempty" yaml:"keyId,omitempty"`
+
+	// PublicKey Raw 32-byte X25519 public key in strict standard padded base64.
+	PublicKey string `json:"publicKey" yaml:"publicKey"`
+}
+
+// EngineConfigurationEncryptionPublicKeyAlgorithm defines model for EngineConfigurationEncryptionPublicKey.Algorithm.
+type EngineConfigurationEncryptionPublicKeyAlgorithm string
+
+// EnginePublicKeys defines model for EnginePublicKeys.
+type EnginePublicKeys struct {
+	// Authentication Public key used to verify engine HTTP message signatures.
+	Authentication EngineAuthenticationPublicKey `json:"authentication" yaml:"authentication"`
+
+	// ConfigurationEncryption Public key used to encrypt configurations for the engine.
+	ConfigurationEncryption EngineConfigurationEncryptionPublicKey `json:"configurationEncryption" yaml:"configurationEncryption"`
 }
 
 // EngineSummary backup engine row summary for list views

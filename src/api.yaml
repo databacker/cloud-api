@@ -49,6 +49,72 @@ x-parameters:
       type: string
     required: true
     description: Unique ID of the backup engine
+  registration_signature_input: &registration-signature-input-param
+    in: header
+    name: Signature-Input
+    schema:
+      type: string
+      maxLength: 4096
+    required: true
+    description: |
+      RFC 9421 signature parameters for immediate proof of possession of the
+      submitted engine authentication key. See auth.md.
+  registration_signature: &registration-signature-param
+    in: header
+    name: Signature
+    schema:
+      type: string
+      maxLength: 1024
+    required: true
+    description: RFC 9421 Ed25519 registration proof. See auth.md.
+  registration_content_digest: &registration-content-digest-param
+    in: header
+    name: Content-Digest
+    schema:
+      type: string
+      maxLength: 128
+    required: true
+    description: RFC 9530 SHA-256 digest of the exact request body.
+  registration_idempotency_key: &registration-idempotency-key-param
+    in: header
+    name: Idempotency-Key
+    schema:
+      type: string
+      format: uuid
+    required: true
+    description: Stable UUID reused when retrying this registration request.
+  optional_registration_signature_input: &optional-registration-signature-input-param
+    in: header
+    name: Signature-Input
+    schema:
+      type: string
+      maxLength: 4096
+    required: false
+    description: Required when PATCH changes either submitted public key. See auth.md.
+  optional_registration_signature: &optional-registration-signature-param
+    in: header
+    name: Signature
+    schema:
+      type: string
+      maxLength: 1024
+    required: false
+    description: Required when PATCH changes either submitted public key. See auth.md.
+  optional_registration_content_digest: &optional-registration-content-digest-param
+    in: header
+    name: Content-Digest
+    schema:
+      type: string
+      maxLength: 128
+    required: false
+    description: Required when PATCH changes either submitted public key. See auth.md.
+  optional_registration_idempotency_key: &optional-registration-idempotency-key-param
+    in: header
+    name: Idempotency-Key
+    schema:
+      type: string
+      format: uuid
+    required: false
+    description: Required when PATCH changes either submitted public key. See auth.md.
   database: &database-param
     in: path
     name: database
@@ -1008,11 +1074,21 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/PaginatedEngines'
     post:
-      description: register a new backup engine in the given account.
+      description: |
+        Register a new backup engine in the given account. Existing user
+        authentication authorizes the operation. The additional RFC 9421
+        signature proves immediate possession of the submitted Ed25519 private
+        key; it does not replace user authentication and creates no pending
+        registration or follow-up completion step.
       parameters:
         - *account-param
+        - *registration-signature-input-param
+        - *registration-signature-param
+        - *registration-content-digest-param
+        - *registration-idempotency-key-param
       requestBody:
         description: backup engine registration details
+        required: true
         content:
           application/json:
             schema:
@@ -1025,7 +1101,13 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/Engine'
         '400':
-          description: Invalid request
+          description: Invalid request, key material, digest, or registration proof
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '409':
+          description: The submitted authentication key is already registered
           content:
             application/json:
               schema:
@@ -1051,12 +1133,22 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/Engine'
     patch:
-      description: update a specific backup engine
+      description: |
+        Update a specific backup engine using the complete EngineBody. Blank
+        scalar values are ignored. Existing user authentication is sufficient
+        when the submitted public keys are unchanged. Changing key material
+        requires a fresh proof by the submitted authentication key; key-rotation
+        lifecycle semantics may be expanded in a later API version.
       parameters:
         - *account-param
         - *engine-param
+        - *optional-registration-signature-input-param
+        - *optional-registration-signature-param
+        - *optional-registration-content-digest-param
+        - *optional-registration-idempotency-key-param
       requestBody:
         description: backup engine updates
+        required: true
         content:
           application/json:
             schema:
@@ -1071,6 +1163,12 @@ paths:
                 $ref: './schemas.yaml#/components/schemas/Engine'
         '400':
           description: Invalid request
+          content:
+            application/json:
+              schema:
+                *error-message-schema
+        '409':
+          description: The submitted authentication key is already registered
           content:
             application/json:
               schema:
