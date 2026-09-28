@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
@@ -157,6 +158,37 @@ type GetAdminAccountsAccountEnginesParams struct {
 
 	// Limit Maximum number of results to return
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" yaml:"limit,omitempty"`
+}
+
+// PostAdminAccountsAccountEnginesParams defines parameters for PostAdminAccountsAccountEngines.
+type PostAdminAccountsAccountEnginesParams struct {
+	// SignatureInput RFC 9421 signature parameters for immediate proof of possession of the
+	// submitted engine authentication key. See auth.md.
+	SignatureInput string `json:"Signature-Input" yaml:"Signature-Input"`
+
+	// Signature RFC 9421 Ed25519 registration proof. See auth.md.
+	Signature string `json:"Signature" yaml:"Signature"`
+
+	// ContentDigest RFC 9530 SHA-256 digest of the exact request body.
+	ContentDigest string `json:"Content-Digest" yaml:"Content-Digest"`
+
+	// IdempotencyKey Stable UUID reused when retrying this registration request.
+	IdempotencyKey openapi_types.UUID `json:"Idempotency-Key" yaml:"Idempotency-Key"`
+}
+
+// PatchAdminAccountsAccountEnginesEngineParams defines parameters for PatchAdminAccountsAccountEnginesEngine.
+type PatchAdminAccountsAccountEnginesEngineParams struct {
+	// SignatureInput Required when PATCH changes either submitted public key. See auth.md.
+	SignatureInput *string `json:"Signature-Input,omitempty" yaml:"Signature-Input,omitempty"`
+
+	// Signature Required when PATCH changes either submitted public key. See auth.md.
+	Signature *string `json:"Signature,omitempty" yaml:"Signature,omitempty"`
+
+	// ContentDigest Required when PATCH changes either submitted public key. See auth.md.
+	ContentDigest *string `json:"Content-Digest,omitempty" yaml:"Content-Digest,omitempty"`
+
+	// IdempotencyKey Required when PATCH changes either submitted public key. See auth.md.
+	IdempotencyKey *openapi_types.UUID `json:"Idempotency-Key,omitempty" yaml:"Idempotency-Key,omitempty"`
 }
 
 // GetAdminAccountsAccountEnginesEngineConfigsParams defines parameters for GetAdminAccountsAccountEnginesEngineConfigs.
@@ -426,7 +458,7 @@ type ServerInterface interface {
 	GetAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params GetAdminAccountsAccountEnginesParams)
 
 	// (POST /admin/accounts/{account}/engines)
-	PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string)
+	PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params PostAdminAccountsAccountEnginesParams)
 
 	// (DELETE /admin/accounts/{account}/engines/{engine})
 	DeleteAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string)
@@ -435,7 +467,7 @@ type ServerInterface interface {
 	GetAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string)
 
 	// (PATCH /admin/accounts/{account}/engines/{engine})
-	PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string)
+	PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string, params PatchAdminAccountsAccountEnginesEngineParams)
 
 	// (GET /admin/accounts/{account}/engines/{engine}/configs)
 	GetAdminAccountsAccountEnginesEngineConfigs(w http.ResponseWriter, r *http.Request, account string, engine string, params GetAdminAccountsAccountEnginesEngineConfigsParams)
@@ -680,7 +712,7 @@ func (_ Unimplemented) GetAdminAccountsAccountEngines(w http.ResponseWriter, r *
 }
 
 // (POST /admin/accounts/{account}/engines)
-func (_ Unimplemented) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string) {
+func (_ Unimplemented) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params PostAdminAccountsAccountEnginesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -695,7 +727,7 @@ func (_ Unimplemented) GetAdminAccountsAccountEnginesEngine(w http.ResponseWrite
 }
 
 // (PATCH /admin/accounts/{account}/engines/{engine})
-func (_ Unimplemented) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
+func (_ Unimplemented) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string, params PatchAdminAccountsAccountEnginesEngineParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -2187,8 +2219,105 @@ func (siw *ServerInterfaceWrapper) PostAdminAccountsAccountEngines(w http.Respon
 
 	r = r.WithContext(ctx)
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PostAdminAccountsAccountEnginesParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "Signature-Input" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Signature-Input")]; found {
+		var SignatureInput string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Signature-Input", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Signature-Input", valueList[0], &SignatureInput, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Signature-Input", Err: err})
+			return
+		}
+
+		params.SignatureInput = SignatureInput
+
+	} else {
+		err := fmt.Errorf("Header parameter Signature-Input is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Signature-Input", Err: err})
+		return
+	}
+
+	// ------------- Required header parameter "Signature" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Signature")]; found {
+		var Signature string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Signature", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Signature", valueList[0], &Signature, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Signature", Err: err})
+			return
+		}
+
+		params.Signature = Signature
+
+	} else {
+		err := fmt.Errorf("Header parameter Signature is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Signature", Err: err})
+		return
+	}
+
+	// ------------- Required header parameter "Content-Digest" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Content-Digest")]; found {
+		var ContentDigest string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Content-Digest", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Content-Digest", valueList[0], &ContentDigest, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Content-Digest", Err: err})
+			return
+		}
+
+		params.ContentDigest = ContentDigest
+
+	} else {
+		err := fmt.Errorf("Header parameter Content-Digest is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Content-Digest", Err: err})
+		return
+	}
+
+	// ------------- Required header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey openapi_types.UUID
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: true})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = IdempotencyKey
+
+	} else {
+		err := fmt.Errorf("Header parameter Idempotency-Key is required, but not found")
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{ParamName: "Idempotency-Key", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostAdminAccountsAccountEngines(w, r, account)
+		siw.Handler.PostAdminAccountsAccountEngines(w, r, account, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2307,8 +2436,89 @@ func (siw *ServerInterfaceWrapper) PatchAdminAccountsAccountEnginesEngine(w http
 
 	r = r.WithContext(ctx)
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PatchAdminAccountsAccountEnginesEngineParams
+
+	headers := r.Header
+
+	// ------------- Optional header parameter "Signature-Input" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Signature-Input")]; found {
+		var SignatureInput string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Signature-Input", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Signature-Input", valueList[0], &SignatureInput, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Signature-Input", Err: err})
+			return
+		}
+
+		params.SignatureInput = &SignatureInput
+
+	}
+
+	// ------------- Optional header parameter "Signature" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Signature")]; found {
+		var Signature string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Signature", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Signature", valueList[0], &Signature, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Signature", Err: err})
+			return
+		}
+
+		params.Signature = &Signature
+
+	}
+
+	// ------------- Optional header parameter "Content-Digest" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Content-Digest")]; found {
+		var ContentDigest string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Content-Digest", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Content-Digest", valueList[0], &ContentDigest, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Content-Digest", Err: err})
+			return
+		}
+
+		params.ContentDigest = &ContentDigest
+
+	}
+
+	// ------------- Optional header parameter "Idempotency-Key" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("Idempotency-Key")]; found {
+		var IdempotencyKey openapi_types.UUID
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Idempotency-Key", Count: n})
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "Idempotency-Key", valueList[0], &IdempotencyKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false})
+		if err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Idempotency-Key", Err: err})
+			return
+		}
+
+		params.IdempotencyKey = &IdempotencyKey
+
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PatchAdminAccountsAccountEnginesEngine(w, r, account, engine)
+		siw.Handler.PatchAdminAccountsAccountEnginesEngine(w, r, account, engine, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -4694,6 +4904,7 @@ func (response GetAdminAccountsAccountEngines404Response) VisitGetAdminAccountsA
 
 type PostAdminAccountsAccountEnginesRequestObject struct {
 	Account string `json:"account"`
+	Params  PostAdminAccountsAccountEnginesParams
 	Body    *PostAdminAccountsAccountEnginesJSONRequestBody
 }
 
@@ -4717,6 +4928,17 @@ type PostAdminAccountsAccountEngines400JSONResponse struct {
 func (response PostAdminAccountsAccountEngines400JSONResponse) VisitPostAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type PostAdminAccountsAccountEngines409JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PostAdminAccountsAccountEngines409JSONResponse) VisitPostAdminAccountsAccountEnginesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -4786,6 +5008,7 @@ func (response GetAdminAccountsAccountEnginesEngine404Response) VisitGetAdminAcc
 type PatchAdminAccountsAccountEnginesEngineRequestObject struct {
 	Account string `json:"account"`
 	Engine  string `json:"engine"`
+	Params  PatchAdminAccountsAccountEnginesEngineParams
 	Body    *PatchAdminAccountsAccountEnginesEngineJSONRequestBody
 }
 
@@ -4819,6 +5042,17 @@ type PatchAdminAccountsAccountEnginesEngine404Response struct {
 func (response PatchAdminAccountsAccountEnginesEngine404Response) VisitPatchAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
+}
+
+type PatchAdminAccountsAccountEnginesEngine409JSONResponse struct {
+	Message *string `json:"message,omitempty" yaml:"message,omitempty"`
+}
+
+func (response PatchAdminAccountsAccountEnginesEngine409JSONResponse) VisitPatchAdminAccountsAccountEnginesEngineResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type GetAdminAccountsAccountEnginesEngineConfigsRequestObject struct {
@@ -6890,10 +7124,11 @@ func (sh *strictHandler) GetAdminAccountsAccountEngines(w http.ResponseWriter, r
 }
 
 // PostAdminAccountsAccountEngines operation middleware
-func (sh *strictHandler) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string) {
+func (sh *strictHandler) PostAdminAccountsAccountEngines(w http.ResponseWriter, r *http.Request, account string, params PostAdminAccountsAccountEnginesParams) {
 	var request PostAdminAccountsAccountEnginesRequestObject
 
 	request.Account = account
+	request.Params = params
 
 	var body PostAdminAccountsAccountEnginesJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -6977,11 +7212,12 @@ func (sh *strictHandler) GetAdminAccountsAccountEnginesEngine(w http.ResponseWri
 }
 
 // PatchAdminAccountsAccountEnginesEngine operation middleware
-func (sh *strictHandler) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string) {
+func (sh *strictHandler) PatchAdminAccountsAccountEnginesEngine(w http.ResponseWriter, r *http.Request, account string, engine string, params PatchAdminAccountsAccountEnginesEngineParams) {
 	var request PatchAdminAccountsAccountEnginesEngineRequestObject
 
 	request.Account = account
 	request.Engine = engine
+	request.Params = params
 
 	var body PatchAdminAccountsAccountEnginesEngineJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {

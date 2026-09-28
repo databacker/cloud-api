@@ -1,0 +1,12 @@
+{
+  "authenticationKeyId": "auth:10ae5b498547bbbb760358b0f2ee659ccbf17e8858263eff0c06225c6ebbaf3e",
+  "authenticationPublicKeyBase64": "bCfocojhXze28IS3hlHnttC+OO469HweOvPruf3q8wY=",
+  "body": "{\"name\":\"fixture-engine\",\"description\":\"Fixture registration\",\"publicKeys\":{\"authentication\":{\"algorithm\":\"ed25519\",\"generation\":1,\"publicKey\":\"bCfocojhXze28IS3hlHnttC+OO469HweOvPruf3q8wY=\"},\"configurationEncryption\":{\"algorithm\":\"x25519\",\"generation\":1,\"publicKey\":\"XwG2fwzzSPppHov/SmmQ2SlsfbgAqscGd+UztjrLOEo=\"}}}",
+  "contentDigest": "sha-256=:Dbgi/FOEu12LsF3Mu/XvGHSSIgqrx/lxp8i0QpuFF6Y=:",
+  "configurationKeyId": "config:5be9cbe48dcffda73ffc1befe2993e080f19c3af4cececba34016079e948c45a",
+  "configurationPublicKeyBase64": "XwG2fwzzSPppHov/SmmQ2SlsfbgAqscGd+UztjrLOEo=",
+  "idempotencyKey": "550e8400-e29b-41d4-a716-446655440000",
+  "signatureBase": "\"@method\": POST\n\"@authority\": cloud.example\n\"@path\": /admin/accounts/account-123/engines\n\"@query\": ?\n\"content-digest\";sf: sha-256=:Dbgi/FOEu12LsF3Mu/XvGHSSIgqrx/lxp8i0QpuFF6Y=:\n\"content-type\": application/json\n\"idempotency-key\": 550e8400-e29b-41d4-a716-446655440000\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"@query\" \"content-digest\";sf \"content-type\" \"idempotency-key\");created=1700000000;expires=1700000300;keyid=\"auth:10ae5b498547bbbb760358b0f2ee659ccbf17e8858263eff0c06225c6ebbaf3e\";nonce=\"oKGio6SlpqeoqaqrrK2urw\";tag=\"databacker-engine-registration-v1\"",
+  "signatureBase64": "dUmpW++ljDtcSfLr1BojHFEdmqFazPjPVqgq4qumF0k2K+dMiiQZWKnhwiHETlLXHeRf/y6pH0PPqMYVy8wIAw==",
+  "signatureInput": "databacker-engine=(\"@method\" \"@authority\" \"@path\" \"@query\" \"content-digest\";sf \"content-type\" \"idempotency-key\");created=1700000000;expires=1700000300;keyid=\"auth:10ae5b498547bbbb760358b0f2ee659ccbf17e8858263eff0c06225c6ebbaf3e\";nonce=\"oKGio6SlpqeoqaqrrK2urw\";tag=\"databacker-engine-registration-v1\""
+}
